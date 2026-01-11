@@ -1,25 +1,25 @@
-import React from 'react';
-import { StyleSheet, ViewStyle, Platform } from 'react-native';
-import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
+import { useTheme } from "@/contexts/ThemeContext";
+import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import React from "react";
+import { Platform, StyleSheet, ViewStyle } from "react-native";
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withSpring,
   withTiming,
-} from 'react-native-reanimated';
-import { useTheme } from '@/contexts/ThemeContext';
+} from "react-native-reanimated";
 
 interface GlassContainerProps {
   children: React.ReactNode;
   style?: ViewStyle;
-  intensity?: 'light' | 'medium' | 'heavy';
+  intensity?: "light" | "medium" | "heavy";
   animated?: boolean;
 }
 
 export function GlassContainer({
   children,
   style,
-  intensity = 'medium',
+  intensity = "medium",
   animated = false,
 }: GlassContainerProps) {
   const { theme } = useTheme();
@@ -48,7 +48,7 @@ export function GlassContainer({
   const [isAvailable, setIsAvailable] = React.useState(false);
 
   React.useEffect(() => {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === "ios") {
       try {
         setIsAvailable(isLiquidGlassAvailable());
       } catch {
@@ -60,10 +60,10 @@ export function GlassContainer({
   if (isAvailable) {
     // Map our intensity prop to GlassView's style prop
     // 'clear' for light, 'regular' for medium/heavy
-    const glassEffectStyle = intensity === 'light' ? 'clear' : 'regular';
-    
+    const glassEffectStyle = intensity === "light" ? "clear" : "regular";
+
     return (
-      <Animated.View style={[animatedStyle, style]}>
+      <Animated.View style={animatedStyle}>
         <GlassView
           glassEffectStyle={glassEffectStyle}
           style={[styles.glassContainer, style]}
@@ -77,8 +77,8 @@ export function GlassContainer({
 
   // Fallback for other platforms
   const fallbackBackgroundColor = theme.isDark
-    ? 'rgba(255, 255, 255, 0.05)'
-    : 'rgba(0, 0, 0, 0.03)';
+    ? "rgba(255, 255, 255, 0.05)"
+    : "rgba(0, 0, 0, 0.03)";
 
   return (
     <Animated.View
@@ -96,9 +96,9 @@ export function GlassContainer({
 
 const styles = StyleSheet.create({
   glassContainer: {
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   fallbackContainer: {
-    overflow: 'hidden',
+    overflow: "hidden",
   },
 });

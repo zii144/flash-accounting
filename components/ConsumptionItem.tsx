@@ -119,6 +119,7 @@ export function ConsumptionItem({
 const styles = StyleSheet.create({
   outerContainer: {
     marginHorizontal: 16,
+    marginVertical: 8,
   },
   wrapper: {
     width: "100%",

@@ -136,66 +136,71 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
               keyboardType="decimal-pad"
               autoFocus
             />
-            <View style={styles.descriptionContainer}>
-              <TextInput
-                style={[
-                  styles.descriptionInput,
-                  { color: theme.text, borderColor: theme.border },
-                  isListening && styles.descriptionInputListening,
-                ]}
-                placeholder="Description (optional)"
-                placeholderTextColor={theme.textSecondary}
-                value={description}
-                onChangeText={setDescription}
-                returnKeyType="done"
-                onSubmitEditing={handleSubmit}
-              />
-              {isAvailable && (
-                <TouchableOpacity
+            <GlassContainer
+              intensity="light"
+              style={styles.descriptionContainer}
+            >
+              <View style={styles.descriptionContent}>
+                <TextInput
                   style={[
-                    styles.micButton,
-                    {
-                      backgroundColor: isListening
-                        ? theme.foreground
-                        : theme.border,
-                    },
+                    styles.descriptionInput,
+                    { color: theme.text },
+                    isListening && styles.descriptionInputListening,
                   ]}
-                  onPress={handleMicPress}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons
-                    name={isListening ? "mic" : "mic-outline"}
-                    size={20}
-                    color={isListening ? theme.background : theme.text}
-                  />
-                </TouchableOpacity>
-              )}
-              {isListening && (
-                <View style={styles.listeningIndicator}>
-                  <View
+                  placeholder="Description (optional)"
+                  placeholderTextColor={theme.textSecondary}
+                  value={description}
+                  onChangeText={setDescription}
+                  returnKeyType="done"
+                  onSubmitEditing={handleSubmit}
+                />
+                {isAvailable && (
+                  <TouchableOpacity
                     style={[
-                      styles.listeningDot,
-                      { backgroundColor: theme.foreground },
-                      styles.listeningDot1,
+                      styles.micButton,
+                      {
+                        backgroundColor: isListening
+                          ? theme.foreground
+                          : theme.border,
+                      },
                     ]}
-                  />
-                  <View
-                    style={[
-                      styles.listeningDot,
-                      { backgroundColor: theme.foreground },
-                      styles.listeningDot2,
-                    ]}
-                  />
-                  <View
-                    style={[
-                      styles.listeningDot,
-                      { backgroundColor: theme.foreground },
-                      styles.listeningDot3,
-                    ]}
-                  />
-                </View>
-              )}
-            </View>
+                    onPress={handleMicPress}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name={isListening ? "mic" : "mic-outline"}
+                      size={20}
+                      color={isListening ? theme.background : theme.text}
+                    />
+                  </TouchableOpacity>
+                )}
+                {isListening && (
+                  <View style={styles.listeningIndicator}>
+                    <View
+                      style={[
+                        styles.listeningDot,
+                        { backgroundColor: theme.foreground },
+                        styles.listeningDot1,
+                      ]}
+                    />
+                    <View
+                      style={[
+                        styles.listeningDot,
+                        { backgroundColor: theme.foreground },
+                        styles.listeningDot2,
+                      ]}
+                    />
+                    <View
+                      style={[
+                        styles.listeningDot,
+                        { backgroundColor: theme.foreground },
+                        styles.listeningDot3,
+                      ]}
+                    />
+                  </View>
+                )}
+              </View>
+            </GlassContainer>
             <TouchableOpacity
               style={[
                 styles.submitButton,
@@ -246,19 +251,26 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     padding: 16,
     borderRadius: 12,
-    borderWidth: 0.5,
+    borderWidth: 1,
     textAlign: "center",
     backgroundColor: "transparent",
+    minHeight: 56,
   },
   descriptionContainer: {
     position: "relative",
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+  descriptionContent: {
+    position: "relative",
+    borderRadius: 16,
+    overflow: "hidden",
   },
   descriptionInput: {
     fontSize: 16,
     padding: 16,
     paddingRight: 50,
-    borderRadius: 12,
-    borderWidth: 0.5,
+    borderWidth: 0,
     backgroundColor: "transparent",
   },
   descriptionInputListening: {
