@@ -79,15 +79,17 @@ export function GlassTabBar({ activeTab, onTabChange }: GlassTabBarProps) {
 
   const accountingSegmentStyle = useAnimatedStyle(() => {
     return {
-      shadowOpacity: accountingProgress.value * 0.2,
+      shadowOpacity: accountingProgress.value * (theme.isDark ? 0.3 : 0.15),
       elevation: accountingProgress.value * 2,
+      shadowColor: theme.isDark ? theme.foreground : "#000",
     };
   });
 
   const statisticsSegmentStyle = useAnimatedStyle(() => {
     return {
-      shadowOpacity: statisticsProgress.value * 0.2,
+      shadowOpacity: statisticsProgress.value * (theme.isDark ? 0.3 : 0.15),
       elevation: statisticsProgress.value * 2,
+      shadowColor: theme.isDark ? theme.foreground : "#000",
     };
   });
 
@@ -238,7 +240,6 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 22,
-    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 3,
