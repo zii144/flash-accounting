@@ -51,9 +51,9 @@ export default function Index() {
         renderItem={({ item }) => (
           <ConsumptionItem consumption={item} onDelete={deleteConsumption} />
         )}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={{ paddingBottom: 220 }}
         showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={{ height: 4 }} />}
+        ItemSeparatorComponent={() => <View style={{ height: 0 }} />}
         ListEmptyComponent={
           !isLoading ? (
             <View style={styles.emptyContainer}>
@@ -92,11 +92,6 @@ const styles = StyleSheet.create({
   total: {
     fontSize: 18,
     fontWeight: "500",
-  },
-  listContent: {
-    paddingTop: 8,
-    paddingBottom: 20,
-    paddingHorizontal: 4,
   },
   emptyContainer: {
     paddingTop: 60,
