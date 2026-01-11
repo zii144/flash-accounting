@@ -122,13 +122,10 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
       style={styles.container}
     >
       <Animated.View style={listeningStyle}>
-        <GlassContainer intensity="light">
-          <View style={styles.form}>
+        <GlassContainer intensity="medium" style={styles.form}>
+          <GlassContainer intensity="light" style={styles.amountContainer}>
             <TextInput
-              style={[
-                styles.amountInput,
-                { color: theme.text, borderColor: theme.border },
-              ]}
+              style={[styles.amountInput, { color: theme.text }]}
               placeholder="Amount"
               placeholderTextColor={theme.textSecondary}
               value={amount}
@@ -136,99 +133,97 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
               keyboardType="decimal-pad"
               autoFocus
             />
-            <GlassContainer
-              intensity="light"
-              style={styles.descriptionContainer}
-            >
-              <View style={styles.descriptionContent}>
-                <TextInput
+          </GlassContainer>
+          <GlassContainer intensity="light" style={styles.descriptionContainer}>
+            <View style={styles.descriptionContent}>
+              <TextInput
+                style={[
+                  styles.descriptionInput,
+                  { color: theme.text },
+                  isListening && styles.descriptionInputListening,
+                ]}
+                placeholder="Description (optional)"
+                placeholderTextColor={theme.textSecondary}
+                value={description}
+                onChangeText={setDescription}
+                returnKeyType="done"
+                onSubmitEditing={handleSubmit}
+              />
+              {isAvailable && (
+                <TouchableOpacity
                   style={[
-                    styles.descriptionInput,
-                    { color: theme.text },
-                    isListening && styles.descriptionInputListening,
+                    styles.micButton,
+                    {
+                      backgroundColor: isListening
+                        ? theme.foreground
+                        : theme.border,
+                    },
                   ]}
-                  placeholder="Description (optional)"
-                  placeholderTextColor={theme.textSecondary}
-                  value={description}
-                  onChangeText={setDescription}
-                  returnKeyType="done"
-                  onSubmitEditing={handleSubmit}
-                />
-                {isAvailable && (
-                  <TouchableOpacity
+                  onPress={handleMicPress}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name={isListening ? "mic" : "mic-outline"}
+                    size={20}
+                    color={isListening ? theme.background : theme.text}
+                  />
+                </TouchableOpacity>
+              )}
+              {isListening && (
+                <View style={styles.listeningIndicator}>
+                  <View
                     style={[
-                      styles.micButton,
-                      {
-                        backgroundColor: isListening
-                          ? theme.foreground
-                          : theme.border,
-                      },
+                      styles.listeningDot,
+                      { backgroundColor: theme.foreground },
+                      styles.listeningDot1,
                     ]}
-                    onPress={handleMicPress}
-                    activeOpacity={0.7}
-                  >
-                    <Ionicons
-                      name={isListening ? "mic" : "mic-outline"}
-                      size={20}
-                      color={isListening ? theme.background : theme.text}
-                    />
-                  </TouchableOpacity>
-                )}
-                {isListening && (
-                  <View style={styles.listeningIndicator}>
-                    <View
-                      style={[
-                        styles.listeningDot,
-                        { backgroundColor: theme.foreground },
-                        styles.listeningDot1,
-                      ]}
-                    />
-                    <View
-                      style={[
-                        styles.listeningDot,
-                        { backgroundColor: theme.foreground },
-                        styles.listeningDot2,
-                      ]}
-                    />
-                    <View
-                      style={[
-                        styles.listeningDot,
-                        { backgroundColor: theme.foreground },
-                        styles.listeningDot3,
-                      ]}
-                    />
-                  </View>
-                )}
-              </View>
-            </GlassContainer>
-            <TouchableOpacity
+                  />
+                  <View
+                    style={[
+                      styles.listeningDot,
+                      { backgroundColor: theme.foreground },
+                      styles.listeningDot2,
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.listeningDot,
+                      { backgroundColor: theme.foreground },
+                      styles.listeningDot3,
+                    ]}
+                  />
+                </View>
+              )}
+            </View>
+          </GlassContainer>
+          <TouchableOpacity
+            style={[
+              styles.submitButton,
+              !isSubmitDisabled && styles.submitButtonActive,
+              {
+                backgroundColor: isSubmitDisabled
+                  ? "transparent"
+                  : theme.isDark
+                  ? "rgba(255, 255, 255, 0.15)"
+                  : "rgba(255, 255, 255, 0.9)",
+              },
+            ]}
+            onPress={handleSubmit}
+            disabled={isSubmitDisabled}
+            activeOpacity={0.8}
+          >
+            <Text
               style={[
-                styles.submitButton,
+                styles.submitText,
                 {
-                  backgroundColor: isSubmitDisabled
-                    ? theme.border
-                    : theme.foreground,
-                  opacity: isSubmitDisabled ? 0.5 : 1,
+                  color: isSubmitDisabled ? theme.textSecondary : theme.text,
+                  fontWeight: isSubmitDisabled ? "500" : "700",
                 },
               ]}
-              onPress={handleSubmit}
-              disabled={isSubmitDisabled}
-              activeOpacity={0.8}
             >
-              <Text
-                style={[
-                  styles.submitText,
-                  {
-                    color: isSubmitDisabled
-                      ? theme.textSecondary
-                      : theme.background,
-                  },
-                ]}
-              >
-                Add
-              </Text>
-            </TouchableOpacity>
-          </View>
+              Add
+            </Text>
+          </TouchableOpacity>
         </GlassContainer>
       </Animated.View>
     </KeyboardAvoidingView>
@@ -242,16 +237,19 @@ const styles = StyleSheet.create({
   },
   form: {
     borderRadius: 16,
-    padding: 20,
-    gap: 16,
-    borderWidth: 0,
+    padding: 16,
+    gap: 12,
+  },
+  amountContainer: {
+    borderRadius: 12,
+    overflow: "hidden",
   },
   amountInput: {
     fontSize: 24,
     fontWeight: "600",
     padding: 16,
     borderRadius: 12,
-    borderWidth: 1,
+    borderWidth: 0,
     textAlign: "center",
     backgroundColor: "transparent",
     minHeight: 56,
@@ -311,13 +309,20 @@ const styles = StyleSheet.create({
     opacity: 1,
   },
   submitButton: {
-    padding: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
     borderRadius: 12,
     alignItems: "center",
     overflow: "hidden",
   },
+  submitButtonActive: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
   submitText: {
     fontSize: 16,
-    fontWeight: "600",
   },
 });
