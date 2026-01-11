@@ -1,8 +1,11 @@
 import { GlassContainer } from "@/components/GlassContainer";
+import { SettingsModal } from "@/components/SettingsModal";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import React, { useMemo, useState } from "react";
 import {
   FlatList,
@@ -26,9 +29,11 @@ interface GroupedConsumption {
 
 export function StatisticsView() {
   const { theme } = useTheme();
+  const { language, t } = useLanguage();
   const { consumptions } = useConsumptionStorage();
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
+  const [settingsVisible, setSettingsVisible] = useState(false);
 
   // Filter consumptions by time
   const filteredConsumptions = useMemo(() => {
@@ -102,15 +107,26 @@ export function StatisticsView() {
 
         let dateLabel = "";
         if (dateObj.toDateString() === today.toDateString()) {
-          dateLabel = "Today";
+          dateLabel = t("today_label");
         } else if (dateObj.toDateString() === yesterday.toDateString()) {
-          dateLabel = "Yesterday";
+          dateLabel = t("yesterday");
         } else {
-          dateLabel = dateObj.toLocaleDateString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-          });
+          const localeMap: Record<string, string> = {
+            en: "en-US",
+            zh: "zh-CN",
+            es: "es-ES",
+            fr: "fr-FR",
+            de: "de-DE",
+            ja: "ja-JP",
+          };
+          dateLabel = dateObj.toLocaleDateString(
+            localeMap[language] || "en-US",
+            {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+            }
+          );
         }
 
         return {
@@ -121,7 +137,7 @@ export function StatisticsView() {
         } as GroupedConsumption;
       })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [sortedConsumptions]);
+  }, [sortedConsumptions, language, t]);
 
   // Group by month
   const groupedByMonth = useMemo(() => {
@@ -140,10 +156,21 @@ export function StatisticsView() {
     return Object.entries(groups)
       .map(([key, items]) => {
         const dateObj = new Date(items[0].date);
-        const dateLabel = dateObj.toLocaleDateString("en-US", {
-          month: "long",
-          year: "numeric",
-        });
+        const localeMap: Record<string, string> = {
+          en: "en-US",
+          zh: "zh-CN",
+          es: "es-ES",
+          fr: "fr-FR",
+          de: "de-DE",
+          ja: "ja-JP",
+        };
+        const dateLabel = dateObj.toLocaleDateString(
+          localeMap[language] || "en-US",
+          {
+            month: "long",
+            year: "numeric",
+          }
+        );
 
         return {
           date: key,
@@ -153,7 +180,7 @@ export function StatisticsView() {
         } as GroupedConsumption;
       })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [sortedConsumptions]);
+  }, [sortedConsumptions, language]);
 
   const [viewMode, setViewMode] = useState<"day" | "month">("day");
   const displayData = viewMode === "day" ? groupedByDay : groupedByMonth;
@@ -165,18 +192,32 @@ export function StatisticsView() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={styles.header}>
+        <Text style={[styles.title, { color: theme.text }]}>
+          {t("statistics")}
+        </Text>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            setSettingsVisible(true);
+          }}
+        >
+          <GlassContainer intensity="medium" style={styles.settingsGlass}>
+            <Ionicons name="settings-outline" size={20} color={theme.text} />
+          </GlassContainer>
+        </TouchableOpacity>
+      </View>
       <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <Text style={[styles.title, { color: theme.text }]}>Statistics</Text>
-
         {/* Summary Cards */}
         <View style={styles.statsContainer}>
           <GlassContainer intensity="light" style={styles.statCard}>
             <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
-              Total
+              {t("total")}
             </Text>
             <Text style={[styles.statValue, { color: theme.text }]}>
               ${totalAmount.toFixed(2)}
@@ -185,7 +226,7 @@ export function StatisticsView() {
 
           <GlassContainer intensity="light" style={styles.statCard}>
             <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
-              Count
+              {t("count")}
             </Text>
             <Text style={[styles.statValue, { color: theme.text }]}>
               {filteredConsumptions.length}
@@ -219,7 +260,7 @@ export function StatisticsView() {
                 },
               ]}
             >
-              By Day
+              {t("byDay")}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -247,7 +288,7 @@ export function StatisticsView() {
                 },
               ]}
             >
-              By Month
+              {t("byMonth")}
             </Text>
           </TouchableOpacity>
         </GlassContainer>
@@ -256,7 +297,7 @@ export function StatisticsView() {
         <View style={styles.filtersContainer}>
           <GlassContainer intensity="light" style={styles.filterRow}>
             <Text style={[styles.filterLabel, { color: theme.textSecondary }]}>
-              Time:
+              {t("time")}:
             </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.filterButtons}>
@@ -284,7 +325,7 @@ export function StatisticsView() {
                         },
                       ]}
                     >
-                      {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                      {t(filter)}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -294,7 +335,7 @@ export function StatisticsView() {
 
           <GlassContainer intensity="light" style={styles.filterRow}>
             <Text style={[styles.filterLabel, { color: theme.textSecondary }]}>
-              Sort:
+              {t("sort")}:
             </Text>
             <TouchableOpacity
               style={styles.sortButton}
@@ -324,12 +365,12 @@ export function StatisticsView() {
               />
               <Text style={[styles.sortButtonText, { color: theme.text }]}>
                 {sortOption === "date-desc"
-                  ? "Newest"
+                  ? t("newest")
                   : sortOption === "date-asc"
-                  ? "Oldest"
+                  ? t("oldest")
                   : sortOption === "amount-desc"
-                  ? "Highest"
-                  : "Lowest"}
+                  ? t("highest")
+                  : t("lowest")}
               </Text>
             </TouchableOpacity>
           </GlassContainer>
@@ -355,7 +396,7 @@ export function StatisticsView() {
                     style={[styles.groupCount, { color: theme.textSecondary }]}
                   >
                     {item.consumptions.length}{" "}
-                    {item.consumptions.length === 1 ? "item" : "items"}
+                    {item.consumptions.length === 1 ? t("item") : t("items")}
                   </Text>
                 </View>
                 <Text style={[styles.groupTotal, { color: theme.text }]}>
@@ -392,10 +433,23 @@ export function StatisticsView() {
                       { color: theme.textSecondary },
                     ]}
                   >
-                    {new Date(consumption.date).toLocaleTimeString("en-US", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {new Date(consumption.date).toLocaleTimeString(
+                      language === "en"
+                        ? "en-US"
+                        : language === "zh"
+                        ? "zh-CN"
+                        : language === "es"
+                        ? "es-ES"
+                        : language === "fr"
+                        ? "fr-FR"
+                        : language === "de"
+                        ? "de-DE"
+                        : "ja-JP",
+                      {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }
+                    )}
                   </Text>
                 </View>
               ))}
@@ -405,12 +459,18 @@ export function StatisticsView() {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
-                No consumptions found
+                {t("noConsumptions")}
               </Text>
             </View>
           }
         />
       </ScrollView>
+
+      <SettingsModal
+        visible={settingsVisible}
+        onClose={() => setSettingsVisible(false)}
+        consumptions={consumptions}
+      />
     </View>
   );
 }
@@ -419,18 +479,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 4,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    letterSpacing: -0.5,
+    flex: 1,
+  },
+  settingsButton: {
+    marginLeft: 12,
+  },
+  settingsGlass: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   content: {
     flex: 1,
   },
   scrollContent: {
     padding: 16,
+    paddingTop: 12,
     paddingBottom: 140,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    marginBottom: 20,
-    letterSpacing: -0.5,
   },
   statsContainer: {
     flexDirection: "row",

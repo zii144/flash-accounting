@@ -1,15 +1,18 @@
 import { Stack } from "expo-router";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
 export default function RootLayout() {
   return (
     <ThemeProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: 'transparent' },
-        }}
-      />
+      <LanguageProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: 'transparent' },
+          }}
+        />
+      </LanguageProvider>
     </ThemeProvider>
   );
 }
