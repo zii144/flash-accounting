@@ -122,7 +122,7 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
       style={styles.container}
     >
       <Animated.View style={listeningStyle}>
-        <GlassContainer intensity="medium" animated>
+        <GlassContainer intensity="light">
           <View style={styles.form}>
             <TextInput
               style={[
