@@ -1,19 +1,51 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type Language = "en" | "zh" | "es" | "fr" | "de" | "ja";
+type Language = "en" | "zh" | "es" | "fr" | "de" | "ja" | "device";
+type ResolvedLanguage = "en" | "zh" | "es" | "fr" | "de" | "ja";
 
 interface LanguageContextType {
   language: Language;
+  resolvedLanguage: ResolvedLanguage;
   setLanguage: (lang: Language) => Promise<void>;
   t: (key: string) => string;
 }
 
-const translations: Record<Language, Record<string, string>> = {
+// Detect device locale and map to supported languages
+const getDeviceLanguage = (): ResolvedLanguage => {
+  try {
+    const locale = Intl.DateTimeFormat().resolvedOptions().locale;
+    const langCode = locale.split("-")[0].toLowerCase();
+
+    // Map device language codes to our supported languages
+    const languageMap: Record<string, ResolvedLanguage> = {
+      en: "en",
+      zh: "zh",
+      es: "es",
+      fr: "fr",
+      de: "de",
+      ja: "ja",
+    };
+
+    return languageMap[langCode] || "en";
+  } catch {
+    return "en";
+  }
+};
+
+const translations: Record<ResolvedLanguage, Record<string, string>> = {
   en: {
+    accounting: "Accounting",
     statistics: "Statistics",
     total: "Total",
     count: "Count",
+    flashAccounting: "Flash Accounting",
+    noConsumptionsYet: "No consumptions yet",
+    addFirstExpense: "Add your first expense above",
+    amount: "Amount",
+    description: "Description (optional)",
+    noDescription: "No description",
+    add: "Add",
     byDay: "By Day",
     byMonth: "By Month",
     time: "Time",
@@ -40,26 +72,35 @@ const translations: Record<Language, Record<string, string>> = {
     cancel: "Cancel",
     confirm: "Confirm",
     english: "English",
-    chinese: "Chinese",
+    chinese: "Traditional Chinese",
     spanish: "Spanish",
     french: "French",
     german: "German",
     japanese: "Japanese",
+    device: "Device Language",
     exportSuccess: "CSV exported successfully!",
     exportError: "Failed to export CSV",
     clearSuccess: "History cleared successfully",
   },
   zh: {
-    statistics: "统计",
-    total: "总计",
-    count: "数量",
+    accounting: "記帳",
+    statistics: "統計",
+    total: "總計",
+    count: "數量",
+    flashAccounting: "閃速記帳",
+    noConsumptionsYet: "尚無消費記錄",
+    addFirstExpense: "請在上方新增您的第一筆支出",
+    amount: "金額",
+    description: "描述（選填）",
+    noDescription: "無描述",
+    add: "新增",
     byDay: "按日",
     byMonth: "按月",
-    time: "时间",
+    time: "時間",
     sort: "排序",
     all: "全部",
     today: "今天",
-    week: "本周",
+    week: "本週",
     month: "本月",
     year: "今年",
     newest: "最新",
@@ -68,30 +109,39 @@ const translations: Record<Language, Record<string, string>> = {
     lowest: "最低",
     today_label: "今天",
     yesterday: "昨天",
-    items: "项",
-    item: "项",
-    noConsumptions: "未找到消费记录",
-    settings: "设置",
-    exportCSV: "导出为 CSV",
-    selectLanguage: "选择语言",
-    clearHistory: "清除所有历史",
-    clearHistoryConfirm: "确定要清除所有历史吗？",
+    items: "項",
+    item: "項",
+    noConsumptions: "未找到消費記錄",
+    settings: "設定",
+    exportCSV: "匯出為 CSV",
+    selectLanguage: "選擇語言",
+    clearHistory: "清除所有歷史",
+    clearHistoryConfirm: "確定要清除所有歷史嗎？",
     cancel: "取消",
-    confirm: "确认",
-    english: "英语",
-    chinese: "中文",
-    spanish: "西班牙语",
-    french: "法语",
-    german: "德语",
-    japanese: "日语",
-    exportSuccess: "CSV 导出成功！",
-    exportError: "导出 CSV 失败",
-    clearSuccess: "历史记录已清除",
+    confirm: "確認",
+    english: "英語",
+    chinese: "繁體中文",
+    spanish: "西班牙語",
+    french: "法語",
+    german: "德語",
+    japanese: "日語",
+    device: "裝置語言",
+    exportSuccess: "CSV 匯出成功！",
+    exportError: "匯出 CSV 失敗",
+    clearSuccess: "歷史記錄已清除",
   },
   es: {
+    accounting: "Contabilidad",
     statistics: "Estadísticas",
     total: "Total",
     count: "Cantidad",
+    flashAccounting: "Contabilidad Rápida",
+    noConsumptionsYet: "Aún no hay consumos",
+    addFirstExpense: "Agrega tu primer gasto arriba",
+    amount: "Cantidad",
+    description: "Descripción (opcional)",
+    noDescription: "Sin descripción",
+    add: "Agregar",
     byDay: "Por Día",
     byMonth: "Por Mes",
     time: "Tiempo",
@@ -114,23 +164,33 @@ const translations: Record<Language, Record<string, string>> = {
     exportCSV: "Exportar a CSV",
     selectLanguage: "Seleccionar idioma",
     clearHistory: "Borrar todo el historial",
-    clearHistoryConfirm: "¿Estás seguro de que quieres borrar todo el historial?",
+    clearHistoryConfirm:
+      "¿Estás seguro de que quieres borrar todo el historial?",
     cancel: "Cancelar",
     confirm: "Confirmar",
     english: "Inglés",
-    chinese: "Chino",
+    chinese: "Chino Tradicional",
     spanish: "Español",
     french: "Francés",
     german: "Alemán",
     japanese: "Japonés",
+    device: "Idioma del Dispositivo",
     exportSuccess: "¡CSV exportado con éxito!",
     exportError: "Error al exportar CSV",
     clearSuccess: "Historial borrado con éxito",
   },
   fr: {
+    accounting: "Comptabilité",
     statistics: "Statistiques",
     total: "Total",
     count: "Nombre",
+    flashAccounting: "Comptabilité Rapide",
+    noConsumptionsYet: "Aucune consommation pour le moment",
+    addFirstExpense: "Ajoutez votre première dépense ci-dessus",
+    amount: "Montant",
+    description: "Description (optionnel)",
+    noDescription: "Aucune description",
+    add: "Ajouter",
     byDay: "Par Jour",
     byMonth: "Par Mois",
     time: "Temps",
@@ -157,19 +217,28 @@ const translations: Record<Language, Record<string, string>> = {
     cancel: "Annuler",
     confirm: "Confirmer",
     english: "Anglais",
-    chinese: "Chinois",
+    chinese: "Chinois Traditionnel",
     spanish: "Espagnol",
     french: "Français",
     german: "Allemand",
     japanese: "Japonais",
+    device: "Langue de l'Appareil",
     exportSuccess: "CSV exporté avec succès!",
     exportError: "Échec de l'exportation CSV",
     clearSuccess: "Historique effacé avec succès",
   },
   de: {
+    accounting: "Buchhaltung",
     statistics: "Statistiken",
     total: "Gesamt",
     count: "Anzahl",
+    flashAccounting: "Schnelle Buchhaltung",
+    noConsumptionsYet: "Noch keine Verbräuche",
+    addFirstExpense: "Fügen Sie oben Ihre erste Ausgabe hinzu",
+    amount: "Betrag",
+    description: "Beschreibung (optional)",
+    noDescription: "Keine Beschreibung",
+    add: "Hinzufügen",
     byDay: "Nach Tag",
     byMonth: "Nach Monat",
     time: "Zeit",
@@ -192,23 +261,33 @@ const translations: Record<Language, Record<string, string>> = {
     exportCSV: "Als CSV exportieren",
     selectLanguage: "Sprache auswählen",
     clearHistory: "Gesamten Verlauf löschen",
-    clearHistoryConfirm: "Sind Sie sicher, dass Sie den gesamten Verlauf löschen möchten?",
+    clearHistoryConfirm:
+      "Sind Sie sicher, dass Sie den gesamten Verlauf löschen möchten?",
     cancel: "Abbrechen",
     confirm: "Bestätigen",
     english: "Englisch",
-    chinese: "Chinesisch",
+    chinese: "Traditionelles Chinesisch",
     spanish: "Spanisch",
     french: "Französisch",
     german: "Deutsch",
     japanese: "Japanisch",
+    device: "Gerätesprache",
     exportSuccess: "CSV erfolgreich exportiert!",
     exportError: "CSV-Export fehlgeschlagen",
     clearSuccess: "Verlauf erfolgreich gelöscht",
   },
   ja: {
+    accounting: "会計",
     statistics: "統計",
     total: "合計",
     count: "件数",
+    flashAccounting: "フラッシュ会計",
+    noConsumptionsYet: "消費がまだありません",
+    addFirstExpense: "上記に最初の支出を追加してください",
+    amount: "金額",
+    description: "説明（任意）",
+    noDescription: "説明なし",
+    add: "追加",
     byDay: "日別",
     byMonth: "月別",
     time: "時間",
@@ -235,11 +314,12 @@ const translations: Record<Language, Record<string, string>> = {
     cancel: "キャンセル",
     confirm: "確認",
     english: "英語",
-    chinese: "中国語",
+    chinese: "繁体中国語",
     spanish: "スペイン語",
     french: "フランス語",
     german: "ドイツ語",
     japanese: "日本語",
+    device: "デバイス言語",
     exportSuccess: "CSVのエクスポートに成功しました！",
     exportError: "CSVのエクスポートに失敗しました",
     clearSuccess: "履歴がクリアされました",
@@ -253,7 +333,11 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
 );
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("en");
+  const [language, setLanguageState] = useState<Language>("device");
+
+  // Get the resolved language (actual language code used for translations)
+  const resolvedLanguage: ResolvedLanguage =
+    language === "device" ? getDeviceLanguage() : language;
 
   useEffect(() => {
     loadLanguage();
@@ -262,11 +346,20 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const loadLanguage = async () => {
     try {
       const saved = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
-      if (saved && (["en", "zh", "es", "fr", "de", "ja"] as Language[]).includes(saved as Language)) {
+      if (
+        saved &&
+        (["en", "zh", "es", "fr", "de", "ja", "device"] as Language[]).includes(
+          saved as Language
+        )
+      ) {
         setLanguageState(saved as Language);
+      } else {
+        // Default to device language if nothing saved
+        setLanguageState("device");
       }
     } catch (error) {
       console.error("Failed to load language:", error);
+      setLanguageState("device");
     }
   };
 
@@ -280,11 +373,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const t = (key: string): string => {
-    return translations[language][key] || key;
+    return translations[resolvedLanguage][key] || key;
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider
+      value={{ language, resolvedLanguage, setLanguage, t }}
+    >
       {children}
     </LanguageContext.Provider>
   );

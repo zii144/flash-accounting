@@ -2,6 +2,7 @@ import { ConsumptionForm } from "@/components/ConsumptionForm";
 import { ConsumptionItem } from "@/components/ConsumptionItem";
 import { GlassTabBar } from "@/components/GlassTabBar";
 import { StatisticsView } from "@/components/StatisticsView";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
@@ -18,6 +19,7 @@ import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
 
 export default function Index() {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const { consumptions, isLoading, saveConsumption, deleteConsumption } =
     useConsumptionStorage();
   const [activeTab, setActiveTab] = useState<"accounting" | "statistics">(
@@ -51,10 +53,10 @@ export default function Index() {
         >
           <View style={styles.header}>
             <Text style={[styles.title, { color: theme.text }]}>
-              Flash Accounting
+              {t("flashAccounting")}
             </Text>
             <Text style={[styles.total, { color: theme.textSecondary }]}>
-              Total: ${totalAmount.toFixed(2)}
+              {t("total")}: ${totalAmount.toFixed(2)}
             </Text>
           </View>
 
@@ -78,7 +80,7 @@ export default function Index() {
                   <Text
                     style={[styles.emptyText, { color: theme.textSecondary }]}
                   >
-                    No consumptions yet
+                    {t("noConsumptionsYet")}
                   </Text>
                   <Text
                     style={[
@@ -86,7 +88,7 @@ export default function Index() {
                       { color: theme.textSecondary },
                     ]}
                   >
-                    Add your first expense above
+                    {t("addFirstExpense")}
                   </Text>
                 </View>
               ) : null

@@ -17,7 +17,7 @@ import {
 } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
-type Language = "en" | "zh" | "es" | "fr" | "de" | "ja";
+type Language = "en" | "zh" | "es" | "fr" | "de" | "ja" | "device";
 
 interface SettingsModalProps {
   visible: boolean;
@@ -36,6 +36,7 @@ export function SettingsModal({
   const [isExporting, setIsExporting] = useState(false);
 
   const languages: { code: Language; name: string }[] = [
+    { code: "device", name: t("device") },
     { code: "en", name: t("english") },
     { code: "zh", name: t("chinese") },
     { code: "es", name: t("spanish") },

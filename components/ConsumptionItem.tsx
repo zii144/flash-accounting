@@ -1,4 +1,5 @@
 import { GlassContainer } from "@/components/GlassContainer";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Consumption } from "@/types/consumption";
 import React from "react";
@@ -25,6 +26,7 @@ export function ConsumptionItem({
   onDelete,
 }: ConsumptionItemProps) {
   const { theme } = useTheme();
+  const { resolvedLanguage, t } = useLanguage();
   const [isPressed, setIsPressed] = React.useState(false);
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
@@ -48,18 +50,38 @@ export function ConsumptionItem({
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
 
+    const localeMap: Record<string, string> = {
+      en: "en-US",
+      zh: "zh-TW",
+      es: "es-ES",
+      fr: "fr-FR",
+      de: "de-DE",
+      ja: "ja-JP",
+    };
+
     if (date.toDateString() === today.toDateString()) {
-      return "Today";
+      return t("today_label");
     }
     if (date.toDateString() === yesterday.toDateString()) {
-      return "Yesterday";
+      return t("yesterday");
     }
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return date.toLocaleDateString(localeMap[resolvedLanguage] || "en-US", {
+      month: "short",
+      day: "numeric",
+    });
   };
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString("en-US", {
+    const localeMap: Record<string, string> = {
+      en: "en-US",
+      zh: "zh-TW",
+      es: "es-ES",
+      fr: "fr-FR",
+      de: "de-DE",
+      ja: "ja-JP",
+    };
+    return date.toLocaleTimeString(localeMap[resolvedLanguage] || "en-US", {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -85,13 +107,14 @@ export function ConsumptionItem({
                 <Text style={[styles.amount, { color: theme.text }]}>
                   ${consumption.amount.toFixed(2)}
                 </Text>
-                {consumption.description && (
-                  <Text
-                    style={[styles.description, { color: theme.textSecondary }]}
-                  >
-                    {consumption.description}
-                  </Text>
-                )}
+                <Text
+                  style={[styles.description, { color: theme.textSecondary }]}
+                >
+                  {consumption.description?.trim() &&
+                  consumption.description.trim() !== "No description"
+                    ? consumption.description.trim()
+                    : t("noDescription")}
+                </Text>
               </View>
               <View style={styles.meta}>
                 <Text style={[styles.date, { color: theme.textSecondary }]}>

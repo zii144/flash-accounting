@@ -1,4 +1,5 @@
 import { GlassContainer } from "@/components/GlassContainer";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { Consumption } from "@/types/consumption";
@@ -27,6 +28,7 @@ interface ConsumptionFormProps {
 
 export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const {
@@ -87,7 +89,7 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
 
     onSubmit({
       amount: amountNum,
-      description: description.trim() || "No description",
+      description: description.trim() || "",
     });
 
     setAmount("");
@@ -126,7 +128,7 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
           <GlassContainer intensity="light" style={styles.amountContainer}>
             <TextInput
               style={[styles.amountInput, { color: theme.text }]}
-              placeholder="Amount"
+              placeholder={t("amount")}
               placeholderTextColor={theme.textSecondary}
               value={amount}
               onChangeText={setAmount}
@@ -142,7 +144,7 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
                   { color: theme.text },
                   isListening && styles.descriptionInputListening,
                 ]}
-                placeholder="Description (optional)"
+                placeholder={t("description")}
                 placeholderTextColor={theme.textSecondary}
                 value={description}
                 onChangeText={setDescription}
@@ -221,7 +223,7 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
                 },
               ]}
             >
-              Add
+              {t("add")}
             </Text>
           </TouchableOpacity>
         </GlassContainer>

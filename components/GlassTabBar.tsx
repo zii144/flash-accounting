@@ -1,4 +1,5 @@
 import { GlassContainer } from "@/components/GlassContainer";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -20,6 +21,7 @@ interface GlassTabBarProps {
 
 export function GlassTabBar({ activeTab, onTabChange }: GlassTabBarProps) {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const accountingProgress = useSharedValue(activeTab === "accounting" ? 1 : 0);
   const statisticsProgress = useSharedValue(activeTab === "statistics" ? 1 : 0);
@@ -149,7 +151,7 @@ export function GlassTabBar({ activeTab, onTabChange }: GlassTabBarProps) {
                   },
                 ]}
               >
-                Accounting
+                {t("accounting")}
               </Animated.Text>
             </Animated.View>
           </TouchableOpacity>
@@ -197,7 +199,7 @@ export function GlassTabBar({ activeTab, onTabChange }: GlassTabBarProps) {
                   },
                 ]}
               >
-                Statistics
+                {t("statistics")}
               </Animated.Text>
             </Animated.View>
           </TouchableOpacity>

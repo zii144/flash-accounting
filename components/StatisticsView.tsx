@@ -29,7 +29,7 @@ interface GroupedConsumption {
 
 export function StatisticsView() {
   const { theme } = useTheme();
-  const { language, t } = useLanguage();
+  const { resolvedLanguage, t } = useLanguage();
   const { consumptions } = useConsumptionStorage();
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
@@ -113,14 +113,14 @@ export function StatisticsView() {
         } else {
           const localeMap: Record<string, string> = {
             en: "en-US",
-            zh: "zh-CN",
+            zh: "zh-TW",
             es: "es-ES",
             fr: "fr-FR",
             de: "de-DE",
             ja: "ja-JP",
           };
           dateLabel = dateObj.toLocaleDateString(
-            localeMap[language] || "en-US",
+            localeMap[resolvedLanguage] || "en-US",
             {
               weekday: "short",
               month: "short",
@@ -137,7 +137,7 @@ export function StatisticsView() {
         } as GroupedConsumption;
       })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [sortedConsumptions, language, t]);
+  }, [sortedConsumptions, resolvedLanguage, t]);
 
   // Group by month
   const groupedByMonth = useMemo(() => {
@@ -158,14 +158,14 @@ export function StatisticsView() {
         const dateObj = new Date(items[0].date);
         const localeMap: Record<string, string> = {
           en: "en-US",
-          zh: "zh-CN",
+          zh: "zh-TW",
           es: "es-ES",
           fr: "fr-FR",
           de: "de-DE",
           ja: "ja-JP",
         };
         const dateLabel = dateObj.toLocaleDateString(
-          localeMap[language] || "en-US",
+          localeMap[resolvedLanguage] || "en-US",
           {
             month: "long",
             year: "numeric",
@@ -180,7 +180,7 @@ export function StatisticsView() {
         } as GroupedConsumption;
       })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [sortedConsumptions, language]);
+  }, [sortedConsumptions, resolvedLanguage]);
 
   const [viewMode, setViewMode] = useState<"day" | "month">("day");
   const displayData = viewMode === "day" ? groupedByDay : groupedByMonth;
@@ -434,15 +434,15 @@ export function StatisticsView() {
                     ]}
                   >
                     {new Date(consumption.date).toLocaleTimeString(
-                      language === "en"
+                      resolvedLanguage === "en"
                         ? "en-US"
-                        : language === "zh"
-                        ? "zh-CN"
-                        : language === "es"
+                        : resolvedLanguage === "zh"
+                        ? "zh-TW"
+                        : resolvedLanguage === "es"
                         ? "es-ES"
-                        : language === "fr"
+                        : resolvedLanguage === "fr"
                         ? "fr-FR"
-                        : language === "de"
+                        : resolvedLanguage === "de"
                         ? "de-DE"
                         : "ja-JP",
                       {
