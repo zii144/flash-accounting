@@ -252,7 +252,7 @@ export function StatisticsView() {
                 {t("total")}
               </Text>
               <Text style={[styles.statValue, { color: theme.text }]}>
-                ${totalAmount.toFixed(2)}
+                ${totalAmount.toFixed(1)}
               </Text>
             </GlassContainer>
           </View>
