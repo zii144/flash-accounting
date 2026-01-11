@@ -1,7 +1,19 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  FadeInDown,
+  FadeOutUp,
+  Layout,
+} from 'react-native-reanimated';
 import { useTheme } from '@/contexts/ThemeContext';
+import { GlassContainer } from '@/components/GlassContainer';
 import { Consumption } from '@/types/consumption';
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 interface ConsumptionItemProps {
   consumption: Consumption;
@@ -10,6 +22,22 @@ interface ConsumptionItemProps {
 
 export function ConsumptionItem({ consumption, onDelete }: ConsumptionItemProps) {
   const { theme } = useTheme();
+  const [isPressed, setIsPressed] = React.useState(false);
+  const scale = useSharedValue(1);
+  const opacity = useSharedValue(1);
+
+  React.useEffect(() => {
+    scale.value = withSpring(isPressed ? 0.98 : 1, {
+      damping: 15,
+      stiffness: 300,
+    });
+    opacity.value = withTiming(isPressed ? 0.9 : 1, { duration: 100 });
+  }, [isPressed, scale, opacity]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -32,45 +60,69 @@ export function ConsumptionItem({ consumption, onDelete }: ConsumptionItemProps)
   };
 
   return (
-    <View style={[styles.container, { borderBottomColor: theme.border }]}>
-      <View style={styles.content}>
-        <View style={styles.mainInfo}>
-          <Text style={[styles.amount, { color: theme.text }]}>
-            ${consumption.amount.toFixed(2)}
-          </Text>
-          {consumption.description && (
-            <Text style={[styles.description, { color: theme.textSecondary }]}>
-              {consumption.description}
-            </Text>
-          )}
-        </View>
-        <View style={styles.meta}>
-          <Text style={[styles.date, { color: theme.textSecondary }]}>
-            {formatDate(consumption.date)}
-          </Text>
-          <Text style={[styles.time, { color: theme.textSecondary }]}>
-            {formatTime(consumption.date)}
-          </Text>
-        </View>
-      </View>
-      <TouchableOpacity
-        onPress={() => onDelete(consumption.id)}
-        style={[styles.deleteButton, { backgroundColor: theme.border }]}
-        activeOpacity={0.7}
-      >
-        <Text style={[styles.deleteText, { color: theme.text }]}>×</Text>
-      </TouchableOpacity>
-    </View>
+    <Animated.View
+      entering={FadeInDown.springify().damping(15).stiffness(150)}
+      exiting={FadeOutUp.duration(200)}
+      layout={Layout.springify().damping(15)}
+      style={styles.outerContainer}
+    >
+      <Animated.View style={animatedStyle}>
+        <AnimatedTouchable
+          onPressIn={() => setIsPressed(true)}
+          onPressOut={() => setIsPressed(false)}
+          activeOpacity={1}
+          style={styles.wrapper}
+        >
+          <GlassContainer intensity="light" style={styles.container}>
+            <View style={styles.content}>
+              <View style={styles.mainInfo}>
+                <Text style={[styles.amount, { color: theme.text }]}>
+                  ${consumption.amount.toFixed(2)}
+                </Text>
+                {consumption.description && (
+                  <Text style={[styles.description, { color: theme.textSecondary }]}>
+                    {consumption.description}
+                  </Text>
+                )}
+              </View>
+              <View style={styles.meta}>
+                <Text style={[styles.date, { color: theme.textSecondary }]}>
+                  {formatDate(consumption.date)}
+                </Text>
+                <Text style={[styles.time, { color: theme.textSecondary }]}>
+                  {formatTime(consumption.date)}
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              onPress={() => onDelete(consumption.id)}
+              style={[styles.deleteButton, { backgroundColor: theme.border }]}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.deleteText, { color: theme.text }]}>×</Text>
+            </TouchableOpacity>
+          </GlassContainer>
+        </AnimatedTouchable>
+      </Animated.View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    marginHorizontal: 16,
+    marginVertical: 6,
+  },
+  wrapper: {
+    width: '100%',
+  },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 16,
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
+    borderRadius: 16,
+    borderWidth: 0,
   },
   content: {
     flex: 1,

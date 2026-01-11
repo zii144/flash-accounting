@@ -1,45 +1,63 @@
-import React, { useState, useEffect } from 'react';
+import { GlassContainer } from "@/components/GlassContainer";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { Consumption } from "@/types/consumption";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import React, { useEffect, useState } from "react";
 import {
-  View,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
-import * as Haptics from 'expo-haptics';
-import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
-import { Consumption } from '@/types/consumption';
+  View,
+} from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
 interface ConsumptionFormProps {
-  onSubmit: (consumption: Omit<Consumption, 'id' | 'date'>) => void;
+  onSubmit: (consumption: Omit<Consumption, "id" | "date">) => void;
 }
 
 export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   const { theme } = useTheme();
-  const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
-  const { isListening, transcript, isAvailable, startListening, stopListening } =
-    useSpeechRecognition();
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+  const {
+    isListening,
+    transcript,
+    isAvailable,
+    startListening,
+    stopListening,
+  } = useSpeechRecognition();
 
-  const [baseDescription, setBaseDescription] = useState('');
+  const [baseDescription, setBaseDescription] = useState("");
 
   // Update description in real-time while listening
   useEffect(() => {
     if (isListening) {
       if (transcript) {
         // While listening, show base description + current transcript
-        setDescription(baseDescription ? `${baseDescription} ${transcript}`.trim() : transcript);
+        setDescription(
+          baseDescription
+            ? `${baseDescription} ${transcript}`.trim()
+            : transcript
+        );
       } else {
         // When starting but no transcript yet, show base description
         setDescription(baseDescription);
       }
     } else if (!isListening && transcript) {
       // When stopping, finalize with the last transcript
-      setDescription(baseDescription ? `${baseDescription} ${transcript}`.trim() : transcript);
+      setDescription(
+        baseDescription ? `${baseDescription} ${transcript}`.trim() : transcript
+      );
     }
   }, [transcript, isListening, baseDescription]);
 
@@ -69,162 +87,201 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
 
     onSubmit({
       amount: amountNum,
-      description: description.trim() || 'No description',
+      description: description.trim() || "No description",
     });
 
-    setAmount('');
-    setDescription('');
-    setBaseDescription('');
+    setAmount("");
+    setDescription("");
+    setBaseDescription("");
   };
 
   const isSubmitDisabled = !amount || parseFloat(amount) <= 0;
 
+  // Animation for listening state
+  const listeningScale = useSharedValue(1);
+  const listeningOpacity = useSharedValue(1);
+
+  useEffect(() => {
+    if (isListening) {
+      listeningScale.value = withSpring(1.02, { damping: 10, stiffness: 200 });
+      listeningOpacity.value = withTiming(0.9, { duration: 200 });
+    } else {
+      listeningScale.value = withSpring(1, { damping: 10, stiffness: 200 });
+      listeningOpacity.value = withTiming(1, { duration: 200 });
+    }
+  }, [isListening, listeningScale, listeningOpacity]);
+
+  const listeningStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: listeningScale.value }],
+    opacity: listeningOpacity.value,
+  }));
+
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <View style={[styles.form, { backgroundColor: theme.inputBackground }]}>
-        <TextInput
-          style={[styles.amountInput, { color: theme.text, borderColor: theme.border }]}
-          placeholder="Amount"
-          placeholderTextColor={theme.textSecondary}
-          value={amount}
-          onChangeText={setAmount}
-          keyboardType="decimal-pad"
-          autoFocus
-        />
-        <View style={styles.descriptionContainer}>
-          <TextInput
-            style={[
-              styles.descriptionInput,
-              { color: theme.text, borderColor: theme.border },
-              isListening && styles.descriptionInputListening,
-            ]}
-            placeholder="Description (optional)"
-            placeholderTextColor={theme.textSecondary}
-            value={description}
-            onChangeText={setDescription}
-            returnKeyType="done"
-            onSubmitEditing={handleSubmit}
-          />
-          {isAvailable && (
+      <Animated.View style={listeningStyle}>
+        <GlassContainer intensity="medium" animated>
+          <View style={styles.form}>
+            <TextInput
+              style={[
+                styles.amountInput,
+                { color: theme.text, borderColor: theme.border },
+              ]}
+              placeholder="Amount"
+              placeholderTextColor={theme.textSecondary}
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="decimal-pad"
+              autoFocus
+            />
+            <View style={styles.descriptionContainer}>
+              <TextInput
+                style={[
+                  styles.descriptionInput,
+                  { color: theme.text, borderColor: theme.border },
+                  isListening && styles.descriptionInputListening,
+                ]}
+                placeholder="Description (optional)"
+                placeholderTextColor={theme.textSecondary}
+                value={description}
+                onChangeText={setDescription}
+                returnKeyType="done"
+                onSubmitEditing={handleSubmit}
+              />
+              {isAvailable && (
+                <TouchableOpacity
+                  style={[
+                    styles.micButton,
+                    {
+                      backgroundColor: isListening
+                        ? theme.foreground
+                        : theme.border,
+                    },
+                  ]}
+                  onPress={handleMicPress}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name={isListening ? "mic" : "mic-outline"}
+                    size={20}
+                    color={isListening ? theme.background : theme.text}
+                  />
+                </TouchableOpacity>
+              )}
+              {isListening && (
+                <View style={styles.listeningIndicator}>
+                  <View
+                    style={[
+                      styles.listeningDot,
+                      { backgroundColor: theme.foreground },
+                      styles.listeningDot1,
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.listeningDot,
+                      { backgroundColor: theme.foreground },
+                      styles.listeningDot2,
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.listeningDot,
+                      { backgroundColor: theme.foreground },
+                      styles.listeningDot3,
+                    ]}
+                  />
+                </View>
+              )}
+            </View>
             <TouchableOpacity
               style={[
-                styles.micButton,
-                { backgroundColor: isListening ? theme.foreground : theme.border },
+                styles.submitButton,
+                {
+                  backgroundColor: isSubmitDisabled
+                    ? theme.border
+                    : theme.foreground,
+                  opacity: isSubmitDisabled ? 0.5 : 1,
+                },
               ]}
-              onPress={handleMicPress}
-              activeOpacity={0.7}
+              onPress={handleSubmit}
+              disabled={isSubmitDisabled}
+              activeOpacity={0.8}
             >
-              <Ionicons
-                name={isListening ? 'mic' : 'mic-outline'}
-                size={20}
-                color={isListening ? theme.background : theme.text}
-              />
+              <Text
+                style={[
+                  styles.submitText,
+                  {
+                    color: isSubmitDisabled
+                      ? theme.textSecondary
+                      : theme.background,
+                  },
+                ]}
+              >
+                Add
+              </Text>
             </TouchableOpacity>
-          )}
-          {isListening && (
-            <View style={styles.listeningIndicator}>
-              <View
-                style={[
-                  styles.listeningDot,
-                  { backgroundColor: theme.foreground },
-                  styles.listeningDot1,
-                ]}
-              />
-              <View
-                style={[
-                  styles.listeningDot,
-                  { backgroundColor: theme.foreground },
-                  styles.listeningDot2,
-                ]}
-              />
-              <View
-                style={[
-                  styles.listeningDot,
-                  { backgroundColor: theme.foreground },
-                  styles.listeningDot3,
-                ]}
-              />
-            </View>
-          )}
-        </View>
-        <TouchableOpacity
-          style={[
-            styles.submitButton,
-            {
-              backgroundColor: isSubmitDisabled ? theme.border : theme.foreground,
-              opacity: isSubmitDisabled ? 0.5 : 1,
-            },
-          ]}
-          onPress={handleSubmit}
-          disabled={isSubmitDisabled}
-          activeOpacity={0.8}
-        >
-          <Text
-            style={[
-              styles.submitText,
-              { color: isSubmitDisabled ? theme.textSecondary : theme.background },
-            ]}
-          >
-            Add
-          </Text>
-        </TouchableOpacity>
-      </View>
+          </View>
+        </GlassContainer>
+      </Animated.View>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    marginHorizontal: 16,
+    marginBottom: 12,
   },
   form: {
-    borderRadius: 12,
-    padding: 16,
-    gap: 12,
+    borderRadius: 16,
+    padding: 20,
+    gap: 16,
+    borderWidth: 0,
   },
   amountInput: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: "600",
     padding: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    textAlign: 'center',
+    borderRadius: 12,
+    borderWidth: 0.5,
+    textAlign: "center",
+    backgroundColor: "transparent",
   },
   descriptionContainer: {
-    position: 'relative',
+    position: "relative",
   },
   descriptionInput: {
     fontSize: 16,
     padding: 16,
     paddingRight: 50,
-    borderRadius: 8,
-    borderWidth: 1,
+    borderRadius: 12,
+    borderWidth: 0.5,
+    backgroundColor: "transparent",
   },
   descriptionInputListening: {
     borderWidth: 2,
   },
   micButton: {
-    position: 'absolute',
+    position: "absolute",
     right: 8,
-    top: '50%',
+    top: "50%",
     transform: [{ translateY: -16 }],
     width: 32,
     height: 32,
     borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   listeningIndicator: {
-    position: 'absolute',
+    position: "absolute",
     right: 48,
-    top: '50%',
+    top: "50%",
     transform: [{ translateY: -4 }],
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   listeningDot: {
@@ -243,11 +300,12 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
+    borderRadius: 12,
+    alignItems: "center",
+    overflow: "hidden",
   },
   submitText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
