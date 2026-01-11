@@ -1,9 +1,11 @@
 import { ConsumptionForm } from "@/components/ConsumptionForm";
 import { ConsumptionItem } from "@/components/ConsumptionItem";
+import { GlassTabBar } from "@/components/GlassTabBar";
+import { StatisticsView } from "@/components/StatisticsView";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
-import React from "react";
+import React, { useState } from "react";
 import {
   FlatList,
   SafeAreaView,
@@ -12,11 +14,15 @@ import {
   Text,
   View,
 } from "react-native";
+import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
 
 export default function Index() {
   const { theme } = useTheme();
   const { consumptions, isLoading, saveConsumption, deleteConsumption } =
     useConsumptionStorage();
+  const [activeTab, setActiveTab] = useState<"accounting" | "statistics">(
+    "accounting"
+  );
 
   const handleSubmit = (data: Omit<Consumption, "id" | "date">) => {
     const consumption: Consumption = {
@@ -34,47 +40,81 @@ export default function Index() {
       style={[styles.container, { backgroundColor: theme.background }]}
     >
       <StatusBar barStyle={theme.isDark ? "light-content" : "dark-content"} />
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.text }]}>
-          Flash Accounting
-        </Text>
-        <Text style={[styles.total, { color: theme.textSecondary }]}>
-          Total: ${totalAmount.toFixed(2)}
-        </Text>
-      </View>
 
-      <ConsumptionForm onSubmit={handleSubmit} />
+      {activeTab === "accounting" ? (
+        <Animated.View
+          key="accounting"
+          entering={FadeIn.duration(300)}
+          exiting={FadeOut.duration(200)}
+          layout={Layout.springify().damping(25)}
+          style={styles.content}
+        >
+          <View style={styles.header}>
+            <Text style={[styles.title, { color: theme.text }]}>
+              Flash Accounting
+            </Text>
+            <Text style={[styles.total, { color: theme.textSecondary }]}>
+              Total: ${totalAmount.toFixed(2)}
+            </Text>
+          </View>
 
-      <FlatList
-        data={consumptions}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <ConsumptionItem consumption={item} onDelete={deleteConsumption} />
-        )}
-        contentContainerStyle={{ paddingBottom: 220 }}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={{ height: 0 }} />}
-        ListEmptyComponent={
-          !isLoading ? (
-            <View style={styles.emptyContainer}>
-              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
-                No consumptions yet
-              </Text>
-              <Text
-                style={[styles.emptySubtext, { color: theme.textSecondary }]}
-              >
-                Add your first expense above
-              </Text>
-            </View>
-          ) : null
-        }
-      />
+          <ConsumptionForm onSubmit={handleSubmit} />
+
+          <FlatList
+            data={consumptions}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <ConsumptionItem
+                consumption={item}
+                onDelete={deleteConsumption}
+              />
+            )}
+            contentContainerStyle={{ paddingBottom: 120 }}
+            showsVerticalScrollIndicator={false}
+            ItemSeparatorComponent={() => <View style={{ height: 0 }} />}
+            ListEmptyComponent={
+              !isLoading ? (
+                <View style={styles.emptyContainer}>
+                  <Text
+                    style={[styles.emptyText, { color: theme.textSecondary }]}
+                  >
+                    No consumptions yet
+                  </Text>
+                  <Text
+                    style={[
+                      styles.emptySubtext,
+                      { color: theme.textSecondary },
+                    ]}
+                  >
+                    Add your first expense above
+                  </Text>
+                </View>
+              ) : null
+            }
+          />
+        </Animated.View>
+      ) : (
+        <Animated.View
+          key="statistics"
+          entering={FadeIn.duration(300)}
+          exiting={FadeOut.duration(200)}
+          layout={Layout.springify().damping(25)}
+          style={styles.content}
+        >
+          <StatisticsView />
+        </Animated.View>
+      )}
+
+      <GlassTabBar activeTab={activeTab} onTabChange={setActiveTab} />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  content: {
     flex: 1,
   },
   header: {
