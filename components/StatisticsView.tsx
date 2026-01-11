@@ -6,9 +6,11 @@ import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import * as Linking from "expo-linking";
 import React, { useMemo, useState } from "react";
 import {
   FlatList,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -190,6 +192,35 @@ export function StatisticsView() {
     0
   );
 
+  // Calculate log day (days since first entry)
+  const logDay = useMemo(() => {
+    if (consumptions.length === 0) return 0;
+    const dates = consumptions.map((c) => new Date(c.date).getTime());
+    const firstDate = Math.min(...dates);
+    const today = new Date().setHours(0, 0, 0, 0);
+    const firstDay = new Date(firstDate).setHours(0, 0, 0, 0);
+    const diffTime = today - firstDay;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays);
+  }, [consumptions]);
+
+  const handleRateApp = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    try {
+      if (Platform.OS === "ios") {
+        // Replace with your actual app ID when available
+        await Linking.openURL("https://apps.apple.com/app/id[YOUR_APP_ID]");
+      } else if (Platform.OS === "android") {
+        // Replace with your actual package name when available
+        await Linking.openURL(
+          "https://play.google.com/store/apps/details?id=com.yourcompany.flashaccounting"
+        );
+      }
+    } catch (error) {
+      console.error("Failed to open app store:", error);
+    }
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
@@ -215,23 +246,56 @@ export function StatisticsView() {
       >
         {/* Summary Cards */}
         <View style={styles.statsContainer}>
-          <GlassContainer intensity="light" style={styles.statCard}>
-            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
-              {t("total")}
-            </Text>
-            <Text style={[styles.statValue, { color: theme.text }]}>
-              ${totalAmount.toFixed(2)}
-            </Text>
-          </GlassContainer>
+          <View style={styles.statCardWrapper}>
+            <GlassContainer intensity="light" style={styles.statCard}>
+              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
+                {t("total")}
+              </Text>
+              <Text style={[styles.statValue, { color: theme.text }]}>
+                ${totalAmount.toFixed(2)}
+              </Text>
+            </GlassContainer>
+          </View>
 
-          <GlassContainer intensity="light" style={styles.statCard}>
-            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
-              {t("count")}
-            </Text>
-            <Text style={[styles.statValue, { color: theme.text }]}>
-              {filteredConsumptions.length}
-            </Text>
-          </GlassContainer>
+          <View style={styles.statCardWrapper}>
+            <GlassContainer intensity="light" style={styles.statCard}>
+              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
+                {t("count")}
+              </Text>
+              <Text style={[styles.statValue, { color: theme.text }]}>
+                {filteredConsumptions.length}
+              </Text>
+            </GlassContainer>
+          </View>
+
+          <View style={styles.statCardWrapper}>
+            <GlassContainer intensity="light" style={styles.statCard}>
+              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
+                {t("logDay")}
+              </Text>
+              <Text style={[styles.statValue, { color: theme.text }]}>
+                {logDay}
+              </Text>
+            </GlassContainer>
+          </View>
+
+          <TouchableOpacity
+            onPress={handleRateApp}
+            activeOpacity={0.8}
+            style={styles.statCardWrapper}
+          >
+            <GlassContainer intensity="light" style={styles.statCard}>
+              <Ionicons
+                name="star-outline"
+                size={20}
+                color={theme.textSecondary}
+                style={styles.rateIcon}
+              />
+              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
+                {t("rateThisApp")}
+              </Text>
+            </GlassContainer>
+          </TouchableOpacity>
         </View>
 
         {/* View Mode Toggle */}
@@ -424,7 +488,10 @@ export function StatisticsView() {
                         { color: theme.textSecondary },
                       ]}
                     >
-                      {consumption.description}
+                      {consumption.description?.trim() &&
+                      consumption.description.trim() !== "No description"
+                        ? consumption.description.trim()
+                        : t("noDescription")}
                     </Text>
                   </View>
                   <Text
@@ -513,14 +580,23 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: "row",
-    gap: 12,
+    gap: 8,
     marginBottom: 16,
   },
-  statCard: {
+  statCardWrapper: {
     flex: 1,
-    padding: 16,
+    minWidth: 0,
+  },
+  statCard: {
+    width: "100%",
+    padding: 12,
     borderRadius: 16,
     alignItems: "center",
+    minHeight: 80,
+    justifyContent: "center",
+  },
+  rateIcon: {
+    marginBottom: 4,
   },
   statLabel: {
     fontSize: 14,
