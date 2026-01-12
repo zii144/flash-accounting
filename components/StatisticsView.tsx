@@ -15,7 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, { FadeInDown, Layout } from "react-native-reanimated";
+import Animated, { FadeIn, Layout } from "react-native-reanimated";
 
 type SortOption = "date-desc" | "date-asc" | "amount-desc" | "amount-asc";
 type TimeFilter = "all" | "today" | "week" | "month" | "year";
@@ -436,7 +436,7 @@ export function StatisticsView() {
           scrollEnabled={false}
           renderItem={({ item }) => (
             <Animated.View
-              entering={FadeInDown.springify().damping(25)}
+              entering={FadeIn.duration(300)}
               layout={Layout.springify().damping(25)}
               style={styles.groupContainer}
             >

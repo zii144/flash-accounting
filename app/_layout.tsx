@@ -6,12 +6,12 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: 'transparent' },
-          }}
-        />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: 'transparent' },
+        }}
+      />
       </LanguageProvider>
     </ThemeProvider>
   );
