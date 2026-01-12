@@ -43,6 +43,60 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   const [baseDescription, setBaseDescription] = useState("");
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Format number with thousand separators
+  const formatAmountInput = (value: string): string => {
+    // Remove all non-digit characters except decimal point
+    const cleaned = value.replace(/[^\d.]/g, "");
+
+    // Handle multiple decimal points - keep only the first one
+    const parts = cleaned.split(".");
+    if (parts.length > 2) {
+      const integerPart = parts[0];
+      const decimalPart = parts.slice(1).join("");
+      return `${integerPart}.${decimalPart}`;
+    }
+
+    const integerPart = parts[0];
+    const decimalPart = parts[1] || "";
+
+    // Add thousand separators to integer part
+    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+    // Limit decimal places to 2
+    const limitedDecimal = decimalPart.slice(0, 2);
+
+    if (limitedDecimal) {
+      return `${formattedInteger}.${limitedDecimal}`;
+    }
+
+    return formattedInteger;
+  };
+
+  // Parse formatted amount back to number string
+  const parseAmountInput = (value: string): string => {
+    return value.replace(/,/g, "");
+  };
+
+  // Handle amount input change
+  const handleAmountChange = (text: string) => {
+    // Parse to get numeric value
+    const numericValue = parseAmountInput(text);
+
+    // Format for display
+    const formatted = formatAmountInput(numericValue);
+
+    // Update state with formatted value for display
+    setAmount(formatted);
+
+    // Play typing sound
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    typingTimeoutRef.current = setTimeout(() => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }, 80);
+  };
+
   // Play typing sound effect (WhatsApp-like using haptic feedback)
   const playTypingSound = () => {
     // Use haptic feedback for tactile typing feel (similar to WhatsApp)
@@ -110,7 +164,9 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   };
 
   const handleSubmit = () => {
-    const amountNum = parseFloat(amount);
+    // Parse the formatted amount (remove commas)
+    const numericAmount = parseAmountInput(amount);
+    const amountNum = parseFloat(numericAmount);
     if (isNaN(amountNum) || amountNum <= 0) {
       return;
     }
@@ -145,7 +201,7 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
     setBaseDescription("");
   };
 
-  const isSubmitDisabled = !amount || parseFloat(amount) <= 0;
+  const isSubmitDisabled = !amount || parseFloat(parseAmountInput(amount)) <= 0;
 
   // Animation for listening state
   const listeningScale = useSharedValue(1);
@@ -220,7 +276,7 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
               placeholder={t("amount")}
               placeholderTextColor={theme.textSecondary}
               value={amount}
-              onChangeText={(text) => handleTyping(text, setAmount)}
+              onChangeText={handleAmountChange}
               keyboardType="decimal-pad"
               autoFocus
             />
