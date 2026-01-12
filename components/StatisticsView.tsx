@@ -6,11 +6,9 @@ import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import * as Linking from "expo-linking";
 import React, { useMemo, useState } from "react";
 import {
   FlatList,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -212,23 +210,6 @@ export function StatisticsView() {
     return Math.max(0, diffDays);
   }, [consumptions]);
 
-  const handleRateApp = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    try {
-      if (Platform.OS === "ios") {
-        // Replace with your actual app ID when available
-        await Linking.openURL("https://apps.apple.com/app/id[YOUR_APP_ID]");
-      } else if (Platform.OS === "android") {
-        // Replace with your actual package name when available
-        await Linking.openURL(
-          "https://play.google.com/store/apps/details?id=com.yourcompany.flashaccounting"
-        );
-      }
-    } catch (error) {
-      console.error("Failed to open app store:", error);
-    }
-  };
-
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
@@ -254,7 +235,7 @@ export function StatisticsView() {
       >
         {/* Summary Cards */}
         <View style={styles.statsContainer}>
-          <View style={styles.statCardWrapper}>
+          <View style={[styles.statCardWrapper, styles.statCardWrapperDouble]}>
             <GlassContainer intensity="light" style={styles.statCard}>
               <Text
                 allowFontScaling={false}
@@ -266,7 +247,7 @@ export function StatisticsView() {
                 allowFontScaling={false}
                 style={[styles.statValue, { color: theme.text }]}
               >
-                ${formatCurrency(totalAmount, 1)}
+                ${formatCurrency(totalAmount, 2)}
               </Text>
             </GlassContainer>
           </View>
@@ -304,27 +285,6 @@ export function StatisticsView() {
               </Text>
             </GlassContainer>
           </View>
-
-          <TouchableOpacity
-            onPress={handleRateApp}
-            activeOpacity={0.8}
-            style={styles.statCardWrapper}
-          >
-            <GlassContainer intensity="light" style={styles.statCard}>
-              <Ionicons
-                name="star-outline"
-                size={20}
-                color={theme.textSecondary}
-                style={styles.rateIcon}
-              />
-              <Text
-                allowFontScaling={false}
-                style={[styles.statLabel, { color: theme.textSecondary }]}
-              >
-                {t("rateThisApp")}
-              </Text>
-            </GlassContainer>
-          </TouchableOpacity>
         </View>
 
         {/* View Mode Toggle */}
@@ -616,6 +576,9 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
+  statCardWrapperDouble: {
+    flex: 2,
+  },
   statCard: {
     width: "100%",
     padding: 12,
@@ -623,9 +586,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     minHeight: 80,
     justifyContent: "center",
-  },
-  rateIcon: {
-    marginBottom: 4,
   },
   statLabel: {
     fontSize: 14,
