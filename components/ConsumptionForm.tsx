@@ -5,8 +5,9 @@ import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { Consumption } from "@/types/consumption";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -40,6 +41,38 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   } = useSpeechRecognition();
 
   const [baseDescription, setBaseDescription] = useState("");
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Play typing sound effect (WhatsApp-like using haptic feedback)
+  const playTypingSound = () => {
+    // Use haptic feedback for tactile typing feel (similar to WhatsApp)
+    // This provides subtle vibration feedback that feels like typing sounds
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  // Debounced typing sound
+  const handleTyping = (text: string, callback: (text: string) => void) => {
+    callback(text);
+
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Play sound after a short delay (debounced) - similar to WhatsApp
+    typingTimeoutRef.current = setTimeout(() => {
+      playTypingSound();
+    }, 80);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Update description in real-time while listening
   useEffect(() => {
@@ -82,6 +115,21 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
       return;
     }
 
+    // Dismiss keyboard
+    Keyboard.dismiss();
+
+    // Haptic feedback
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    // Button press animation
+    submitScale.value = withSpring(
+      0.95,
+      { damping: 10, stiffness: 300 },
+      () => {
+        submitScale.value = withSpring(1, { damping: 10, stiffness: 300 });
+      }
+    );
+
     // Stop listening if active
     if (isListening) {
       stopListening();
@@ -103,6 +151,11 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   const listeningScale = useSharedValue(1);
   const listeningOpacity = useSharedValue(1);
 
+  // Animation for submit button
+  const submitScale = useSharedValue(1);
+  const submitOpacity = useSharedValue(isSubmitDisabled ? 0.4 : 1);
+  const submitPulse = useSharedValue(0);
+
   useEffect(() => {
     if (isListening) {
       listeningScale.value = withSpring(1.02, { damping: 10, stiffness: 200 });
@@ -113,10 +166,46 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
     }
   }, [isListening, listeningScale, listeningOpacity]);
 
+  // Update submit button animation when enabled/disabled
+  useEffect(() => {
+    if (isSubmitDisabled) {
+      submitScale.value = withSpring(0.98, { damping: 15, stiffness: 200 });
+      submitOpacity.value = withTiming(0.5, { duration: 200 });
+      submitPulse.value = withTiming(0, { duration: 200 });
+    } else {
+      submitScale.value = withSpring(1, { damping: 15, stiffness: 200 });
+      submitOpacity.value = withTiming(1, { duration: 200 });
+    }
+  }, [isSubmitDisabled, submitScale, submitOpacity]);
+
+  // Subtle pulse animation when enabled
+  useEffect(() => {
+    if (isSubmitDisabled) {
+      submitPulse.value = 0;
+      return;
+    }
+
+    const interval = setInterval(() => {
+      submitPulse.value = withTiming(1, { duration: 1500 }, () => {
+        submitPulse.value = withTiming(0, { duration: 1500 });
+      });
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [isSubmitDisabled, submitPulse]);
+
   const listeningStyle = useAnimatedStyle(() => ({
     transform: [{ scale: listeningScale.value }],
     opacity: listeningOpacity.value,
   }));
+
+  const submitButtonStyle = useAnimatedStyle(() => {
+    const pulseScale = 1 + submitPulse.value * 0.02;
+    return {
+      transform: [{ scale: submitScale.value * pulseScale }],
+      opacity: submitOpacity.value,
+    };
+  });
 
   return (
     <KeyboardAvoidingView
@@ -131,7 +220,7 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
               placeholder={t("amount")}
               placeholderTextColor={theme.textSecondary}
               value={amount}
-              onChangeText={setAmount}
+              onChangeText={(text) => handleTyping(text, setAmount)}
               keyboardType="decimal-pad"
               autoFocus
             />
@@ -147,7 +236,7 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
                 placeholder={t("description")}
                 placeholderTextColor={theme.textSecondary}
                 value={description}
-                onChangeText={setDescription}
+                onChangeText={(text) => handleTyping(text, setDescription)}
                 returnKeyType="done"
                 onSubmitEditing={handleSubmit}
               />
@@ -198,34 +287,47 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
               )}
             </View>
           </GlassContainer>
-          <TouchableOpacity
-            style={[
-              styles.submitButton,
-              !isSubmitDisabled && styles.submitButtonActive,
-              {
-                backgroundColor: isSubmitDisabled
-                  ? "transparent"
-                  : theme.isDark
-                  ? "rgba(255, 255, 255, 0.15)"
-                  : "rgba(255, 255, 255, 0.9)",
-              },
-            ]}
-            onPress={handleSubmit}
-            disabled={isSubmitDisabled}
-            activeOpacity={0.8}
-          >
-            <Text
+          <Animated.View style={submitButtonStyle}>
+            <TouchableOpacity
               style={[
-                styles.submitText,
+                styles.submitButton,
+                !isSubmitDisabled && styles.submitButtonActive,
                 {
-                  color: isSubmitDisabled ? theme.textSecondary : theme.text,
-                  fontWeight: isSubmitDisabled ? "500" : "700",
+                  backgroundColor: isSubmitDisabled
+                    ? "transparent"
+                    : theme.isDark
+                    ? "rgba(255, 255, 255, 0.25)"
+                    : "rgba(255, 255, 255, 0.95)",
+                  borderWidth: isSubmitDisabled ? 1 : 0,
+                  borderColor: isSubmitDisabled ? theme.border : "transparent",
                 },
               ]}
+              onPress={handleSubmit}
+              disabled={isSubmitDisabled}
+              activeOpacity={0.85}
             >
-              {t("add")}
-            </Text>
-          </TouchableOpacity>
+              {!isSubmitDisabled && (
+                <Ionicons
+                  name="add-circle"
+                  size={20}
+                  color={theme.text}
+                  style={styles.submitIcon}
+                />
+              )}
+              <Text
+                allowFontScaling={false}
+                style={[
+                  styles.submitText,
+                  {
+                    color: isSubmitDisabled ? theme.textSecondary : theme.text,
+                    fontWeight: isSubmitDisabled ? "500" : "700",
+                  },
+                ]}
+              >
+                {t("add")}
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
         </GlassContainer>
       </Animated.View>
     </KeyboardAvoidingView>
@@ -311,20 +413,28 @@ const styles = StyleSheet.create({
     opacity: 1,
   },
   submitButton: {
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 14,
     alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 8,
     overflow: "hidden",
+    minHeight: 52,
   },
   submitButtonActive: {
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  submitIcon: {
+    marginRight: -4,
   },
   submitText: {
-    fontSize: 16,
+    fontSize: 17,
+    letterSpacing: 0.3,
   },
 });
