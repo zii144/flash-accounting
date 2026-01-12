@@ -6,9 +6,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
-import React, { useState } from "react";
+import { formatCurrency } from "@/utils/formatting";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
+  ListRenderItem,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -16,14 +18,6 @@ import {
   View,
 } from "react-native";
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
-
-// Format currency with thousand separators
-const formatCurrency = (amount: number, decimals: number = 2): string => {
-  return amount.toLocaleString("en-US", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
-};
 
 export default function Index() {
   const { theme } = useTheme();
@@ -34,16 +28,57 @@ export default function Index() {
     "accounting"
   );
 
-  const handleSubmit = (data: Omit<Consumption, "id" | "date">) => {
-    const consumption: Consumption = {
-      ...data,
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-      date: new Date().toISOString(),
-    };
-    saveConsumption(consumption);
-  };
+  const handleSubmit = useCallback(
+    (data: Omit<Consumption, "id" | "date">) => {
+      const consumption: Consumption = {
+        ...data,
+        id: `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+        date: new Date().toISOString(),
+      };
+      saveConsumption(consumption);
+    },
+    [saveConsumption]
+  );
 
-  const totalAmount = consumptions.reduce((sum, c) => sum + c.amount, 0);
+  const totalAmount = useMemo(
+    () => consumptions.reduce((sum, c) => sum + c.amount, 0),
+    [consumptions]
+  );
+
+  const handleTabChange = useCallback((tab: "accounting" | "statistics") => {
+    setActiveTab(tab);
+  }, []);
+
+  const handleDelete = useCallback(
+    (id: string) => {
+      deleteConsumption(id);
+    },
+    [deleteConsumption]
+  );
+
+  const renderItem: ListRenderItem<Consumption> = useCallback(
+    ({ item }) => (
+      <ConsumptionItem consumption={item} onDelete={handleDelete} />
+    ),
+    [handleDelete]
+  );
+
+  const keyExtractor = useCallback((item: Consumption) => item.id, []);
+
+  const ListEmptyComponent = useMemo(
+    () =>
+      !isLoading ? (
+        <View style={styles.emptyContainer}>
+          <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+            {t("noConsumptionsYet")}
+          </Text>
+          <Text style={[styles.emptySubtext, { color: theme.textSecondary }]}>
+            {t("addFirstExpense")}
+          </Text>
+        </View>
+      ) : null,
+    [isLoading, theme.textSecondary, t]
+  );
 
   return (
     <SafeAreaView
@@ -72,35 +107,22 @@ export default function Index() {
 
           <FlatList
             data={consumptions}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <ConsumptionItem
-                consumption={item}
-                onDelete={deleteConsumption}
-              />
-            )}
-            contentContainerStyle={{ paddingBottom: 120 }}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
-            ItemSeparatorComponent={() => <View style={{ height: 0 }} />}
-            ListEmptyComponent={
-              !isLoading ? (
-                <View style={styles.emptyContainer}>
-                  <Text
-                    style={[styles.emptyText, { color: theme.textSecondary }]}
-                  >
-                    {t("noConsumptionsYet")}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.emptySubtext,
-                      { color: theme.textSecondary },
-                    ]}
-                  >
-                    {t("addFirstExpense")}
-                  </Text>
-                </View>
-              ) : null
-            }
+            removeClippedSubviews
+            maxToRenderPerBatch={10}
+            updateCellsBatchingPeriod={50}
+            initialNumToRender={10}
+            windowSize={10}
+            getItemLayout={(data, index) => ({
+              length: 72,
+              offset: 72 * index,
+              index,
+            })}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            ListEmptyComponent={ListEmptyComponent}
           />
         </Animated.View>
       ) : (
@@ -115,7 +137,7 @@ export default function Index() {
         </Animated.View>
       )}
 
-      <GlassTabBar activeTab={activeTab} onTabChange={setActiveTab} />
+      <GlassTabBar activeTab={activeTab} onTabChange={handleTabChange} />
     </SafeAreaView>
   );
 }
@@ -142,6 +164,12 @@ const styles = StyleSheet.create({
   total: {
     fontSize: 18,
     fontWeight: "500",
+  },
+  listContent: {
+    paddingBottom: 120,
+  },
+  separator: {
+    height: 0,
   },
   emptyContainer: {
     paddingTop: 60,

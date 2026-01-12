@@ -2,7 +2,8 @@ import { GlassContainer } from "@/components/GlassContainer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Consumption } from "@/types/consumption";
-import React from "react";
+import { formatCurrency, formatDate, formatTime } from "@/utils/formatting";
+import React, { memo, useCallback } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
   FadeInDown,
@@ -21,15 +22,7 @@ interface ConsumptionItemProps {
   onDelete: (id: string) => void;
 }
 
-// Format currency with thousand separators
-const formatCurrency = (amount: number, decimals: number = 2): string => {
-  return amount.toLocaleString("en-US", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
-};
-
-export function ConsumptionItem({
+function ConsumptionItemComponent({
   consumption,
   onDelete,
 }: ConsumptionItemProps) {
@@ -52,48 +45,22 @@ export function ConsumptionItem({
     opacity: opacity.value,
   }));
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
+  const handleDelete = useCallback(() => {
+    onDelete(consumption.id);
+  }, [consumption.id, onDelete]);
 
-    const localeMap: Record<string, string> = {
-      en: "en-US",
-      zh: "zh-TW",
-      es: "es-ES",
-      fr: "fr-FR",
-      de: "de-DE",
-      ja: "ja-JP",
-    };
-
-    if (date.toDateString() === today.toDateString()) {
-      return t("today_label");
-    }
-    if (date.toDateString() === yesterday.toDateString()) {
-      return t("yesterday");
-    }
-    return date.toLocaleDateString(localeMap[resolvedLanguage] || "en-US", {
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const localeMap: Record<string, string> = {
-      en: "en-US",
-      zh: "zh-TW",
-      es: "es-ES",
-      fr: "fr-FR",
-      de: "de-DE",
-      ja: "ja-JP",
-    };
-    return date.toLocaleTimeString(localeMap[resolvedLanguage] || "en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const displayDate = formatDate(
+    consumption.date,
+    resolvedLanguage,
+    t("today_label"),
+    t("yesterday")
+  );
+  const displayTime = formatTime(consumption.date, resolvedLanguage);
+  const displayDescription =
+    consumption.description?.trim() &&
+    consumption.description.trim() !== "No description"
+      ? consumption.description.trim()
+      : t("noDescription");
 
   return (
     <Animated.View
@@ -118,23 +85,20 @@ export function ConsumptionItem({
                 <Text
                   style={[styles.description, { color: theme.textSecondary }]}
                 >
-                  {consumption.description?.trim() &&
-                  consumption.description.trim() !== "No description"
-                    ? consumption.description.trim()
-                    : t("noDescription")}
+                  {displayDescription}
                 </Text>
               </View>
               <View style={styles.meta}>
                 <Text style={[styles.date, { color: theme.textSecondary }]}>
-                  {formatDate(consumption.date)}
+                  {displayDate}
                 </Text>
                 <Text style={[styles.time, { color: theme.textSecondary }]}>
-                  {formatTime(consumption.date)}
+                  {displayTime}
                 </Text>
               </View>
             </View>
             <TouchableOpacity
-              onPress={() => onDelete(consumption.id)}
+              onPress={handleDelete}
               style={[styles.deleteButton, { backgroundColor: theme.border }]}
               activeOpacity={0.7}
             >
@@ -205,3 +169,5 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
 });
+
+export const ConsumptionItem = memo(ConsumptionItemComponent);

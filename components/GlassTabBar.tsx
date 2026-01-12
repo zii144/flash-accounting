@@ -1,9 +1,10 @@
 import { GlassContainer } from "@/components/GlassContainer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { ANIMATION_CONFIG } from "@/utils/constants";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import React from "react";
+import React, { useCallback } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, {
   Extrapolate,
@@ -29,31 +30,34 @@ export function GlassTabBar({ activeTab, onTabChange }: GlassTabBarProps) {
   React.useEffect(() => {
     if (activeTab === "accounting") {
       accountingProgress.value = withSpring(1, {
-        damping: 20,
-        stiffness: 200,
+        damping: ANIMATION_CONFIG.SPRING_DAMPING,
+        stiffness: ANIMATION_CONFIG.SPRING_STIFFNESS,
       });
       statisticsProgress.value = withSpring(0, {
-        damping: 20,
-        stiffness: 200,
+        damping: ANIMATION_CONFIG.SPRING_DAMPING,
+        stiffness: ANIMATION_CONFIG.SPRING_STIFFNESS,
       });
     } else {
       accountingProgress.value = withSpring(0, {
-        damping: 20,
-        stiffness: 200,
+        damping: ANIMATION_CONFIG.SPRING_DAMPING,
+        stiffness: ANIMATION_CONFIG.SPRING_STIFFNESS,
       });
       statisticsProgress.value = withSpring(1, {
-        damping: 20,
-        stiffness: 200,
+        damping: ANIMATION_CONFIG.SPRING_DAMPING,
+        stiffness: ANIMATION_CONFIG.SPRING_STIFFNESS,
       });
     }
   }, [activeTab, accountingProgress, statisticsProgress]);
 
-  const handlePress = (tab: "accounting" | "statistics") => {
-    if (activeTab !== tab) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      onTabChange(tab);
-    }
-  };
+  const handlePress = useCallback(
+    (tab: "accounting" | "statistics") => {
+      if (activeTab !== tab) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        onTabChange(tab);
+      }
+    },
+    [activeTab, onTabChange]
+  );
 
   const accountingStyle = useAnimatedStyle(() => {
     const scale = interpolate(

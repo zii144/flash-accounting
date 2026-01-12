@@ -3,9 +3,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { Consumption } from "@/types/consumption";
+import { TYPING_FEEDBACK_DELAY } from "@/utils/constants";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -94,30 +95,26 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
     }
     typingTimeoutRef.current = setTimeout(() => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }, 80);
-  };
-
-  // Play typing sound effect (WhatsApp-like using haptic feedback)
-  const playTypingSound = () => {
-    // Use haptic feedback for tactile typing feel (similar to WhatsApp)
-    // This provides subtle vibration feedback that feels like typing sounds
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }, TYPING_FEEDBACK_DELAY);
   };
 
   // Debounced typing sound
-  const handleTyping = (text: string, callback: (text: string) => void) => {
-    callback(text);
+  const handleTyping = useCallback(
+    (text: string, callback: (text: string) => void) => {
+      callback(text);
 
-    // Clear existing timeout
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
+      // Clear existing timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
 
-    // Play sound after a short delay (debounced) - similar to WhatsApp
-    typingTimeoutRef.current = setTimeout(() => {
-      playTypingSound();
-    }, 80);
-  };
+      // Play haptic feedback after a short delay (debounced)
+      typingTimeoutRef.current = setTimeout(() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }, TYPING_FEEDBACK_DELAY);
+    },
+    []
+  );
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -151,7 +148,7 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   }, [transcript, isListening, baseDescription]);
 
   // Save base description when starting to listen
-  const handleMicPress = async () => {
+  const handleMicPress = useCallback(async () => {
     if (isListening) {
       await stopListening();
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -161,9 +158,20 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
       await startListening();
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
-  };
+  }, [isListening, description, stopListening, startListening]);
 
-  const handleSubmit = () => {
+  const isSubmitDisabled = !amount || parseFloat(parseAmountInput(amount)) <= 0;
+
+  // Animation for listening state
+  const listeningScale = useSharedValue(1);
+  const listeningOpacity = useSharedValue(1);
+
+  // Animation for submit button
+  const submitScale = useSharedValue(1);
+  const submitOpacity = useSharedValue(isSubmitDisabled ? 0.4 : 1);
+  const submitPulse = useSharedValue(0);
+
+  const handleSubmit = useCallback(() => {
     // Parse the formatted amount (remove commas)
     const numericAmount = parseAmountInput(amount);
     const amountNum = parseFloat(numericAmount);
@@ -199,18 +207,9 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
     setAmount("");
     setDescription("");
     setBaseDescription("");
-  };
-
-  const isSubmitDisabled = !amount || parseFloat(parseAmountInput(amount)) <= 0;
-
-  // Animation for listening state
-  const listeningScale = useSharedValue(1);
-  const listeningOpacity = useSharedValue(1);
-
-  // Animation for submit button
-  const submitScale = useSharedValue(1);
-  const submitOpacity = useSharedValue(isSubmitDisabled ? 0.4 : 1);
-  const submitPulse = useSharedValue(0);
+    // submitScale is a shared value, not a dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [amount, description, isListening, onSubmit, stopListening]);
 
   useEffect(() => {
     if (isListening) {
@@ -248,7 +247,9 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [isSubmitDisabled, submitPulse]);
+    // submitPulse is a shared value, not a dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSubmitDisabled]);
 
   const listeningStyle = useAnimatedStyle(() => ({
     transform: [{ scale: listeningScale.value }],

@@ -1,10 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
+import { STORAGE_KEYS, SUPPORTED_LANGUAGES } from "@/utils/constants";
+import type { ResolvedLanguage } from "@/utils/formatting";
 
 type Language = "en" | "zh" | "es" | "fr" | "de" | "ja" | "device";
-type ResolvedLanguage = "en" | "zh" | "es" | "fr" | "de" | "ja";
 
-interface LanguageContextType {
+export interface LanguageContextType {
   language: Language;
   resolvedLanguage: ResolvedLanguage;
   setLanguage: (lang: Language) => Promise<void>;
@@ -338,7 +339,6 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
   },
 };
 
-const LANGUAGE_STORAGE_KEY = "@flash_accounting_language";
 
 const LanguageContext = createContext<LanguageContextType | undefined>(
   undefined
@@ -357,16 +357,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const loadLanguage = async () => {
     try {
-      const saved = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
-      if (
-        saved &&
-        (["en", "zh", "es", "fr", "de", "ja", "device"] as Language[]).includes(
-          saved as Language
-        )
-      ) {
+      const saved = await AsyncStorage.getItem(STORAGE_KEYS.LANGUAGE);
+      if (saved && SUPPORTED_LANGUAGES.includes(saved as Language)) {
         setLanguageState(saved as Language);
       } else {
-        // Default to device language if nothing saved
         setLanguageState("device");
       }
     } catch (error) {
@@ -377,16 +371,19 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const setLanguage = async (lang: Language) => {
     try {
-      await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+      await AsyncStorage.setItem(STORAGE_KEYS.LANGUAGE, lang);
       setLanguageState(lang);
     } catch (error) {
       console.error("Failed to save language:", error);
     }
   };
 
-  const t = (key: string): string => {
-    return translations[resolvedLanguage][key] || key;
-  };
+  const t = useMemo(
+    () => (key: string): string => {
+      return translations[resolvedLanguage]?.[key] || key;
+    },
+    [resolvedLanguage]
+  );
 
   return (
     <LanguageContext.Provider

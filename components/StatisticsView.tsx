@@ -4,9 +4,22 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
+import {
+  SORT_OPTIONS,
+  TIME_FILTERS,
+  type SortOption,
+  type TimeFilter,
+  type ViewMode,
+} from "@/utils/constants";
+import {
+  formatCurrency,
+  formatGroupedDate,
+  formatMonthLabel,
+  formatTime,
+} from "@/utils/formatting";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
   ScrollView,
@@ -17,23 +30,12 @@ import {
 } from "react-native";
 import Animated, { FadeIn, Layout } from "react-native-reanimated";
 
-type SortOption = "date-desc" | "date-asc" | "amount-desc" | "amount-asc";
-type TimeFilter = "all" | "today" | "week" | "month" | "year";
-
 interface GroupedConsumption {
   date: string;
   dateLabel: string;
   consumptions: Consumption[];
   total: number;
 }
-
-// Format currency with thousand separators
-const formatCurrency = (amount: number, decimals: number = 2): string => {
-  return amount.toLocaleString("en-US", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
-};
 
 export function StatisticsView() {
   const { theme } = useTheme();
@@ -42,6 +44,26 @@ export function StatisticsView() {
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   const [settingsVisible, setSettingsVisible] = useState(false);
+
+  const handleSettingsPress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSettingsVisible(true);
+  }, []);
+
+  const handleViewModeChange = useCallback((mode: ViewMode) => {
+    setViewMode(mode);
+  }, []);
+
+  const handleTimeFilterChange = useCallback((filter: TimeFilter) => {
+    setTimeFilter(filter);
+  }, []);
+
+  const handleSortToggle = useCallback(() => {
+    setSortOption((prev) => {
+      const currentIndex = SORT_OPTIONS.indexOf(prev);
+      return SORT_OPTIONS[(currentIndex + 1) % SORT_OPTIONS.length];
+    });
+  }, []);
 
   // Filter consumptions by time
   const filteredConsumptions = useMemo(() => {
@@ -108,34 +130,12 @@ export function StatisticsView() {
 
     return Object.entries(groups)
       .map(([date, items]) => {
-        const dateObj = new Date(date);
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-
-        let dateLabel = "";
-        if (dateObj.toDateString() === today.toDateString()) {
-          dateLabel = t("today_label");
-        } else if (dateObj.toDateString() === yesterday.toDateString()) {
-          dateLabel = t("yesterday");
-        } else {
-          const localeMap: Record<string, string> = {
-            en: "en-US",
-            zh: "zh-TW",
-            es: "es-ES",
-            fr: "fr-FR",
-            de: "de-DE",
-            ja: "ja-JP",
-          };
-          dateLabel = dateObj.toLocaleDateString(
-            localeMap[resolvedLanguage] || "en-US",
-            {
-              weekday: "short",
-              month: "short",
-              day: "numeric",
-            }
-          );
-        }
+        const dateLabel = formatGroupedDate(
+          date,
+          resolvedLanguage,
+          t("today_label"),
+          t("yesterday")
+        );
 
         return {
           date,
@@ -163,22 +163,7 @@ export function StatisticsView() {
 
     return Object.entries(groups)
       .map(([key, items]) => {
-        const dateObj = new Date(items[0].date);
-        const localeMap: Record<string, string> = {
-          en: "en-US",
-          zh: "zh-TW",
-          es: "es-ES",
-          fr: "fr-FR",
-          de: "de-DE",
-          ja: "ja-JP",
-        };
-        const dateLabel = dateObj.toLocaleDateString(
-          localeMap[resolvedLanguage] || "en-US",
-          {
-            month: "long",
-            year: "numeric",
-          }
-        );
+        const dateLabel = formatMonthLabel(items[0].date, resolvedLanguage);
 
         return {
           date: key,
@@ -190,12 +175,15 @@ export function StatisticsView() {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [sortedConsumptions, resolvedLanguage]);
 
-  const [viewMode, setViewMode] = useState<"day" | "month">("day");
-  const displayData = viewMode === "day" ? groupedByDay : groupedByMonth;
+  const [viewMode, setViewMode] = useState<ViewMode>("day");
+  const displayData = useMemo(
+    () => (viewMode === "day" ? groupedByDay : groupedByMonth),
+    [viewMode, groupedByDay, groupedByMonth]
+  );
 
-  const totalAmount = filteredConsumptions.reduce(
-    (sum, c) => sum + c.amount,
-    0
+  const totalAmount = useMemo(
+    () => filteredConsumptions.reduce((sum, c) => sum + c.amount, 0),
+    [filteredConsumptions]
   );
 
   // Calculate log day (days since first entry)
@@ -218,10 +206,7 @@ export function StatisticsView() {
         </Text>
         <TouchableOpacity
           style={styles.settingsButton}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            setSettingsVisible(true);
-          }}
+          onPress={handleSettingsPress}
         >
           <GlassContainer intensity="medium" style={styles.settingsGlass}>
             <Ionicons name="settings-outline" size={20} color={theme.text} />
@@ -302,7 +287,7 @@ export function StatisticsView() {
                     : "transparent",
               },
             ]}
-            onPress={() => setViewMode("day")}
+            onPress={() => handleViewModeChange("day")}
           >
             <Text
               style={[
@@ -329,7 +314,7 @@ export function StatisticsView() {
                     : "transparent",
               },
             ]}
-            onPress={() => setViewMode("month")}
+            onPress={() => handleViewModeChange("month")}
           >
             <Text
               style={[
@@ -354,9 +339,7 @@ export function StatisticsView() {
             </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.filterButtons}>
-                {(
-                  ["all", "today", "week", "month", "year"] as TimeFilter[]
-                ).map((filter) => (
+                {TIME_FILTERS.map((filter) => (
                   <TouchableOpacity
                     key={filter}
                     style={[
@@ -365,7 +348,7 @@ export function StatisticsView() {
                         backgroundColor: theme.foreground,
                       },
                     ]}
-                    onPress={() => setTimeFilter(filter)}
+                    onPress={() => handleTimeFilterChange(filter)}
                   >
                     <Text
                       style={[
@@ -392,16 +375,7 @@ export function StatisticsView() {
             </Text>
             <TouchableOpacity
               style={styles.sortButton}
-              onPress={() => {
-                const options: SortOption[] = [
-                  "date-desc",
-                  "date-asc",
-                  "amount-desc",
-                  "amount-asc",
-                ];
-                const currentIndex = options.indexOf(sortOption);
-                setSortOption(options[(currentIndex + 1) % options.length]);
-              }}
+              onPress={handleSortToggle}
             >
               <Ionicons
                 name={
@@ -434,6 +408,11 @@ export function StatisticsView() {
           data={displayData}
           keyExtractor={(item) => item.date}
           scrollEnabled={false}
+          removeClippedSubviews
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
+          initialNumToRender={10}
+          windowSize={10}
           renderItem={({ item }) => (
             <Animated.View
               entering={FadeIn.duration(300)}
@@ -489,23 +468,7 @@ export function StatisticsView() {
                       { color: theme.textSecondary },
                     ]}
                   >
-                    {new Date(consumption.date).toLocaleTimeString(
-                      resolvedLanguage === "en"
-                        ? "en-US"
-                        : resolvedLanguage === "zh"
-                        ? "zh-TW"
-                        : resolvedLanguage === "es"
-                        ? "es-ES"
-                        : resolvedLanguage === "fr"
-                        ? "fr-FR"
-                        : resolvedLanguage === "de"
-                        ? "de-DE"
-                        : "ja-JP",
-                      {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      }
-                    )}
+                    {formatTime(consumption.date, resolvedLanguage)}
                   </Text>
                 </View>
               ))}

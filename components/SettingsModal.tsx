@@ -3,10 +3,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
-import * as FileSystem from "expo-file-system";
+import { documentDirectory, EncodingType, writeAsStringAsync } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   Alert,
   Modal,
@@ -17,7 +17,6 @@ import {
 } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
-type Language = "en" | "zh" | "es" | "fr" | "de" | "ja" | "device";
 
 interface SettingsModalProps {
   visible: boolean;
@@ -35,45 +34,50 @@ export function SettingsModal({
   const { clearAll } = useConsumptionStorage();
   const [isExporting, setIsExporting] = useState(false);
 
-  const languages: { code: Language; name: string }[] = [
-    { code: "device", name: t("device") },
-    { code: "en", name: t("english") },
-    { code: "zh", name: t("chinese") },
-    { code: "es", name: t("spanish") },
-    { code: "fr", name: t("french") },
-    { code: "de", name: t("german") },
-    { code: "ja", name: t("japanese") },
-  ];
+  const languages = useMemo(
+    () => [
+      { code: "device" as const, name: t("device") },
+      { code: "en" as const, name: t("english") },
+      { code: "zh" as const, name: t("chinese") },
+      { code: "es" as const, name: t("spanish") },
+      { code: "fr" as const, name: t("french") },
+      { code: "de" as const, name: t("german") },
+      { code: "ja" as const, name: t("japanese") },
+    ],
+    [t]
+  );
 
-  const exportToCSV = async () => {
+  const exportToCSV = useCallback(async () => {
     if (consumptions.length === 0) {
-      Alert.alert(t("exportError"), "No data to export");
+      Alert.alert(t("exportError"), t("noConsumptionsYet"));
       return;
     }
 
     setIsExporting(true);
     try {
-      // Create CSV content
+      // Create CSV content with proper escaping
       const headers = ["Date", "Amount", "Description", "Category"];
       const rows = consumptions.map((c) => {
         const date = new Date(c.date).toLocaleString();
         const amount = c.amount.toFixed(2);
-        const description = c.description.replace(/"/g, '""'); // Escape quotes
-        const category = c.category || "";
+        // Escape quotes in CSV format
+        const description = (c.description || "").replace(/"/g, '""');
+        const category = (c.category || "").replace(/"/g, '""');
         return `"${date}","${amount}","${description}","${category}"`;
       });
 
-      const csvContent = [
-        headers.join(","),
-        ...rows,
-      ].join("\n");
+      const csvContent = [headers.join(","), ...rows].join("\n");
 
-      // Create file
-      const fileName = `flash-accounting-${new Date().toISOString().split("T")[0]}.csv`;
-      const fileUri = FileSystem.documentDirectory + fileName;
+      // Create file with timestamp
+      const timestamp = new Date().toISOString().split("T")[0];
+      const fileName = `flash-accounting-${timestamp}.csv`;
+      if (!documentDirectory) {
+        throw new Error("Unable to determine document directory");
+      }
+      const fileUri = `${documentDirectory}${fileName}`;
 
-      await FileSystem.writeAsStringAsync(fileUri, csvContent, {
-        encoding: FileSystem.EncodingType.UTF8,
+      await writeAsStringAsync(fileUri, csvContent, {
+        encoding: EncodingType.UTF8,
       });
 
       // Check if sharing is available
@@ -85,17 +89,22 @@ export function SettingsModal({
         });
         Alert.alert(t("exportSuccess"));
       } else {
-        Alert.alert(t("exportError"), "Sharing is not available on this device");
+        Alert.alert(
+          t("exportError"),
+          "Sharing is not available on this device"
+        );
       }
     } catch (error) {
       console.error("Export error:", error);
-      Alert.alert(t("exportError"), String(error));
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      Alert.alert(t("exportError"), errorMessage);
     } finally {
       setIsExporting(false);
     }
-  };
+  }, [consumptions, t]);
 
-  const handleClearHistory = () => {
+  const handleClearHistory = useCallback(() => {
     Alert.alert(
       t("clearHistory"),
       t("clearHistoryConfirm"),
@@ -114,13 +123,17 @@ export function SettingsModal({
               onClose();
             } catch (error) {
               console.error("Clear error:", error);
-              Alert.alert("Error", "Failed to clear history");
+              const errorMessage =
+                error instanceof Error
+                  ? error.message
+                  : "Failed to clear history";
+              Alert.alert("Error", errorMessage);
             }
           },
         },
       ]
     );
-  };
+  }, [t, clearAll, onClose]);
 
   return (
     <Modal
