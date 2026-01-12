@@ -21,6 +21,14 @@ interface ConsumptionItemProps {
   onDelete: (id: string) => void;
 }
 
+// Format currency with thousand separators
+const formatCurrency = (amount: number, decimals: number = 2): string => {
+  return amount.toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+};
+
 export function ConsumptionItem({
   consumption,
   onDelete,
@@ -105,7 +113,7 @@ export function ConsumptionItem({
             <View style={styles.content}>
               <View style={styles.mainInfo}>
                 <Text style={[styles.amount, { color: theme.text }]}>
-                  ${consumption.amount.toFixed(2)}
+                  ${formatCurrency(consumption.amount, 2)}
                 </Text>
                 <Text
                   style={[styles.description, { color: theme.textSecondary }]}

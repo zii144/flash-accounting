@@ -17,6 +17,14 @@ import {
 } from "react-native";
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
 
+// Format currency with thousand separators
+const formatCurrency = (amount: number, decimals: number = 2): string => {
+  return amount.toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+};
+
 export default function Index() {
   const { theme } = useTheme();
   const { t } = useLanguage();
@@ -56,7 +64,7 @@ export default function Index() {
               {t("flashAccounting")}
             </Text>
             <Text style={[styles.total, { color: theme.textSecondary }]}>
-              {t("total")}: ${totalAmount.toFixed(2)}
+              {t("total")}: ${formatCurrency(totalAmount, 2)}
             </Text>
           </View>
 

@@ -29,6 +29,14 @@ interface GroupedConsumption {
   total: number;
 }
 
+// Format currency with thousand separators
+const formatCurrency = (amount: number, decimals: number = 2): string => {
+  return amount.toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+};
+
 export function StatisticsView() {
   const { theme } = useTheme();
   const { resolvedLanguage, t } = useLanguage();
@@ -248,21 +256,33 @@ export function StatisticsView() {
         <View style={styles.statsContainer}>
           <View style={styles.statCardWrapper}>
             <GlassContainer intensity="light" style={styles.statCard}>
-              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
+              <Text
+                allowFontScaling={false}
+                style={[styles.statLabel, { color: theme.textSecondary }]}
+              >
                 {t("total")}
               </Text>
-              <Text style={[styles.statValue, { color: theme.text }]}>
-                ${totalAmount.toFixed(1)}
+              <Text
+                allowFontScaling={false}
+                style={[styles.statValue, { color: theme.text }]}
+              >
+                ${formatCurrency(totalAmount, 1)}
               </Text>
             </GlassContainer>
           </View>
 
           <View style={styles.statCardWrapper}>
             <GlassContainer intensity="light" style={styles.statCard}>
-              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
+              <Text
+                allowFontScaling={false}
+                style={[styles.statLabel, { color: theme.textSecondary }]}
+              >
                 {t("count")}
               </Text>
-              <Text style={[styles.statValue, { color: theme.text }]}>
+              <Text
+                allowFontScaling={false}
+                style={[styles.statValue, { color: theme.text }]}
+              >
                 {filteredConsumptions.length}
               </Text>
             </GlassContainer>
@@ -270,10 +290,16 @@ export function StatisticsView() {
 
           <View style={styles.statCardWrapper}>
             <GlassContainer intensity="light" style={styles.statCard}>
-              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
+              <Text
+                allowFontScaling={false}
+                style={[styles.statLabel, { color: theme.textSecondary }]}
+              >
                 {t("logDay")}
               </Text>
-              <Text style={[styles.statValue, { color: theme.text }]}>
+              <Text
+                allowFontScaling={false}
+                style={[styles.statValue, { color: theme.text }]}
+              >
                 {logDay}
               </Text>
             </GlassContainer>
@@ -291,7 +317,10 @@ export function StatisticsView() {
                 color={theme.textSecondary}
                 style={styles.rateIcon}
               />
-              <Text style={[styles.statLabel, { color: theme.textSecondary }]}>
+              <Text
+                allowFontScaling={false}
+                style={[styles.statLabel, { color: theme.textSecondary }]}
+              >
                 {t("rateThisApp")}
               </Text>
             </GlassContainer>
@@ -464,7 +493,7 @@ export function StatisticsView() {
                   </Text>
                 </View>
                 <Text style={[styles.groupTotal, { color: theme.text }]}>
-                  ${item.total.toFixed(2)}
+                  ${formatCurrency(item.total, 2)}
                 </Text>
               </GlassContainer>
 
@@ -480,7 +509,7 @@ export function StatisticsView() {
                     <Text
                       style={[styles.consumptionAmount, { color: theme.text }]}
                     >
-                      ${consumption.amount.toFixed(2)}
+                      ${formatCurrency(consumption.amount, 2)}
                     </Text>
                     <Text
                       style={[
