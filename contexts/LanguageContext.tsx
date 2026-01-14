@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Localization from "expo-localization";
 import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
 import { STORAGE_KEYS, SUPPORTED_LANGUAGES } from "@/utils/constants";
 import type { ResolvedLanguage } from "@/utils/formatting";
@@ -15,8 +16,19 @@ export interface LanguageContextType {
 // Detect device locale and map to supported languages
 const getDeviceLanguage = (): ResolvedLanguage => {
   try {
-    const locale = Intl.DateTimeFormat().resolvedOptions().locale;
-    const langCode = locale.split("-")[0].toLowerCase();
+    // Get the device locales from expo-localization
+    const locales = Localization.getLocales();
+    
+    // Use the first locale (primary device language)
+    const primaryLocale = locales[0];
+    if (!primaryLocale) {
+      return "en";
+    }
+
+    // Extract language code (e.g., "en" from "en-US")
+    const langCode = primaryLocale.languageCode?.toLowerCase() || 
+                     primaryLocale.languageTag?.split("-")[0].toLowerCase() || 
+                     "en";
 
     // Map device language codes to our supported languages
     const languageMap: Record<string, ResolvedLanguage> = {
@@ -29,7 +41,8 @@ const getDeviceLanguage = (): ResolvedLanguage => {
     };
 
     return languageMap[langCode] || "en";
-  } catch {
+  } catch (error) {
+    console.error("Failed to detect device language:", error);
     return "en";
   }
 };
@@ -348,8 +361,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>("device");
 
   // Get the resolved language (actual language code used for translations)
-  const resolvedLanguage: ResolvedLanguage =
-    language === "device" ? getDeviceLanguage() : language;
+  // Memoize to avoid recalculating device language on every render
+  const resolvedLanguage: ResolvedLanguage = useMemo(() => {
+    return language === "device" ? getDeviceLanguage() : language;
+  }, [language]);
 
   useEffect(() => {
     loadLanguage();

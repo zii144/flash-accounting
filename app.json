@@ -12,8 +12,10 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSSpeechRecognitionUsageDescription": "This app needs access to speech recognition to allow you to dictate expense descriptions.",
-        "NSMicrophoneUsageDescription": "This app needs access to your microphone to allow you to dictate expense descriptions."
-      }
+        "NSMicrophoneUsageDescription": "This app needs access to your microphone to allow you to dictate expense descriptions.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.zii.flash.accounting"
     },
     "android": {
       "adaptiveIcon": {
@@ -46,7 +48,8 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,
