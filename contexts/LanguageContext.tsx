@@ -1,8 +1,14 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Localization from "expo-localization";
-import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
 import { STORAGE_KEYS, SUPPORTED_LANGUAGES } from "@/utils/constants";
 import type { ResolvedLanguage } from "@/utils/formatting";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Localization from "expo-localization";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 type Language = "en" | "zh" | "es" | "fr" | "de" | "ja" | "device";
 
@@ -18,7 +24,7 @@ const getDeviceLanguage = (): ResolvedLanguage => {
   try {
     // Get the device locales from expo-localization
     const locales = Localization.getLocales();
-    
+
     // Use the first locale (primary device language)
     const primaryLocale = locales[0];
     if (!primaryLocale) {
@@ -26,9 +32,10 @@ const getDeviceLanguage = (): ResolvedLanguage => {
     }
 
     // Extract language code (e.g., "en" from "en-US")
-    const langCode = primaryLocale.languageCode?.toLowerCase() || 
-                     primaryLocale.languageTag?.split("-")[0].toLowerCase() || 
-                     "en";
+    const langCode =
+      primaryLocale.languageCode?.toLowerCase() ||
+      primaryLocale.languageTag?.split("-")[0].toLowerCase() ||
+      "en";
 
     // Map device language codes to our supported languages
     const languageMap: Record<string, ResolvedLanguage> = {
@@ -103,7 +110,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     statistics: "統計",
     total: "總計",
     count: "數量",
-    flashAccounting: "閃速記帳",
+    flashAccounting: "黑白記帳",
     noConsumptionsYet: "尚無消費記錄",
     addFirstExpense: "請在上方新增您的第一筆支出",
     amount: "金額",
@@ -352,7 +359,6 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
   },
 };
 
-
 const LanguageContext = createContext<LanguageContextType | undefined>(
   undefined
 );
@@ -394,9 +400,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const t = useMemo(
-    () => (key: string): string => {
-      return translations[resolvedLanguage]?.[key] || key;
-    },
+    () =>
+      (key: string): string => {
+        return translations[resolvedLanguage]?.[key] || key;
+      },
     [resolvedLanguage]
   );
 
