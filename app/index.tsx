@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 24,
-    alignItems: "center",
+    alignItems: "flex-start",
   },
   headerTop: {
     flexDirection: "row",
@@ -208,6 +208,7 @@ const styles = StyleSheet.create({
   total: {
     fontSize: 18,
     fontWeight: "500",
+    alignSelf: "flex-start",
   },
   listContent: {
     paddingBottom: 120,
