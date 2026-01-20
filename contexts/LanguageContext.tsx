@@ -25,31 +25,65 @@ const getDeviceLanguage = (): ResolvedLanguage => {
     // Get the device locales from expo-localization
     const locales = Localization.getLocales();
 
+    // Ensure locales is an array and has at least one element
+    if (!Array.isArray(locales) || locales.length === 0) {
+      console.warn("No device locales found, falling back to English");
+      return "en";
+    }
+
     // Use the first locale (primary device language)
     const primaryLocale = locales[0];
     if (!primaryLocale) {
+      console.warn("Primary locale is undefined, falling back to English");
       return "en";
     }
 
     // Extract language code (e.g., "en" from "en-US")
-    const langCode =
-      primaryLocale.languageCode?.toLowerCase() ||
-      primaryLocale.languageTag?.split("-")[0].toLowerCase() ||
-      "en";
+    let langCode: string | null = null;
+
+    // Try languageCode first (most reliable)
+    if (primaryLocale.languageCode) {
+      langCode = primaryLocale.languageCode.toLowerCase();
+    }
+    // Fallback to extracting from languageTag (e.g., "en-US" -> "en")
+    else if (primaryLocale.languageTag) {
+      const parts = primaryLocale.languageTag.split("-");
+      if (parts.length > 0) {
+        langCode = parts[0].toLowerCase();
+      }
+    }
+
+    // If we still don't have a language code, fall back to English
+    if (!langCode) {
+      console.warn(
+        `Could not extract language code from locale: ${JSON.stringify(primaryLocale)}, falling back to English`
+      );
+      return "en";
+    }
 
     // Map device language codes to our supported languages
+    // Fallback to "en" if the device language is not supported
     const languageMap: Record<string, ResolvedLanguage> = {
       en: "en",
-      zh: "zh",
+      zh: "zh", // Supports both zh-Hans and zh-Hant
       es: "es",
       fr: "fr",
       de: "de",
       ja: "ja",
     };
 
-    return languageMap[langCode] || "en";
+    const resolvedLang = languageMap[langCode];
+    if (!resolvedLang) {
+      console.log(
+        `Device language "${langCode}" is not supported, falling back to English`
+      );
+      return "en";
+    }
+
+    return resolvedLang;
   } catch (error) {
     console.error("Failed to detect device language:", error);
+    // Always fall back to English on any error
     return "en";
   }
 };

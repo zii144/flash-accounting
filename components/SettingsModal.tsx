@@ -1,12 +1,11 @@
-import { GlassContainer } from "@/components/GlassContainer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
+import { Ionicons } from "@expo/vector-icons";
 import { documentDirectory, EncodingType, writeAsStringAsync } from "expo-file-system";
 import * as Sharing from "expo-sharing";
-import { Ionicons } from "@expo/vector-icons";
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Alert,
   Modal,
@@ -151,9 +150,16 @@ export function SettingsModal({
         <Animated.View
           entering={FadeIn.duration(200)}
           exiting={FadeOut.duration(150)}
-          style={styles.modalContent}
+          style={[
+            styles.modalContent,
+            {
+              backgroundColor: theme.isDark
+                ? "rgba(28, 28, 30, 0.95)"
+                : "rgba(255, 255, 255, 0.98)",
+            },
+          ]}
         >
-          <GlassContainer intensity="heavy" style={styles.glassContainer}>
+          <View style={styles.contentContainer}>
             <View style={styles.header}>
               <Text style={[styles.title, { color: theme.text }]}>
                 {t("settings")}
@@ -260,7 +266,7 @@ export function SettingsModal({
                 </View>
               </TouchableOpacity>
             </View>
-          </GlassContainer>
+          </View>
         </Animated.View>
       </View>
     </Modal>
@@ -282,9 +288,18 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     borderRadius: 24,
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 16,
   },
-  glassContainer: {
+  contentContainer: {
     padding: 0,
+    overflow: "hidden",
   },
   header: {
     flexDirection: "row",
