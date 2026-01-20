@@ -9,6 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
+import { dismissFeatureCarousel, shouldShowFeatureCarousel } from "@/utils/feature-carousel";
 import { FEATURES, getFeatureTranslationKeys } from "@/utils/features";
 import { formatCurrency } from "@/utils/formatting";
 import { Ionicons } from "@expo/vector-icons";
@@ -43,7 +44,8 @@ export default function Index() {
     "accounting"
   );
   const [settingsVisible, setSettingsVisible] = useState(false);
-  const [carouselVisible, setCarouselVisible] = useState(true);
+  const [carouselVisible, setCarouselVisible] = useState(false);
+  const [isCheckingCarousel, setIsCheckingCarousel] = useState(true);
   const [page, setPage] = useState(1);
   const [paginatedData, setPaginatedData] = useState<Consumption[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -64,6 +66,35 @@ export default function Index() {
       }),
     []
   );
+
+  // Check if carousel should be shown on mount
+  useEffect(() => {
+    const checkCarouselVisibility = async () => {
+      try {
+        const shouldShow = await shouldShowFeatureCarousel();
+        setCarouselVisible(shouldShow);
+      } catch (error) {
+        console.error('Failed to check carousel visibility:', error);
+        // On error, show the carousel to be safe
+        setCarouselVisible(true);
+      } finally {
+        setIsCheckingCarousel(false);
+      }
+    };
+
+    checkCarouselVisibility();
+  }, []);
+
+  const handleCarouselDismiss = useCallback(async () => {
+    try {
+      await dismissFeatureCarousel();
+      setCarouselVisible(false);
+    } catch (error) {
+      console.error('Failed to dismiss carousel:', error);
+      // Still hide the carousel even if save fails
+      setCarouselVisible(false);
+    }
+  }, []);
 
   const handleSettingsPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -202,11 +233,13 @@ export default function Index() {
     >
       <StatusBar barStyle={theme.isDark ? "light-content" : "dark-content"} />
 
-      <FeaturesCarousel
-        items={featureItems}
-        visible={carouselVisible}
-        onDismiss={() => setCarouselVisible(false)}
-      />
+      {!isCheckingCarousel && (
+        <FeaturesCarousel
+          items={featureItems}
+          visible={carouselVisible}
+          onDismiss={handleCarouselDismiss}
+        />
+      )}
 
       {!carouselVisible && (
         <>
