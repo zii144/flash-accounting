@@ -1,0 +1,313 @@
+import { useTheme } from "@/contexts/ThemeContext";
+import { UpcomingFeaturesBanner, BannerVariant } from "@/components/UpcomingFeaturesBanner";
+import { Ionicons } from "@expo/vector-icons";
+import React, { useCallback, useRef } from "react";
+import {
+  Dimensions,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+  useAnimatedStyle,
+  interpolate,
+  Extrapolation,
+  FadeIn,
+  FadeOut,
+} from "react-native-reanimated";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+
+export interface FeatureItem {
+  title: string;
+  message: string;
+  variant?: BannerVariant;
+  icon?: keyof typeof Ionicons.glyphMap;
+  actionText?: string;
+  onAction?: () => void;
+}
+
+export interface FeaturesCarouselProps {
+  /** Array of feature items to display */
+  items: FeatureItem[];
+  /** Whether the carousel is visible */
+  visible?: boolean;
+  /** Callback when carousel is dismissed */
+  onDismiss?: () => void;
+  /** Callback when a specific item is dismissed */
+  onItemDismiss?: (index: number) => void;
+  /** Auto-dismiss after milliseconds (0 = no auto-dismiss) */
+  autoDismissMs?: number;
+}
+
+export function FeaturesCarousel({
+  items,
+  visible = true,
+  onDismiss,
+  onItemDismiss,
+  autoDismissMs = 0,
+}: FeaturesCarouselProps) {
+  const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
+  const scrollX = useSharedValue(0);
+  const currentIndex = useRef(0);
+  const scrollViewRef = useRef<Animated.ScrollView>(null);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollX.value = event.contentOffset.x;
+    },
+  });
+
+  const handleItemDismiss = useCallback(
+    (index: number) => {
+      onItemDismiss?.(index);
+      // If all items are dismissed, dismiss the carousel
+      // This would need to be managed by parent component
+    },
+    [onItemDismiss]
+  );
+
+  const handleClose = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    onDismiss?.();
+  }, [onDismiss]);
+
+  // Auto-dismiss logic
+  React.useEffect(() => {
+    if (autoDismissMs > 0 && visible) {
+      const timer = setTimeout(() => {
+        handleClose();
+      }, autoDismissMs);
+      return () => clearTimeout(timer);
+    }
+  }, [autoDismissMs, visible, handleClose]);
+
+  if (!visible || items.length === 0) {
+    return null;
+  }
+
+  return (
+    <GestureHandlerRootView style={styles.container}>
+      <Animated.View
+        entering={FadeIn.duration(300)}
+        exiting={FadeOut.duration(200)}
+        style={[styles.overlay, { backgroundColor: theme.background }]}
+      >
+        {/* Close Button */}
+        <TouchableOpacity
+          style={[styles.closeButton, { top: insets.top + 10 }]}
+          onPress={handleClose}
+          hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+        >
+          <View style={[styles.closeButtonBackground, { backgroundColor: theme.foreground + "15" }]}>
+            <Ionicons name="close" size={24} color={theme.text} />
+          </View>
+        </TouchableOpacity>
+
+        {/* Carousel */}
+        <Animated.ScrollView
+          ref={scrollViewRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          decelerationRate="fast"
+          snapToInterval={SCREEN_WIDTH}
+          snapToAlignment="center"
+          contentContainerStyle={styles.scrollContent}
+        >
+          {items.map((item, index) => (
+            <CarouselItem
+              key={index}
+              item={item}
+              index={index}
+              scrollX={scrollX}
+              onDismiss={() => handleItemDismiss(index)}
+            />
+          ))}
+        </Animated.ScrollView>
+
+        {/* Pagination Indicators */}
+        <View style={styles.pagination}>
+          {items.map((_, index) => (
+            <PaginationDot
+              key={index}
+              index={index}
+              scrollX={scrollX}
+              theme={theme}
+            />
+          ))}
+        </View>
+      </Animated.View>
+    </GestureHandlerRootView>
+  );
+}
+
+interface CarouselItemProps {
+  item: FeatureItem;
+  index: number;
+  scrollX: Animated.SharedValue<number>;
+  onDismiss: () => void;
+}
+
+function CarouselItem({ item, index, scrollX, onDismiss }: CarouselItemProps) {
+  const inputRange = [
+    (index - 1) * SCREEN_WIDTH,
+    index * SCREEN_WIDTH,
+    (index + 1) * SCREEN_WIDTH,
+  ];
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const scale = interpolate(
+      scrollX.value,
+      inputRange,
+      [0.8, 1, 0.8],
+      Extrapolation.CLAMP
+    );
+
+    const opacity = interpolate(
+      scrollX.value,
+      inputRange,
+      [0.5, 1, 0.5],
+      Extrapolation.CLAMP
+    );
+
+    return {
+      transform: [{ scale }],
+      opacity,
+    };
+  });
+
+  return (
+    <Animated.View style={[styles.itemContainer, animatedStyle]}>
+      <View style={styles.bannerWrapper}>
+        <UpcomingFeaturesBanner
+          title={item.title}
+          message={item.message}
+          variant={item.variant}
+          icon={item.icon}
+          position="top"
+          dismissible={false}
+          actionText={item.actionText}
+          onAction={item.onAction}
+          relative={true}
+          style={styles.banner}
+        />
+      </View>
+    </Animated.View>
+  );
+}
+
+interface PaginationDotProps {
+  index: number;
+  scrollX: Animated.SharedValue<number>;
+  theme: any;
+}
+
+function PaginationDot({ index, scrollX, theme }: PaginationDotProps) {
+  const inputRange = [
+    (index - 1) * SCREEN_WIDTH,
+    index * SCREEN_WIDTH,
+    (index + 1) * SCREEN_WIDTH,
+  ];
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const scale = interpolate(
+      scrollX.value,
+      inputRange,
+      [1, 1.5, 1],
+      Extrapolation.CLAMP
+    );
+
+    const opacity = interpolate(
+      scrollX.value,
+      inputRange,
+      [0.4, 1, 0.4],
+      Extrapolation.CLAMP
+    );
+
+    return {
+      transform: [{ scale }],
+      opacity,
+    };
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.dot,
+        { backgroundColor: theme.text },
+        animatedStyle,
+      ]}
+    />
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 9999,
+  },
+  closeButton: {
+    position: "absolute",
+    right: 20,
+    zIndex: 10000,
+  },
+  closeButtonBackground: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  scrollContent: {
+    alignItems: "center",
+  },
+  itemContainer: {
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  bannerWrapper: {
+    width: "100%",
+    maxWidth: SCREEN_WIDTH - 40,
+  },
+  banner: {
+    position: "relative",
+  },
+  pagination: {
+    position: "absolute",
+    bottom: 120,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+});

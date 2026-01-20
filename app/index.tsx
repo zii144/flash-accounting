@@ -1,5 +1,6 @@
 import { ConsumptionForm } from "@/components/ConsumptionForm";
 import { ConsumptionItem } from "@/components/ConsumptionItem";
+import { FeatureItem, FeaturesCarousel } from "@/components/FeaturesCarousel";
 import { GlassContainer } from "@/components/GlassContainer";
 import { GlassTabBar } from "@/components/GlassTabBar";
 import { SettingsModal } from "@/components/SettingsModal";
@@ -33,6 +34,38 @@ export default function Index() {
     "accounting"
   );
   const [settingsVisible, setSettingsVisible] = useState(false);
+  const [carouselVisible, setCarouselVisible] = useState(true);
+
+  const featureItems: FeatureItem[] = useMemo(
+    () => [
+      {
+        title: "New Features Coming Soon!",
+        message:
+          "We're working on advanced analytics, export improvements, and more. Stay tuned for updates!",
+        variant: "feature" as const,
+        actionText: "Learn More",
+        onAction: () => {
+          setSettingsVisible(true);
+          setCarouselVisible(false);
+        },
+      },
+      {
+        title: "Enhanced Analytics",
+        message:
+          "Get deeper insights into your spending patterns with our new analytics dashboard. Track trends, categories, and more!",
+        variant: "info" as const,
+        icon: "analytics-outline",
+      },
+      {
+        title: "Export Improvements",
+        message:
+          "Export your data in multiple formats including CSV, PDF, and Excel. Coming in the next update!",
+        variant: "success" as const,
+        icon: "download-outline",
+      },
+    ],
+    []
+  );
 
   const handleSettingsPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -97,11 +130,19 @@ export default function Index() {
     >
       <StatusBar barStyle={theme.isDark ? "light-content" : "dark-content"} />
 
-      {activeTab === "accounting" ? (
+      <FeaturesCarousel
+        items={featureItems}
+        visible={carouselVisible}
+        onDismiss={() => setCarouselVisible(false)}
+      />
+
+      {!carouselVisible && (
+        <>
+          {activeTab === "accounting" ? (
         <Animated.View
           key="accounting"
-          entering={FadeIn.duration(300)}
-          exiting={FadeOut.duration(200)}
+          entering={FadeIn.duration(400)}
+          exiting={FadeOut.duration(300)}
           layout={Layout.springify().damping(25)}
           style={styles.content}
         >
@@ -149,8 +190,8 @@ export default function Index() {
       ) : (
         <Animated.View
           key="statistics"
-          entering={FadeIn.duration(300)}
-          exiting={FadeOut.duration(200)}
+          entering={FadeIn.duration(400)}
+          exiting={FadeOut.duration(300)}
           layout={Layout.springify().damping(25)}
           style={styles.content}
         >
@@ -158,7 +199,14 @@ export default function Index() {
         </Animated.View>
       )}
 
-      <GlassTabBar activeTab={activeTab} onTabChange={handleTabChange} />
+          <Animated.View
+            entering={FadeIn.duration(400).delay(100)}
+            exiting={FadeOut.duration(300)}
+          >
+            <GlassTabBar activeTab={activeTab} onTabChange={handleTabChange} />
+          </Animated.View>
+        </>
+      )}
 
       <SettingsModal
         visible={settingsVisible}
