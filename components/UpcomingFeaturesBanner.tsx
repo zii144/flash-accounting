@@ -1,4 +1,5 @@
 import { GlassContainer } from "@/components/GlassContainer";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
@@ -16,67 +17,44 @@ import Animated, {
     SlideOutUp,
 } from "react-native-reanimated";
 
-export type BannerVariant = "info" | "warning" | "success" | "feature";
-
 export interface UpcomingFeaturesBannerProps {
   /** Title text displayed prominently */
   title: string;
   /** Description or message text */
   message: string;
-  /** Visual variant that affects icon and colors */
-  variant?: BannerVariant;
-  /** Custom icon name (overrides variant default icon) */
+  /** Custom icon name */
   icon?: keyof typeof Ionicons.glyphMap;
   /** Position of the banner */
   position?: "top" | "bottom";
-  /** Whether the banner can be dismissed */
-  dismissible?: boolean;
-  /** Callback when banner is dismissed */
-  onDismiss?: () => void;
   /** Auto-dismiss after milliseconds (0 = no auto-dismiss) */
   autoDismissMs?: number;
-  /** Custom action button text */
-  actionText?: string;
-  /** Callback when action button is pressed */
-  onAction?: () => void;
   /** Custom container style */
   style?: ViewStyle;
   /** Whether banner is visible */
   visible?: boolean;
   /** Use relative positioning instead of absolute (for carousel usage) */
   relative?: boolean;
+  /** Show "Don't Show Again" button */
+  showDontShowAgain?: boolean;
+  /** Callback when "Don't Show Again" is pressed */
+  onDontShowAgain?: () => void;
 }
-
-const variantConfig: Record<
-  BannerVariant,
-  { icon: keyof typeof Ionicons.glyphMap; color: string }
-> = {
-  info: { icon: "information-circle-outline", color: "#007AFF" },
-  warning: { icon: "warning-outline", color: "#FF9500" },
-  success: { icon: "checkmark-circle-outline", color: "#34C759" },
-  feature: { icon: "sparkles-outline", color: "#AF52DE" },
-};
 
 export function UpcomingFeaturesBanner({
   title,
   message,
-  variant = "feature",
-  icon,
+  icon = "sparkles-outline",
   position = "top",
-  dismissible = true,
-  onDismiss,
   autoDismissMs = 0,
-  actionText,
-  onAction,
   style,
   visible = true,
   relative = false,
+  showDontShowAgain = false,
+  onDontShowAgain,
 }: UpcomingFeaturesBannerProps) {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const [isVisible, setIsVisible] = useState(visible);
-  const config = variantConfig[variant];
-  const displayIcon = icon || config.icon;
-  const iconColor = config.color;
 
   useEffect(() => {
     setIsVisible(visible);
@@ -85,21 +63,11 @@ export function UpcomingFeaturesBanner({
   useEffect(() => {
     if (autoDismissMs > 0 && isVisible) {
       const timer = setTimeout(() => {
-        if (dismissible) {
-          setIsVisible(false);
-          onDismiss?.();
-        }
+        setIsVisible(false);
       }, autoDismissMs);
       return () => clearTimeout(timer);
     }
-  }, [autoDismissMs, isVisible, dismissible, onDismiss]);
-
-  const handleDismiss = () => {
-    if (dismissible) {
-      setIsVisible(false);
-      onDismiss?.();
-    }
-  };
+  }, [autoDismissMs, isVisible]);
 
   if (!isVisible) {
     return null;
@@ -123,7 +91,7 @@ export function UpcomingFeaturesBanner({
       <GlassContainer intensity="medium" style={styles.glassWrapper}>
         <View style={styles.content}>
           <View style={styles.iconContainer}>
-            <Ionicons name={displayIcon} size={24} color={iconColor} />
+            <Ionicons name={icon} size={24} color={theme.text} />
           </View>
 
           <View style={styles.textContainer}>
@@ -132,32 +100,23 @@ export function UpcomingFeaturesBanner({
               {message}
             </Text>
           </View>
-
-          {dismissible && (
-            <TouchableOpacity
-              onPress={handleDismiss}
-              style={styles.closeButton}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons
-                name="close"
-                size={20}
-                color={theme.textSecondary}
-              />
-            </TouchableOpacity>
-          )}
         </View>
 
-        {(actionText || onAction) && (
+        {showDontShowAgain && (
           <TouchableOpacity
             style={[
-              styles.actionButton,
-              { backgroundColor: iconColor + "20", borderColor: iconColor },
+              styles.dontShowAgainButton,
+              {
+                borderColor: theme.border,
+                backgroundColor: theme.isDark
+                  ? "rgba(255, 255, 255, 0.05)"
+                  : "rgba(0, 0, 0, 0.03)",
+              },
             ]}
-            onPress={onAction}
+            onPress={onDontShowAgain}
           >
-            <Text style={[styles.actionText, { color: iconColor }]}>
-              {actionText || "Learn More"}
+            <Text style={[styles.dontShowAgainText, { color: theme.text }]}>
+              {t("dontShowAgain")}
             </Text>
           </TouchableOpacity>
         )}
@@ -220,21 +179,16 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     lineHeight: 20,
   },
-  closeButton: {
-    padding: 4,
-    marginTop: -4,
-    marginRight: -4,
-  },
-  actionButton: {
-    marginTop: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 10,
+  dontShowAgainButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
     borderWidth: 1,
     alignItems: "center",
   },
-  actionText: {
+  dontShowAgainText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "500",
   },
 });

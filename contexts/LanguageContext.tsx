@@ -138,6 +138,16 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     exportSuccess: "CSV exported successfully!",
     exportError: "Failed to export CSV",
     clearSuccess: "History cleared successfully",
+    "features.new-features.title": "New Features Coming Soon!",
+    "features.new-features.message":
+      "We're working on advanced analytics, export improvements, and more. Stay tuned for updates!",
+    "features.enhanced-analytics.title": "Enhanced Analytics",
+    "features.enhanced-analytics.message":
+      "Get deeper insights into your spending patterns with our new analytics dashboard. Track trends, categories, and more!",
+    "features.export-improvements.title": "Export Improvements",
+    "features.export-improvements.message":
+      "Export your data in multiple formats including CSV, PDF, and Excel. Coming in the next update!",
+    dontShowAgain: "Don't Show Again",
   },
   zh: {
     accounting: "記帳",
@@ -188,6 +198,16 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     exportSuccess: "CSV 匯出成功！",
     exportError: "匯出 CSV 失敗",
     clearSuccess: "歷史記錄已清除",
+    "features.new-features.title": "新功能即將推出！",
+    "features.new-features.message":
+      "我們正在開發進階分析、匯出改進等功能。敬請期待更新！",
+    "features.enhanced-analytics.title": "增強分析功能",
+    "features.enhanced-analytics.message":
+      "透過新的分析儀表板深入了解您的支出模式。追蹤趨勢、類別等更多資訊！",
+    "features.export-improvements.title": "匯出功能改進",
+    "features.export-improvements.message":
+      "以多種格式匯出您的資料，包括 CSV、PDF 和 Excel。將在下次更新中推出！",
+    dontShowAgain: "不再顯示",
   },
   es: {
     accounting: "Contabilidad",
@@ -239,6 +259,16 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     exportSuccess: "¡CSV exportado con éxito!",
     exportError: "Error al exportar CSV",
     clearSuccess: "Historial borrado con éxito",
+    "features.new-features.title": "¡Nuevas Funciones Próximamente!",
+    "features.new-features.message":
+      "Estamos trabajando en análisis avanzados, mejoras de exportación y más. ¡Mantente atento a las actualizaciones!",
+    "features.enhanced-analytics.title": "Análisis Mejorado",
+    "features.enhanced-analytics.message":
+      "Obtén información más profunda sobre tus patrones de gasto con nuestro nuevo panel de análisis. ¡Rastrea tendencias, categorías y más!",
+    "features.export-improvements.title": "Mejoras de Exportación",
+    "features.export-improvements.message":
+      "Exporta tus datos en múltiples formatos incluyendo CSV, PDF y Excel. ¡Próximamente en la próxima actualización!",
+    dontShowAgain: "No Mostrar de Nuevo",
   },
   fr: {
     accounting: "Comptabilité",
@@ -289,6 +319,16 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     exportSuccess: "CSV exporté avec succès!",
     exportError: "Échec de l'exportation CSV",
     clearSuccess: "Historique effacé avec succès",
+    "features.new-features.title": "Nouvelles Fonctionnalités à Venir!",
+    "features.new-features.message":
+      "Nous travaillons sur des analyses avancées, des améliorations d'exportation et plus encore. Restez à l'écoute pour les mises à jour!",
+    "features.enhanced-analytics.title": "Analyses Améliorées",
+    "features.enhanced-analytics.message":
+      "Obtenez des informations plus approfondies sur vos modèles de dépenses avec notre nouveau tableau de bord d'analyse. Suivez les tendances, catégories et plus encore!",
+    "features.export-improvements.title": "Améliorations d'Exportation",
+    "features.export-improvements.message":
+      "Exportez vos données dans plusieurs formats incluant CSV, PDF et Excel. À venir dans la prochaine mise à jour!",
+    dontShowAgain: "Ne Plus Afficher",
   },
   de: {
     accounting: "Buchhaltung",
@@ -340,6 +380,16 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     exportSuccess: "CSV erfolgreich exportiert!",
     exportError: "CSV-Export fehlgeschlagen",
     clearSuccess: "Verlauf erfolgreich gelöscht",
+    "features.new-features.title": "Neue Funktionen Kommen Bald!",
+    "features.new-features.message":
+      "Wir arbeiten an erweiterten Analysen, Exportverbesserungen und mehr. Bleiben Sie dran für Updates!",
+    "features.enhanced-analytics.title": "Erweiterte Analysen",
+    "features.enhanced-analytics.message":
+      "Erhalten Sie tiefere Einblicke in Ihre Ausgabenmuster mit unserem neuen Analyse-Dashboard. Verfolgen Sie Trends, Kategorien und mehr!",
+    "features.export-improvements.title": "Exportverbesserungen",
+    "features.export-improvements.message":
+      "Exportieren Sie Ihre Daten in mehreren Formaten einschließlich CSV, PDF und Excel. Kommt im nächsten Update!",
+    dontShowAgain: "Nicht Mehr Anzeigen",
   },
   ja: {
     accounting: "会計",
@@ -390,6 +440,16 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     exportSuccess: "CSVのエクスポートに成功しました！",
     exportError: "CSVのエクスポートに失敗しました",
     clearSuccess: "履歴がクリアされました",
+    "features.new-features.title": "新機能が間もなく登場！",
+    "features.new-features.message":
+      "高度な分析、エクスポート機能の改善などを開発中です。アップデートをお待ちください！",
+    "features.enhanced-analytics.title": "強化された分析",
+    "features.enhanced-analytics.message":
+      "新しい分析ダッシュボードで、支出パターンについてより深い洞察を得られます。トレンド、カテゴリなどを追跡できます！",
+    "features.export-improvements.title": "エクスポート機能の改善",
+    "features.export-improvements.message":
+      "CSV、PDF、Excelなど、複数の形式でデータをエクスポートできます。次のアップデートで登場予定です！",
+    dontShowAgain: "今後表示しない",
   },
 };
 

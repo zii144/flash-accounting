@@ -10,6 +10,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
 import { formatCurrency } from "@/utils/formatting";
+import { FEATURES, getFeatureTranslationKeys } from "@/utils/features";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useMemo, useState } from "react";
@@ -37,33 +38,15 @@ export default function Index() {
   const [carouselVisible, setCarouselVisible] = useState(true);
 
   const featureItems: FeatureItem[] = useMemo(
-    () => [
-      {
-        title: "New Features Coming Soon!",
-        message:
-          "We're working on advanced analytics, export improvements, and more. Stay tuned for updates!",
-        variant: "feature" as const,
-        actionText: "Learn More",
-        onAction: () => {
-          setSettingsVisible(true);
-          setCarouselVisible(false);
-        },
-      },
-      {
-        title: "Enhanced Analytics",
-        message:
-          "Get deeper insights into your spending patterns with our new analytics dashboard. Track trends, categories, and more!",
-        variant: "info" as const,
-        icon: "analytics-outline",
-      },
-      {
-        title: "Export Improvements",
-        message:
-          "Export your data in multiple formats including CSV, PDF, and Excel. Coming in the next update!",
-        variant: "success" as const,
-        icon: "download-outline",
-      },
-    ],
+    () =>
+      FEATURES.map((feature) => {
+        const keys = getFeatureTranslationKeys(feature.id);
+        return {
+          titleKey: keys.titleKey,
+          messageKey: keys.messageKey,
+          icon: feature.icon,
+        };
+      }),
     []
   );
 

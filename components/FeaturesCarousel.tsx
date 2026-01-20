@@ -1,5 +1,6 @@
 import { useTheme } from "@/contexts/ThemeContext";
-import { UpcomingFeaturesBanner, BannerVariant } from "@/components/UpcomingFeaturesBanner";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { UpcomingFeaturesBanner } from "@/components/UpcomingFeaturesBanner";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useRef } from "react";
 import {
@@ -18,18 +19,14 @@ import Animated, {
   FadeOut,
 } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export interface FeatureItem {
-  title: string;
-  message: string;
-  variant?: BannerVariant;
+  titleKey: string;
+  messageKey: string;
   icon?: keyof typeof Ionicons.glyphMap;
-  actionText?: string;
-  onAction?: () => void;
 }
 
 export interface FeaturesCarouselProps {
@@ -53,9 +50,7 @@ export function FeaturesCarousel({
   autoDismissMs = 0,
 }: FeaturesCarouselProps) {
   const { theme } = useTheme();
-  const insets = useSafeAreaInsets();
   const scrollX = useSharedValue(0);
-  const currentIndex = useRef(0);
   const scrollViewRef = useRef<Animated.ScrollView>(null);
 
   const scrollHandler = useAnimatedScrollHandler({
@@ -99,17 +94,6 @@ export function FeaturesCarousel({
         exiting={FadeOut.duration(200)}
         style={[styles.overlay, { backgroundColor: theme.background }]}
       >
-        {/* Close Button */}
-        <TouchableOpacity
-          style={[styles.closeButton, { top: insets.top + 10 }]}
-          onPress={handleClose}
-          hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
-        >
-          <View style={[styles.closeButtonBackground, { backgroundColor: theme.foreground + "15" }]}>
-            <Ionicons name="close" size={24} color={theme.text} />
-          </View>
-        </TouchableOpacity>
-
         {/* Carousel */}
         <Animated.ScrollView
           ref={scrollViewRef}
@@ -129,7 +113,9 @@ export function FeaturesCarousel({
               item={item}
               index={index}
               scrollX={scrollX}
+              isLast={index === items.length - 1}
               onDismiss={() => handleItemDismiss(index)}
+              onDontShowAgain={handleClose}
             />
           ))}
         </Animated.ScrollView>
@@ -154,10 +140,20 @@ interface CarouselItemProps {
   item: FeatureItem;
   index: number;
   scrollX: Animated.SharedValue<number>;
+  isLast: boolean;
   onDismiss: () => void;
+  onDontShowAgain: () => void;
 }
 
-function CarouselItem({ item, index, scrollX, onDismiss }: CarouselItemProps) {
+function CarouselItem({
+  item,
+  index,
+  scrollX,
+  isLast,
+  onDismiss,
+  onDontShowAgain,
+}: CarouselItemProps) {
+  const { t } = useLanguage();
   const inputRange = [
     (index - 1) * SCREEN_WIDTH,
     index * SCREEN_WIDTH,
@@ -189,15 +185,13 @@ function CarouselItem({ item, index, scrollX, onDismiss }: CarouselItemProps) {
     <Animated.View style={[styles.itemContainer, animatedStyle]}>
       <View style={styles.bannerWrapper}>
         <UpcomingFeaturesBanner
-          title={item.title}
-          message={item.message}
-          variant={item.variant}
+          title={t(item.titleKey)}
+          message={t(item.messageKey)}
           icon={item.icon}
           position="top"
-          dismissible={false}
-          actionText={item.actionText}
-          onAction={item.onAction}
           relative={true}
+          showDontShowAgain={isLast}
+          onDontShowAgain={onDontShowAgain}
           style={styles.banner}
         />
       </View>
@@ -257,26 +251,6 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 9999,
-  },
-  closeButton: {
-    position: "absolute",
-    right: 20,
-    zIndex: 10000,
-  },
-  closeButtonBackground: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },
   scrollContent: {
     alignItems: "center",
