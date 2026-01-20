@@ -2,6 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
+import { getAll } from "@/utils/db";
 import { Ionicons } from "@expo/vector-icons";
 import { documentDirectory, EncodingType, writeAsStringAsync } from "expo-file-system";
 import * as Sharing from "expo-sharing";
@@ -47,16 +48,21 @@ export function SettingsModal({
   );
 
   const exportToCSV = useCallback(async () => {
-    if (consumptions.length === 0) {
-      Alert.alert(t("exportError"), t("noConsumptionsYet"));
-      return;
-    }
-
     setIsExporting(true);
     try {
+      // Fetch all consumptions directly from SQLite
+      const allConsumptions = await getAll<Consumption>(
+        'SELECT * FROM consumptions ORDER BY date DESC'
+      );
+
+      if (allConsumptions.length === 0) {
+        Alert.alert(t("exportError"), t("noConsumptionsYet"));
+        return;
+      }
+
       // Create CSV content with proper escaping
       const headers = ["Date", "Amount", "Description", "Category"];
-      const rows = consumptions.map((c) => {
+      const rows = allConsumptions.map((c) => {
         const date = new Date(c.date).toLocaleString();
         const amount = c.amount.toFixed(2);
         // Escape quotes in CSV format
@@ -101,7 +107,7 @@ export function SettingsModal({
     } finally {
       setIsExporting(false);
     }
-  }, [consumptions, t]);
+  }, [t]);
 
   const handleClearHistory = useCallback(() => {
     Alert.alert(
