@@ -3,6 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Consumption } from "@/types/consumption";
 import { formatCurrency, formatDate, formatTime } from "@/utils/formatting";
+import { Ionicons } from "@expo/vector-icons";
 import React, { memo, useCallback } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
@@ -79,9 +80,47 @@ function ConsumptionItemComponent({
           <GlassContainer intensity="light" style={styles.container}>
             <View style={styles.content}>
               <View style={styles.mainInfo}>
-                <Text style={[styles.amount, { color: theme.text }]}>
-                  ${formatCurrency(consumption.amount, 2)}
-                </Text>
+                <View style={styles.amountRow}>
+                  <Text style={[styles.amount, { color: theme.text }]}>
+                    {consumption.type === "income" ? "+" : "-"}
+                    ${formatCurrency(consumption.amount, 2)}
+                  </Text>
+                  <View
+                    style={[
+                      styles.typeBadge,
+                      {
+                        backgroundColor:
+                          consumption.type === "income"
+                            ? theme.isDark
+                              ? "rgba(255, 255, 255, 0.15)"
+                              : "rgba(0, 0, 0, 0.08)"
+                            : "transparent",
+                        borderWidth: consumption.type === "expense" ? 1 : 0,
+                        borderColor: theme.border,
+                      },
+                    ]}
+                  >
+                    <Ionicons
+                      name={
+                        consumption.type === "income"
+                          ? "arrow-up-outline"
+                          : "arrow-down-outline"
+                      }
+                      size={12}
+                      color={theme.textSecondary}
+                    />
+                    <Text
+                      style={[
+                        styles.typeText,
+                        { color: theme.textSecondary },
+                      ]}
+                    >
+                      {consumption.type === "income"
+                        ? t("income")
+                        : t("expense")}
+                    </Text>
+                  </View>
+                </View>
                 <Text
                   style={[styles.description, { color: theme.textSecondary }]}
                 >
@@ -136,10 +175,29 @@ const styles = StyleSheet.create({
   mainInfo: {
     flex: 1,
   },
+  amountRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 4,
+  },
   amount: {
     fontSize: 20,
     fontWeight: "600",
-    marginBottom: 4,
+  },
+  typeBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  typeText: {
+    fontSize: 11,
+    fontWeight: "500",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   description: {
     fontSize: 14,

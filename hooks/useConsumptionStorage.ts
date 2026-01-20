@@ -110,12 +110,13 @@ export function useConsumptionStorage() {
   const saveConsumption = useCallback(async (consumption: Consumption) => {
     try {
       await run(
-        `INSERT INTO consumptions (id, amount, description, category, date) 
-         VALUES (?, ?, ?, ?, ?)`,
+        `INSERT INTO consumptions (id, amount, description, type, category, date) 
+         VALUES (?, ?, ?, ?, ?, ?)`,
         [
           consumption.id,
           consumption.amount,
           consumption.description,
+          consumption.type || 'expense',
           consumption.category || null,
           consumption.date,
         ]

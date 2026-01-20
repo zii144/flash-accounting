@@ -3,11 +3,11 @@ import type { ResolvedLanguage } from "@/utils/formatting";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Localization from "expo-localization";
 import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
+    createContext,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
 } from "react";
 
 type Language = "en" | "zh" | "es" | "fr" | "de" | "ja" | "device";
@@ -149,6 +149,10 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
       "Export your data to PDF and use spreadsheet templates for better organization.",
     comingSoon: "Coming Soon",
     dontShowAgain: "Don't Show Again",
+    expense: "Expense",
+    income: "Income",
+    addExpense: "Add Expense",
+    addIncome: "Add Income",
   },
   zh: {
     accounting: "記帳",
@@ -210,6 +214,10 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
       "將資料匯出為 PDF，並使用試算表範本以更好地組織資料。",
     comingSoon: "即將推出",
     dontShowAgain: "不再顯示",
+    expense: "支出",
+    income: "收入",
+    addExpense: "新增支出",
+    addIncome: "新增收入",
   },
   es: {
     accounting: "Contabilidad",
@@ -272,6 +280,10 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
       "Exporta tus datos a PDF y usa plantillas de hoja de cálculo para una mejor organización.",
     comingSoon: "Próximamente",
     dontShowAgain: "No Mostrar de Nuevo",
+    expense: "Gasto",
+    income: "Ingreso",
+    addExpense: "Agregar Gasto",
+    addIncome: "Agregar Ingreso",
   },
   fr: {
     accounting: "Comptabilité",
@@ -333,6 +345,10 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
       "Exportez vos données vers PDF et utilisez des modèles de tableur pour une meilleure organisation.",
     comingSoon: "Bientôt Disponible",
     dontShowAgain: "Ne Plus Afficher",
+    expense: "Dépense",
+    income: "Revenu",
+    addExpense: "Ajouter Dépense",
+    addIncome: "Ajouter Revenu",
   },
   de: {
     accounting: "Buchhaltung",
@@ -395,6 +411,10 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
       "Exportieren Sie Ihre Daten nach PDF und verwenden Sie Tabellenkalkulationsvorlagen für bessere Organisation.",
     comingSoon: "Demnächst",
     dontShowAgain: "Nicht Mehr Anzeigen",
+    expense: "Ausgabe",
+    income: "Einnahme",
+    addExpense: "Ausgabe Hinzufügen",
+    addIncome: "Einnahme Hinzufügen",
   },
   ja: {
     accounting: "会計",
@@ -456,6 +476,10 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
       "データをPDFにエクスポートし、スプレッドシートテンプレートを使用してより良い整理ができます。",
     comingSoon: "近日公開",
     dontShowAgain: "今後表示しない",
+    expense: "支出",
+    income: "収入",
+    addExpense: "支出を追加",
+    addIncome: "収入を追加",
   },
 };
 

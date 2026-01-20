@@ -50,7 +50,16 @@ export function StatisticsView() {
   const [viewMode, setViewMode] = useState<ViewMode>("day");
   
   // Stats state
-  const [stats, setStats] = useState({ total: 0, count: 0, logDay: 0 });
+  const [stats, setStats] = useState({ 
+    total: 0, 
+    expenseTotal: 0,
+    incomeTotal: 0,
+    netTotal: 0,
+    count: 0, 
+    expenseCount: 0,
+    incomeCount: 0,
+    logDay: 0 
+  });
   const [displayData, setDisplayData] = useState<GroupedConsumption[]>([]);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   
@@ -271,17 +280,60 @@ export function StatisticsView() {
         <View style={styles.statsContainer}>
           <View style={[styles.statCardWrapper, styles.statCardWrapperDouble]}>
             <GlassContainer intensity="light" style={styles.statCard}>
-              <Text
-                allowFontScaling={false}
-                style={[styles.statLabel, { color: theme.textSecondary }]}
-              >
-                {t("total")}
-              </Text>
+              <View style={styles.statCardHeader}>
+                <Ionicons
+                  name="trending-up-outline"
+                  size={16}
+                  color={theme.textSecondary}
+                />
+                <Text
+                  allowFontScaling={false}
+                  style={[styles.statLabel, { color: theme.textSecondary }]}
+                >
+                  {t("income")}
+                </Text>
+              </View>
               <Text
                 allowFontScaling={false}
                 style={[styles.statValue, { color: theme.text }]}
               >
-                ${formatCurrency(stats.total, 2)}
+                +${formatCurrency(stats.incomeTotal, 2)}
+              </Text>
+              <Text
+                allowFontScaling={false}
+                style={[styles.statSubtext, { color: theme.textSecondary }]}
+              >
+                {stats.incomeCount} {stats.incomeCount === 1 ? t("item") : t("items")}
+              </Text>
+            </GlassContainer>
+          </View>
+
+          <View style={[styles.statCardWrapper, styles.statCardWrapperDouble]}>
+            <GlassContainer intensity="light" style={styles.statCard}>
+              <View style={styles.statCardHeader}>
+                <Ionicons
+                  name="trending-down-outline"
+                  size={16}
+                  color={theme.textSecondary}
+                />
+                <Text
+                  allowFontScaling={false}
+                  style={[styles.statLabel, { color: theme.textSecondary }]}
+                >
+                  {t("expense")}
+                </Text>
+              </View>
+              <Text
+                allowFontScaling={false}
+                style={[styles.statValue, { color: theme.text }]}
+              >
+                -${formatCurrency(stats.expenseTotal, 2)}
+              </Text>
+              <Text
+                allowFontScaling={false}
+                style={[styles.statSubtext, { color: theme.textSecondary }]}
+              >
+                {stats.expenseCount} {stats.expenseCount === 1 ? t("item") : t("items")}
               </Text>
             </GlassContainer>
           </View>
@@ -292,13 +344,17 @@ export function StatisticsView() {
                 allowFontScaling={false}
                 style={[styles.statLabel, { color: theme.textSecondary }]}
               >
-                {t("count")}
+                {t("total")}
               </Text>
               <Text
                 allowFontScaling={false}
-                style={[styles.statValue, { color: theme.text }]}
+                style={[
+                  styles.statValue,
+                  { color: theme.text },
+                ]}
               >
-                {stats.count}
+                {stats.netTotal >= 0 ? "+" : ""}
+                ${formatCurrency(Math.abs(stats.netTotal), 2)}
               </Text>
             </GlassContainer>
           </View>
@@ -494,11 +550,37 @@ export function StatisticsView() {
                   ]}
                 >
                   <View style={styles.consumptionInfo}>
-                    <Text
-                      style={[styles.consumptionAmount, { color: theme.text }]}
-                    >
-                      ${formatCurrency(consumption.amount, 2)}
-                    </Text>
+                    <View style={styles.consumptionAmountRow}>
+                      <Text
+                        style={[styles.consumptionAmount, { color: theme.text }]}
+                      >
+                        {consumption.type === "income" ? "+" : "-"}
+                        ${formatCurrency(consumption.amount, 2)}
+                      </Text>
+                      <View
+                        style={[
+                          styles.consumptionTypeBadge,
+                          {
+                            backgroundColor:
+                              consumption.type === "income"
+                                ? theme.isDark
+                                  ? "rgba(255, 255, 255, 0.1)"
+                                  : "rgba(0, 0, 0, 0.05)"
+                                : "transparent",
+                          },
+                        ]}
+                      >
+                        <Ionicons
+                          name={
+                            consumption.type === "income"
+                              ? "arrow-up"
+                              : "arrow-down"
+                          }
+                          size={10}
+                          color={theme.textSecondary}
+                        />
+                      </View>
+                    </View>
                     <Text
                       style={[
                         styles.consumptionDescription,
@@ -617,13 +699,22 @@ const styles = StyleSheet.create({
     minHeight: 80,
     justifyContent: "center",
   },
-  statLabel: {
-    fontSize: 14,
+  statCardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
     marginBottom: 8,
+  },
+  statLabel: {
+    fontSize: 13,
   },
   statValue: {
     fontSize: 20,
     fontWeight: "600",
+    marginBottom: 4,
+  },
+  statSubtext: {
+    fontSize: 11,
   },
   toggleContainer: {
     flexDirection: "row",
@@ -726,10 +817,22 @@ const styles = StyleSheet.create({
   consumptionInfo: {
     flex: 1,
   },
+  consumptionAmountRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 4,
+  },
   consumptionAmount: {
     fontSize: 16,
     fontWeight: "600",
-    marginBottom: 4,
+  },
+  consumptionTypeBadge: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: "center",
+    alignItems: "center",
   },
   consumptionDescription: {
     fontSize: 14,

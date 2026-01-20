@@ -1,15 +1,16 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Consumption } from '@/types/consumption';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from './constants';
-import { run, transaction, getFirst } from './db';
+import { getFirst, run, transaction } from './db';
 
 const MIGRATION_KEY = '@flash_accounting_db_migrated';
 
 /**
  * Database schema version
  * Increment this when making schema changes
+ * Currently unused but kept for future migration tracking
  */
-const DB_VERSION = 1;
+// const DB_VERSION = 2;
 
 /**
  * Initializes the database schema
@@ -22,10 +23,19 @@ export async function initializeSchema(): Promise<void> {
       id TEXT PRIMARY KEY NOT NULL,
       amount REAL NOT NULL,
       description TEXT NOT NULL,
+      type TEXT NOT NULL DEFAULT 'expense',
       category TEXT,
       date TEXT NOT NULL
     )
   `);
+
+  // Migrate existing data: add type column if it doesn't exist
+  try {
+    await run(`ALTER TABLE consumptions ADD COLUMN type TEXT DEFAULT 'expense'`);
+  } catch {
+    // Column might already exist, ignore error
+    // This is expected if the column already exists
+  }
 
   // Create indexes for better query performance
   await run(`
@@ -62,7 +72,7 @@ export async function isMigrationCompleted(): Promise<boolean> {
       [MIGRATION_KEY]
     );
     return result?.value === 'true';
-  } catch (error) {
+  } catch {
     // Table might not exist yet, return false
     return false;
   }
@@ -111,12 +121,13 @@ export async function migrateFromAsyncStorage(): Promise<void> {
     await transaction(
       consumptions.map((consumption) => async () => {
         await run(
-          `INSERT INTO consumptions (id, amount, description, category, date) 
-           VALUES (?, ?, ?, ?, ?)`,
+          `INSERT INTO consumptions (id, amount, description, type, category, date) 
+           VALUES (?, ?, ?, ?, ?, ?)`,
           [
             consumption.id,
             consumption.amount,
             consumption.description,
+            consumption.type || 'expense',
             consumption.category || null,
             consumption.date,
           ]

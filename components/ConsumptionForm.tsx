@@ -2,26 +2,26 @@ import { GlassContainer } from "@/components/GlassContainer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
-import { Consumption } from "@/types/consumption";
+import { Consumption, ConsumptionType } from "@/types/consumption";
 import { TYPING_FEEDBACK_DELAY } from "@/utils/constants";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-    Keyboard,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-    withTiming,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 
 interface ConsumptionFormProps {
@@ -166,12 +166,13 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   const listeningScale = useSharedValue(1);
   const listeningOpacity = useSharedValue(1);
 
-  // Animation for submit button
-  const submitScale = useSharedValue(1);
-  const submitOpacity = useSharedValue(isSubmitDisabled ? 0.4 : 1);
-  const submitPulse = useSharedValue(0);
+  // Animation for submit buttons
+  const expenseButtonScale = useSharedValue(1);
+  const incomeButtonScale = useSharedValue(1);
+  const expenseButtonOpacity = useSharedValue(isSubmitDisabled ? 0.4 : 1);
+  const incomeButtonOpacity = useSharedValue(isSubmitDisabled ? 0.4 : 1);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback((type: ConsumptionType) => {
     // Parse the formatted amount (remove commas)
     const numericAmount = parseAmountInput(amount);
     const amountNum = parseFloat(numericAmount);
@@ -185,15 +186,6 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
     // Haptic feedback
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-    // Button press animation
-    submitScale.value = withSpring(
-      0.95,
-      { damping: 10, stiffness: 300 },
-      () => {
-        submitScale.value = withSpring(1, { damping: 10, stiffness: 300 });
-      }
-    );
-
     // Stop listening if active
     if (isListening) {
       stopListening();
@@ -202,13 +194,12 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
     onSubmit({
       amount: amountNum,
       description: description.trim() || "",
+      type,
     });
 
     setAmount("");
     setDescription("");
     setBaseDescription("");
-    // submitScale is a shared value, not a dependency
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amount, description, isListening, onSubmit, stopListening]);
 
   useEffect(() => {
@@ -221,55 +212,64 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
     }
   }, [isListening, listeningScale, listeningOpacity]);
 
-  // Update submit button animation when enabled/disabled
+  // Update submit button animations when enabled/disabled
   useEffect(() => {
     if (isSubmitDisabled) {
-      submitScale.value = withSpring(0.98, { damping: 15, stiffness: 200 });
-      submitOpacity.value = withTiming(0.5, { duration: 200 });
-      submitPulse.value = withTiming(0, { duration: 200 });
+      expenseButtonScale.value = withSpring(0.98, { damping: 15, stiffness: 200 });
+      incomeButtonScale.value = withSpring(0.98, { damping: 15, stiffness: 200 });
+      expenseButtonOpacity.value = withTiming(0.5, { duration: 200 });
+      incomeButtonOpacity.value = withTiming(0.5, { duration: 200 });
     } else {
-      submitScale.value = withSpring(1, { damping: 15, stiffness: 200 });
-      submitOpacity.value = withTiming(1, { duration: 200 });
+      expenseButtonScale.value = withSpring(1, { damping: 15, stiffness: 200 });
+      incomeButtonScale.value = withSpring(1, { damping: 15, stiffness: 200 });
+      expenseButtonOpacity.value = withTiming(1, { duration: 200 });
+      incomeButtonOpacity.value = withTiming(1, { duration: 200 });
     }
-  }, [isSubmitDisabled, submitScale, submitOpacity]);
-
-  // Subtle pulse animation when enabled
-  useEffect(() => {
-    if (isSubmitDisabled) {
-      submitPulse.value = 0;
-      return;
-    }
-
-    const interval = setInterval(() => {
-      submitPulse.value = withTiming(1, { duration: 1500 }, () => {
-        submitPulse.value = withTiming(0, { duration: 1500 });
-      });
-    }, 3000);
-
-    return () => clearInterval(interval);
-    // submitPulse is a shared value, not a dependency
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSubmitDisabled]);
+  }, [isSubmitDisabled, expenseButtonScale, incomeButtonScale, expenseButtonOpacity, incomeButtonOpacity]);
 
   const listeningStyle = useAnimatedStyle(() => ({
     transform: [{ scale: listeningScale.value }],
     opacity: listeningOpacity.value,
   }));
 
-  const submitButtonStyle = useAnimatedStyle(() => {
-    const pulseScale = 1 + submitPulse.value * 0.02;
-    return {
-      transform: [{ scale: submitScale.value * pulseScale }],
-      opacity: submitOpacity.value,
-    };
-  });
+  const expenseButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: expenseButtonScale.value }],
+    opacity: expenseButtonOpacity.value,
+  }));
+
+  const incomeButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: incomeButtonScale.value }],
+    opacity: incomeButtonOpacity.value,
+  }));
+
+  const handleButtonPress = useCallback((type: ConsumptionType) => {
+    // Trigger button press animation
+    if (type === "expense") {
+      expenseButtonScale.value = withSpring(
+        0.95,
+        { damping: 10, stiffness: 300 },
+        () => {
+          expenseButtonScale.value = withSpring(1, { damping: 10, stiffness: 300 });
+        }
+      );
+    } else {
+      incomeButtonScale.value = withSpring(
+        0.95,
+        { damping: 10, stiffness: 300 },
+        () => {
+          incomeButtonScale.value = withSpring(1, { damping: 10, stiffness: 300 });
+        }
+      );
+    }
+    handleSubmit(type);
+  }, [handleSubmit, expenseButtonScale, incomeButtonScale]);
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <Animated.View style={listeningStyle}>
+      <Animated.View style={[listeningStyle, styles.animatedWrapper]}>
         <GlassContainer intensity="medium" style={styles.form}>
           <GlassContainer intensity="light" style={styles.amountContainer}>
             <TextInput
@@ -295,7 +295,14 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
                 value={description}
                 onChangeText={(text) => handleTyping(text, setDescription)}
                 returnKeyType="done"
-                onSubmitEditing={handleSubmit}
+                onSubmitEditing={() => {
+                  // On submit, default to expense if amount is valid
+                  const numericAmount = parseAmountInput(amount);
+                  const amountNum = parseFloat(numericAmount);
+                  if (!isNaN(amountNum) && amountNum > 0) {
+                    handleSubmit("expense");
+                  }
+                }}
               />
               {isAvailable && (
                 <TouchableOpacity
@@ -344,47 +351,92 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
               )}
             </View>
           </GlassContainer>
-          <Animated.View style={submitButtonStyle}>
-            <TouchableOpacity
-              style={[
-                styles.submitButton,
-                !isSubmitDisabled && styles.submitButtonActive,
-                {
-                  backgroundColor: isSubmitDisabled
-                    ? "transparent"
-                    : theme.isDark
-                    ? "rgba(255, 255, 255, 0.25)"
-                    : "rgba(255, 255, 255, 0.95)",
-                  borderWidth: isSubmitDisabled ? 1 : 0,
-                  borderColor: isSubmitDisabled ? theme.border : "transparent",
-                },
-              ]}
-              onPress={handleSubmit}
-              disabled={isSubmitDisabled}
-              activeOpacity={0.85}
-            >
-              {!isSubmitDisabled && (
-                <Ionicons
-                  name="add-circle"
-                  size={20}
-                  color={theme.text}
-                  style={styles.submitIcon}
-                />
-              )}
-              <Text
-                allowFontScaling={false}
+          <View style={styles.buttonsContainer}>
+            <Animated.View style={[expenseButtonStyle, { flex: 1 }]}>
+              <TouchableOpacity
                 style={[
-                  styles.submitText,
+                  styles.submitButton,
+                  styles.expenseButton,
+                  !isSubmitDisabled && styles.submitButtonActive,
                   {
-                    color: isSubmitDisabled ? theme.textSecondary : theme.text,
-                    fontWeight: isSubmitDisabled ? "500" : "700",
+                    backgroundColor: isSubmitDisabled
+                      ? "transparent"
+                      : theme.isDark
+                      ? "rgba(255, 255, 255, 0.15)"
+                      : "rgba(0, 0, 0, 0.05)",
+                    borderWidth: isSubmitDisabled ? 1 : 0,
+                    borderColor: isSubmitDisabled ? theme.border : "transparent",
                   },
                 ]}
+                onPress={() => handleButtonPress("expense")}
+                disabled={isSubmitDisabled}
+                activeOpacity={0.85}
               >
-                {t("add")}
-              </Text>
-            </TouchableOpacity>
-          </Animated.View>
+                {!isSubmitDisabled && (
+                  <Ionicons
+                    name="remove-circle-outline"
+                    size={18}
+                    color={theme.text}
+                    style={styles.submitIcon}
+                  />
+                )}
+                <Text
+                  allowFontScaling={false}
+                  style={[
+                    styles.submitText,
+                    {
+                      color: isSubmitDisabled ? theme.textSecondary : theme.text,
+                      fontWeight: isSubmitDisabled ? "500" : "600",
+                    },
+                  ]}
+                >
+                  {t("addExpense")}
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
+            <Animated.View style={[incomeButtonStyle, { flex: 1 }]}>
+              <TouchableOpacity
+                style={[
+                  styles.submitButton,
+                  styles.incomeButton,
+                  !isSubmitDisabled && styles.submitButtonActive,
+                  {
+                    backgroundColor: isSubmitDisabled
+                      ? "transparent"
+                      : theme.isDark
+                      ? "rgba(255, 255, 255, 0.15)"
+                      : "rgba(0, 0, 0, 0.05)",
+                    borderWidth: isSubmitDisabled ? 1 : 0,
+                    borderColor: isSubmitDisabled ? theme.border : "transparent",
+                  },
+                ]}
+                onPress={() => handleButtonPress("income")}
+                disabled={isSubmitDisabled}
+                activeOpacity={0.85}
+              >
+                {!isSubmitDisabled && (
+                  <Ionicons
+                    name="add-circle-outline"
+                    size={18}
+                    color={theme.text}
+                    style={styles.submitIcon}
+                  />
+                )}
+                <Text
+                  allowFontScaling={false}
+                  style={[
+                    styles.submitText,
+                    {
+                      color: isSubmitDisabled ? theme.textSecondary : theme.text,
+                      fontWeight: isSubmitDisabled ? "500" : "600",
+                    },
+                  ]}
+                >
+                  {t("addIncome")}
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
         </GlassContainer>
       </Animated.View>
     </KeyboardAvoidingView>
@@ -396,9 +448,15 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 12,
   },
+  animatedWrapper: {
+    // Ensure content is not clipped and has proper spacing
+    overflow: "visible",
+    marginBottom: 5, // Extra space to prevent clipping
+  },
   form: {
     borderRadius: 16,
     padding: 16,
+    paddingBottom: 36, // Extra bottom padding: 16px base + 6px for shadow (shadowOffset 1 + shadowRadius 3)
     gap: 12,
   },
   amountContainer: {
@@ -469,29 +527,43 @@ const styles = StyleSheet.create({
   listeningDot3: {
     opacity: 1,
   },
+  buttonsContainer: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 4, // Small top margin for better spacing
+    // Ensure buttons container has proper spacing
+    paddingBottom: 0, // No extra padding needed, handled by form paddingBottom
+  },
   submitButton: {
-    paddingVertical: 16,
-    paddingHorizontal: 24,
+    flex: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
-    gap: 8,
-    overflow: "hidden",
+    gap: 6,
+    overflow: "visible", // Allow shadows to be visible
     minHeight: 52,
+  },
+  expenseButton: {
+    // Additional styles if needed
+  },
+  incomeButton: {
+    // Additional styles if needed
   },
   submitButtonActive: {
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 1 }, // Reduced shadow offset to minimize clipping
+    shadowOpacity: 0.08, // Slightly reduced opacity for subtlety
+    shadowRadius: 3, // Reduced radius to fit better within container
+    elevation: 2,
   },
   submitIcon: {
-    marginRight: -4,
+    marginRight: -2,
   },
   submitText: {
-    fontSize: 17,
-    letterSpacing: 0.3,
+    fontSize: 15,
+    letterSpacing: 0.2,
   },
 });

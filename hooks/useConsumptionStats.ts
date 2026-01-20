@@ -3,7 +3,12 @@ import { TimeFilter } from '@/utils/constants';
 
 export interface ConsumptionStats {
   total: number;
+  expenseTotal: number;
+  incomeTotal: number;
+  netTotal: number;
   count: number;
+  expenseCount: number;
+  incomeCount: number;
   logDay: number;
 }
 
@@ -13,6 +18,7 @@ export interface GroupedConsumption {
     id: string;
     amount: number;
     description: string;
+    type: 'expense' | 'income';
     category?: string;
     date: string;
   }>;
@@ -38,17 +44,35 @@ export function useConsumptionStats() {
     try {
       const [whereClause, params] = buildTimeFilterClause(timeFilter);
       
-      // Get total amount and count in a single query
-      const result = await getAll<{ total: number; count: number }>(
+      // Get totals and counts by type in a single query
+      const result = await getAll<{ 
+        total: number; 
+        expenseTotal: number;
+        incomeTotal: number;
+        count: number;
+        expenseCount: number;
+        incomeCount: number;
+      }>(
         `SELECT 
           COALESCE(SUM(amount), 0) as total,
-          COUNT(*) as count
+          COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as expenseTotal,
+          COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as incomeTotal,
+          COUNT(*) as count,
+          SUM(CASE WHEN type = 'expense' THEN 1 ELSE 0 END) as expenseCount,
+          SUM(CASE WHEN type = 'income' THEN 1 ELSE 0 END) as incomeCount
          FROM consumptions
          ${whereClause}`,
         params
       );
 
-      const stats = result[0] || { total: 0, count: 0 };
+      const stats = result[0] || { 
+        total: 0, 
+        expenseTotal: 0,
+        incomeTotal: 0,
+        count: 0,
+        expenseCount: 0,
+        incomeCount: 0,
+      };
 
       // Calculate log day (days since first entry)
       const firstDateResult = await getAll<{ min_date: string }>(
@@ -63,14 +87,32 @@ export function useConsumptionStats() {
         logDay = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
       }
 
+      const expenseTotal = stats.expenseTotal || 0;
+      const incomeTotal = stats.incomeTotal || 0;
+      const netTotal = incomeTotal - expenseTotal;
+
       return {
         total: stats.total || 0,
+        expenseTotal,
+        incomeTotal,
+        netTotal,
         count: stats.count || 0,
+        expenseCount: stats.expenseCount || 0,
+        incomeCount: stats.incomeCount || 0,
         logDay,
       };
     } catch (error) {
       console.error('Failed to get stats:', error);
-      return { total: 0, count: 0, logDay: 0 };
+      return { 
+        total: 0, 
+        expenseTotal: 0,
+        incomeTotal: 0,
+        netTotal: 0,
+        count: 0, 
+        expenseCount: 0,
+        incomeCount: 0,
+        logDay: 0 
+      };
     }
   };
 
@@ -97,6 +139,7 @@ export function useConsumptionStats() {
         id: string;
         amount: number;
         description: string;
+        type: string;
         category: string | null;
         date_full: string;
       }>(
@@ -105,6 +148,7 @@ export function useConsumptionStats() {
           id,
           amount,
           description,
+          type,
           category,
           date as date_full
          FROM consumptions
@@ -130,6 +174,7 @@ export function useConsumptionStats() {
           id: row.id,
           amount: row.amount,
           description: row.description,
+          type: (row.type || 'expense') as 'expense' | 'income',
           category: row.category || undefined,
           date: row.date_full,
         });
@@ -201,6 +246,7 @@ export function useConsumptionStats() {
         id: string;
         amount: number;
         description: string;
+        type: string;
         category: string | null;
         date_full: string;
       }>(
@@ -209,6 +255,7 @@ export function useConsumptionStats() {
           id,
           amount,
           description,
+          type,
           category,
           date as date_full
          FROM consumptions
@@ -234,6 +281,7 @@ export function useConsumptionStats() {
           id: row.id,
           amount: row.amount,
           description: row.description,
+          type: (row.type || 'expense') as 'expense' | 'income',
           category: row.category || undefined,
           date: row.date_full,
         });
@@ -297,6 +345,7 @@ export function useConsumptionStats() {
         id: string;
         amount: number;
         description: string;
+        type: string;
         category: string | null;
         date: string;
       }>(
