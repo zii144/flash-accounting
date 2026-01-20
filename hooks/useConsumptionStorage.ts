@@ -24,7 +24,7 @@ export function useConsumptionStorage() {
   const [totalCount, setTotalCount] = useState(0);
   const isInitializedRef = useRef(false);
 
-  // Load all consumptions (for backward compatibility)
+  // Load all consumptions (for backward compatibility - used by SettingsModal)
   const loadConsumptions = useCallback(async () => {
     try {
       const results = await getAll<Consumption>(
@@ -44,19 +44,25 @@ export function useConsumptionStorage() {
     }
   }, []);
 
-  // Initialize database and load initial data
+  // Initialize database - only load count, not all data
   const initialize = useCallback(async () => {
     try {
       await initializeDatabase();
-      await loadConsumptions();
+      // Only get the count, don't load all consumptions
+      const countResult = await getAll<{ count: number }>(
+        'SELECT COUNT(*) as count FROM consumptions'
+      );
+      setTotalCount(countResult[0]?.count || 0);
+      setConsumptions([]); // Start with empty array for pagination
     } catch (error) {
       console.error('Failed to initialize database:', error);
       setConsumptions([]);
+      setTotalCount(0);
     } finally {
       setIsLoading(false);
       isInitializedRef.current = true;
     }
-  }, [loadConsumptions]);
+  }, []);
 
   // Load paginated consumptions
   const loadPaginatedConsumptions = useCallback(

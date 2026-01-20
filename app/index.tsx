@@ -9,11 +9,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
-import { formatCurrency } from "@/utils/formatting";
 import { FEATURES, getFeatureTranslationKeys } from "@/utils/features";
+import { formatCurrency } from "@/utils/formatting";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FlatList,
   ListRenderItem,
@@ -26,7 +26,7 @@ import {
 } from "react-native";
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 5;
 
 export default function Index() {
   const { theme } = useTheme();
@@ -48,6 +48,9 @@ export default function Index() {
   const [paginatedData, setPaginatedData] = useState<Consumption[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const prevTotalCountRef = useRef<number>(0);
+  const loadPageRef = useRef<((pageNum: number, append?: boolean) => Promise<void>) | null>(null);
+  const lastActiveTabRef = useRef<string>('');
 
   const featureItems: FeatureItem[] = useMemo(
     () =>
@@ -98,19 +101,41 @@ export default function Index() {
     [loadPaginated, isLoadingMore]
   );
 
-  // Load initial page
+  // Store loadPage in ref to avoid dependency issues
   useEffect(() => {
-    if (!isLoading && activeTab === 'accounting') {
-      loadPage(1, false);
+    loadPageRef.current = loadPage;
+  }, [loadPage]);
+
+  // Load initial page when app loads or tab switches to accounting
+  useEffect(() => {
+    if (!isLoading && loadPageRef.current) {
+      if (activeTab === 'accounting' && lastActiveTabRef.current !== activeTab) {
+        // Switching to accounting tab - load page 1
+        lastActiveTabRef.current = activeTab;
+        prevTotalCountRef.current = totalCount;
+        setPaginatedData([]); // Clear existing data
+        loadPageRef.current(1, false);
+      } else if (activeTab !== 'accounting') {
+        // Switching away from accounting - reset ref for next time
+        lastActiveTabRef.current = activeTab;
+      }
     }
-  }, [isLoading, activeTab, loadPage]);
+  }, [isLoading, activeTab, totalCount]);
 
   // Refresh paginated data when consumptions change (e.g., after add/delete)
+  // Only reload if totalCount actually changed and we're on accounting tab
   useEffect(() => {
-    if (activeTab === 'accounting' && !isLoading) {
-      loadPage(page, false);
+    if (
+      activeTab === 'accounting' && 
+      !isLoading && 
+      totalCount !== prevTotalCountRef.current &&
+      !isLoadingMore &&
+      loadPageRef.current
+    ) {
+      prevTotalCountRef.current = totalCount;
+      loadPageRef.current(1, false); // Reset to page 1 when data changes
     }
-  }, [totalCount, activeTab, isLoading, page, loadPage]); // Reload when total count changes
+  }, [totalCount, activeTab, isLoading, isLoadingMore]);
 
   const handleSubmit = useCallback(
     (data: Omit<Consumption, "id" | "date">) => {
@@ -124,9 +149,10 @@ export default function Index() {
     [saveConsumption]
   );
 
+  // Calculate total from paginated data only (or get from DB if needed)
   const totalAmount = useMemo(
-    () => consumptions.reduce((sum, c) => sum + c.amount, 0),
-    [consumptions]
+    () => paginatedData.reduce((sum, c) => sum + c.amount, 0),
+    [paginatedData]
   );
 
   const handleLoadMore = useCallback(() => {

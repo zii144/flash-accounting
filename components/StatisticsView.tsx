@@ -2,8 +2,8 @@ import { GlassContainer } from "@/components/GlassContainer";
 import { SettingsModal } from "@/components/SettingsModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { useConsumptionStats } from "@/hooks/useConsumptionStats";
+import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
 import {
   SORT_OPTIONS,
@@ -20,7 +20,7 @@ import {
 } from "@/utils/formatting";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FlatList,
   ScrollView,
@@ -52,6 +52,19 @@ export function StatisticsView() {
   const [stats, setStats] = useState({ total: 0, count: 0, logDay: 0 });
   const [displayData, setDisplayData] = useState<GroupedConsumption[]>([]);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
+  
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const STATS_PAGE_SIZE = 5; // Show 5 groups per page
+  const loadDataRef = useRef<((pageNum: number, append: boolean) => Promise<void>) | null>(null);
+  const statsHookRef = useRef(statsHook);
+  
+  // Update ref when hook changes
+  useEffect(() => {
+    statsHookRef.current = statsHook;
+  }, [statsHook]);
 
   const handleSettingsPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -93,24 +106,49 @@ export function StatisticsView() {
   useEffect(() => {
     let cancelled = false;
 
-    const loadData = async () => {
-      setIsLoadingStats(true);
+    const loadData = async (pageNum: number = 1, append: boolean = false) => {
+      if (append) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoadingStats(true);
+        setPage(1);
+        setDisplayData([]); // Clear existing data when loading new page
+      }
+
       try {
-        // Load stats
-        const statsData = await statsHook.getStats(timeFilter);
-        if (!cancelled) {
-          setStats(statsData);
+        const hook = statsHookRef.current;
+        
+        // Load stats (only on initial load or when filter changes)
+        if (!append) {
+          const statsData = await hook.getStats(timeFilter);
+          if (!cancelled) {
+            setStats(statsData);
+          }
         }
 
-        // Load grouped data
+        // Load grouped data with pagination
+        let result;
         if (viewMode === "day") {
-          const grouped = await statsHook.getGroupedByDay(
+          result = await hook.getGroupedByDay(
             timeFilter,
             sortConfig.sortBy,
-            sortConfig.sortOrder
+            sortConfig.sortOrder,
+            pageNum,
+            STATS_PAGE_SIZE
           );
-          if (!cancelled) {
-            const formatted = grouped.map((group) => {
+        } else {
+          result = await hook.getGroupedByMonth(
+            timeFilter,
+            sortConfig.sortBy,
+            sortConfig.sortOrder,
+            pageNum,
+            STATS_PAGE_SIZE
+          );
+        }
+
+        if (!cancelled) {
+          const formatted = result.data.map((group) => {
+            if (viewMode === "day") {
               const date = new Date(group.date);
               const dateLabel = formatGroupedDate(
                 date.toDateString(),
@@ -126,17 +164,7 @@ export function StatisticsView() {
                   category: c.category,
                 })) as Consumption[],
               };
-            });
-            setDisplayData(formatted);
-          }
-        } else {
-          const grouped = await statsHook.getGroupedByMonth(
-            timeFilter,
-            sortConfig.sortBy,
-            sortConfig.sortOrder
-          );
-          if (!cancelled) {
-            const formatted = grouped.map((group) => {
+            } else {
               const dateLabel = formatMonthLabel(
                 group.consumptions[0]?.date || group.date,
                 resolvedLanguage
@@ -149,25 +177,44 @@ export function StatisticsView() {
                   category: c.category,
                 })) as Consumption[],
               };
-            });
+            }
+          });
+
+          if (append) {
+            setDisplayData((prev) => [...prev, ...formatted]);
+          } else {
             setDisplayData(formatted);
           }
+          
+          setHasMore(result.hasMore);
+          setPage(pageNum);
         }
       } catch (error) {
         console.error('Failed to load stats:', error);
       } finally {
         if (!cancelled) {
           setIsLoadingStats(false);
+          setIsLoadingMore(false);
         }
       }
     };
 
-    loadData();
+    // Store loadData in ref for handleLoadMore
+    loadDataRef.current = loadData;
+
+    // Reset to page 1 when filters change
+    loadData(1, false);
 
     return () => {
       cancelled = true;
     };
-  }, [timeFilter, viewMode, sortConfig, statsHook, resolvedLanguage, t]);
+  }, [timeFilter, viewMode, sortConfig.sortBy, sortConfig.sortOrder, resolvedLanguage, t]);
+
+  const handleLoadMore = useCallback(() => {
+    if (!isLoadingMore && !isLoadingStats && hasMore && loadDataRef.current) {
+      loadDataRef.current(page + 1, true);
+    }
+  }, [isLoadingMore, isLoadingStats, hasMore, page]);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -184,11 +231,21 @@ export function StatisticsView() {
           </GlassContainer>
         </TouchableOpacity>
       </View>
-      <ScrollView
+      <FlatList
         style={styles.content}
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
-      >
+        showsVerticalScrollIndicator={false}
+        data={displayData}
+        keyExtractor={(item) => item.date}
+        removeClippedSubviews
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        initialNumToRender={10}
+        windowSize={10}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        ListHeaderComponent={
+          <>
         {/* Summary Cards */}
         <View style={styles.statsContainer}>
           <View style={[styles.statCardWrapper, styles.statCardWrapperDouble]}>
@@ -373,17 +430,17 @@ export function StatisticsView() {
             </TouchableOpacity>
           </GlassContainer>
         </View>
-
-        {/* Grouped List */}
-        <FlatList
-          data={displayData}
-          keyExtractor={(item) => item.date}
-          scrollEnabled={false}
-          removeClippedSubviews
-          maxToRenderPerBatch={10}
-          updateCellsBatchingPeriod={50}
-          initialNumToRender={10}
-          windowSize={10}
+          </>
+        }
+        ListFooterComponent={
+          isLoadingMore ? (
+            <View style={styles.loadingFooter}>
+              <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
+                {t("loading") || "Loading..."}
+              </Text>
+            </View>
+          ) : null
+        }
           renderItem={({ item }) => (
             <Animated.View
               entering={FadeIn.duration(300)}
@@ -446,15 +503,14 @@ export function StatisticsView() {
             </Animated.View>
           )}
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
-                {t("noConsumptions")}
-              </Text>
-            </View>
-          }
-        />
-      </ScrollView>
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+              {t("noConsumptions")}
+            </Text>
+          </View>
+        }
+      />
 
       <SettingsModal
         visible={settingsVisible}
@@ -648,5 +704,12 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
+  },
+  loadingFooter: {
+    paddingVertical: 20,
+    alignItems: "center",
+  },
+  loadingText: {
+    fontSize: 14,
   },
 });

@@ -19,6 +19,14 @@ export interface GroupedConsumption {
   total: number;
 }
 
+export interface PaginatedGroupedResult {
+  data: GroupedConsumption[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}
+
 /**
  * Hook for optimized statistics queries using SQL
  */
@@ -67,13 +75,15 @@ export function useConsumptionStats() {
   };
 
   /**
-   * Get consumptions grouped by day
+   * Get consumptions grouped by day (paginated)
    */
   const getGroupedByDay = async (
     timeFilter: TimeFilter = 'all',
     sortBy: 'date' | 'amount' = 'date',
-    sortOrder: 'ASC' | 'DESC' = 'DESC'
-  ): Promise<GroupedConsumption[]> => {
+    sortOrder: 'ASC' | 'DESC' = 'DESC',
+    page: number = 1,
+    pageSize: number = 15
+  ): Promise<PaginatedGroupedResult> => {
     try {
       const [whereClause, params] = buildTimeFilterClause(timeFilter);
       
@@ -128,7 +138,7 @@ export function useConsumptionStats() {
       });
 
       // Sort groups by date, and items within groups by the selected criteria
-      return Object.values(grouped)
+      const sortedGroups = Object.values(grouped)
         .map((group) => {
           // Sort items within group if sorting by amount
           if (sortBy === 'amount') {
@@ -143,20 +153,41 @@ export function useConsumptionStats() {
           const dateB = new Date(b.date).getTime();
           return sortOrder === 'DESC' ? dateB - dateA : dateA - dateB;
         });
+
+      // Apply pagination
+      const total = sortedGroups.length;
+      const offset = (page - 1) * pageSize;
+      const paginatedData = sortedGroups.slice(offset, offset + pageSize);
+
+      return {
+        data: paginatedData,
+        total,
+        page,
+        pageSize,
+        hasMore: offset + paginatedData.length < total,
+      };
     } catch (error) {
       console.error('Failed to get grouped by day:', error);
-      return [];
+      return {
+        data: [],
+        total: 0,
+        page,
+        pageSize,
+        hasMore: false,
+      };
     }
   };
 
   /**
-   * Get consumptions grouped by month
+   * Get consumptions grouped by month (paginated)
    */
   const getGroupedByMonth = async (
     timeFilter: TimeFilter = 'all',
     sortBy: 'date' | 'amount' = 'date',
-    sortOrder: 'ASC' | 'DESC' = 'DESC'
-  ): Promise<GroupedConsumption[]> => {
+    sortOrder: 'ASC' | 'DESC' = 'DESC',
+    page: number = 1,
+    pageSize: number = 15
+  ): Promise<PaginatedGroupedResult> => {
     try {
       const [whereClause, params] = buildTimeFilterClause(timeFilter);
       
@@ -211,7 +242,7 @@ export function useConsumptionStats() {
       });
 
       // Sort groups by date, and items within groups by the selected criteria
-      return Object.values(grouped)
+      const sortedGroups = Object.values(grouped)
         .map((group) => {
           // Sort items within group if sorting by amount
           if (sortBy === 'amount') {
@@ -226,9 +257,28 @@ export function useConsumptionStats() {
           const dateB = new Date(b.date).getTime();
           return sortOrder === 'DESC' ? dateB - dateA : dateA - dateB;
         });
+
+      // Apply pagination
+      const total = sortedGroups.length;
+      const offset = (page - 1) * pageSize;
+      const paginatedData = sortedGroups.slice(offset, offset + pageSize);
+
+      return {
+        data: paginatedData,
+        total,
+        page,
+        pageSize,
+        hasMore: offset + paginatedData.length < total,
+      };
     } catch (error) {
       console.error('Failed to get grouped by month:', error);
-      return [];
+      return {
+        data: [],
+        total: 0,
+        page,
+        pageSize,
+        hasMore: false,
+      };
     }
   };
 
