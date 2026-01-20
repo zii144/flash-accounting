@@ -4,10 +4,18 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { Consumption, ConsumptionType } from "@/types/consumption";
 import { TYPING_FEEDBACK_DELAY } from "@/utils/constants";
+import {
+  sanitizeAmount,
+  sanitizeDescription,
+  validateAmount,
+  validateConsumption,
+  validateDescription,
+} from "@/utils/validation";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -42,6 +50,8 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   } = useSpeechRecognition();
 
   const [baseDescription, setBaseDescription] = useState("");
+  const [amountError, setAmountError] = useState<string | null>(null);
+  const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Format number with thousand separators
@@ -80,14 +90,40 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
 
   // Handle amount input change
   const handleAmountChange = (text: string) => {
+    // Sanitize input
+    const sanitized = sanitizeAmount(text);
+    
     // Parse to get numeric value
-    const numericValue = parseAmountInput(text);
+    const numericValue = parseAmountInput(sanitized);
 
     // Format for display
     const formatted = formatAmountInput(numericValue);
 
     // Update state with formatted value for display
     setAmount(formatted);
+
+    // Validate and show errors
+    if (formatted) {
+      const validation = validateAmount(formatted);
+      if (!validation.isValid && validation.errors.length > 0) {
+        // Only show error if user has entered something
+        const firstError = validation.errors[0];
+        // Map validation errors to user-friendly messages
+        if (firstError.includes("greater than zero")) {
+          setAmountError(t("errorInvalidAmount"));
+        } else if (firstError.includes("cannot exceed")) {
+          const maxMatch = firstError.match(/\d+/);
+          const max = maxMatch ? maxMatch[0] : "999,999,999.99";
+          setAmountError(t("errorAmountTooLarge").replace("{max}", max));
+        } else {
+          setAmountError(firstError);
+        }
+      } else {
+        setAmountError(null);
+      }
+    } else {
+      setAmountError(null);
+    }
 
     // Play typing sound
     if (typingTimeoutRef.current) {
@@ -101,7 +137,24 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   // Debounced typing sound
   const handleTyping = useCallback(
     (text: string, callback: (text: string) => void) => {
-      callback(text);
+      // Sanitize description
+      const sanitized = sanitizeDescription(text);
+      callback(sanitized);
+
+      // Validate description
+      const validation = validateDescription(sanitized);
+      if (!validation.isValid && validation.errors.length > 0) {
+        const firstError = validation.errors[0];
+        if (firstError.includes("cannot exceed")) {
+          const maxMatch = firstError.match(/\d+/);
+          const max = maxMatch ? maxMatch[0] : "500";
+          setDescriptionError(t("errorDescriptionTooLong").replace("{max}", max));
+        } else {
+          setDescriptionError(firstError);
+        }
+      } else {
+        setDescriptionError(null);
+      }
 
       // Clear existing timeout
       if (typingTimeoutRef.current) {
@@ -113,7 +166,7 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }, TYPING_FEEDBACK_DELAY);
     },
-    []
+    [t]
   );
 
   // Cleanup timeout on unmount
@@ -176,7 +229,42 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
     // Parse the formatted amount (remove commas)
     const numericAmount = parseAmountInput(amount);
     const amountNum = parseFloat(numericAmount);
+    
+    // Validate before submitting
+    const validation = validateConsumption({
+      amount: amountNum,
+      description: sanitizeDescription(description),
+      type,
+    });
+
+    if (!validation.isValid) {
+      // Show first error to user
+      const firstError = validation.errors[0];
+      let errorMessage = firstError;
+      
+      // Map to user-friendly messages
+      if (firstError.includes("greater than zero") || firstError.includes("valid number")) {
+        errorMessage = t("errorInvalidAmount");
+      } else if (firstError.includes("cannot exceed")) {
+        if (firstError.includes("amount")) {
+          const maxMatch = firstError.match(/\d+/);
+          const max = maxMatch ? maxMatch[0] : "999,999,999.99";
+          errorMessage = t("errorAmountTooLarge").replace("{max}", max);
+        } else {
+          const maxMatch = firstError.match(/\d+/);
+          const max = maxMatch ? maxMatch[0] : "500";
+          errorMessage = t("errorDescriptionTooLong").replace("{max}", max);
+        }
+      }
+
+      Alert.alert(t("errorOccurred") || "Error", errorMessage);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      return;
+    }
+
     if (isNaN(amountNum) || amountNum <= 0) {
+      Alert.alert(t("errorOccurred") || "Error", t("errorInvalidAmount"));
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
     }
 
@@ -193,14 +281,16 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
 
     onSubmit({
       amount: amountNum,
-      description: description.trim() || "",
+      description: sanitizeDescription(description) || "",
       type,
     });
 
     setAmount("");
     setDescription("");
     setBaseDescription("");
-  }, [amount, description, isListening, onSubmit, stopListening]);
+    setAmountError(null);
+    setDescriptionError(null);
+  }, [amount, description, isListening, onSubmit, stopListening, t]);
 
   useEffect(() => {
     if (isListening) {
@@ -273,7 +363,11 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
         <GlassContainer intensity="medium" style={styles.form}>
           <GlassContainer intensity="light" style={styles.amountContainer}>
             <TextInput
-              style={[styles.amountInput, { color: theme.text }]}
+              style={[
+                styles.amountInput,
+                { color: theme.text },
+                amountError && styles.inputError,
+              ]}
               placeholder={t("amount")}
               placeholderTextColor={theme.textSecondary}
               value={amount}
@@ -281,6 +375,11 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
               keyboardType="decimal-pad"
               autoFocus
             />
+            {amountError && (
+              <Text style={[styles.errorText, { color: theme.foreground }]}>
+                {amountError}
+              </Text>
+            )}
           </GlassContainer>
           <GlassContainer intensity="light" style={styles.descriptionContainer}>
             <View style={styles.descriptionContent}>
@@ -350,6 +449,11 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
                 </View>
               )}
             </View>
+            {descriptionError && (
+              <Text style={[styles.errorText, { color: theme.foreground }]}>
+                {descriptionError}
+              </Text>
+            )}
           </GlassContainer>
           <View style={styles.buttonsContainer}>
             <Animated.View style={[expenseButtonStyle, { flex: 1 }]}>
@@ -565,5 +669,15 @@ const styles = StyleSheet.create({
   submitText: {
     fontSize: 15,
     letterSpacing: 0.2,
+  },
+  inputError: {
+    borderWidth: 1,
+    borderColor: "rgba(255, 59, 48, 0.5)",
+  },
+  errorText: {
+    fontSize: 12,
+    marginTop: 4,
+    marginHorizontal: 16,
+    marginBottom: 4,
   },
 });

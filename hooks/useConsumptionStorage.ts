@@ -109,13 +109,22 @@ export function useConsumptionStorage() {
 
   const saveConsumption = useCallback(async (consumption: Consumption) => {
     try {
+      // Validate before saving
+      if (!consumption.id || !consumption.date) {
+        throw new Error('Invalid consumption data: missing required fields');
+      }
+
+      if (consumption.amount <= 0 || isNaN(consumption.amount)) {
+        throw new Error('Invalid consumption data: amount must be greater than zero');
+      }
+
       await run(
         `INSERT INTO consumptions (id, amount, description, type, category, date) 
          VALUES (?, ?, ?, ?, ?, ?)`,
         [
           consumption.id,
           consumption.amount,
-          consumption.description,
+          consumption.description || '',
           consumption.type || 'expense',
           consumption.category || null,
           consumption.date,
@@ -127,20 +136,40 @@ export function useConsumptionStorage() {
       setTotalCount((prev) => prev + 1);
     } catch (error) {
       console.error('Failed to save consumption:', error);
-      throw error;
+      // Re-throw with more context
+      throw new Error(
+        error instanceof Error 
+          ? `Failed to save consumption: ${error.message}`
+          : 'Failed to save consumption. Please try again.'
+      );
     }
   }, []);
 
   const deleteConsumption = useCallback(async (id: string) => {
     try {
-      await run('DELETE FROM consumptions WHERE id = ?', [id]);
+      if (!id) {
+        throw new Error('Invalid consumption ID');
+      }
+
+      const result = await run('DELETE FROM consumptions WHERE id = ?', [id]);
+
+      // Check if deletion was successful
+      if (result.changes === 0) {
+        console.warn('No consumption found with ID:', id);
+        // Still update state optimistically
+      }
 
       // Optimistically update local state
       setConsumptions((prev) => prev.filter((c) => c.id !== id));
       setTotalCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Failed to delete consumption:', error);
-      throw error;
+      // Re-throw with more context
+      throw new Error(
+        error instanceof Error 
+          ? `Failed to delete consumption: ${error.message}`
+          : 'Failed to delete consumption. Please try again.'
+      );
     }
   }, []);
 

@@ -17,6 +17,7 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Alert,
   FlatList,
   ListRenderItem,
   SafeAreaView,
@@ -170,15 +171,30 @@ export default function Index() {
   }, [totalCount, activeTab, isLoading, isLoadingMore]);
 
   const handleSubmit = useCallback(
-    (data: Omit<Consumption, "id" | "date">) => {
-      const consumption: Consumption = {
-        ...data,
-        id: `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
-        date: new Date().toISOString(),
-      };
-      saveConsumption(consumption);
+    async (data: Omit<Consumption, "id" | "date">) => {
+      try {
+        const consumption: Consumption = {
+          ...data,
+          id: `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+          date: new Date().toISOString(),
+        };
+        await saveConsumption(consumption);
+        // Success feedback is handled by the form
+      } catch (error) {
+        // Show user-friendly error message
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : t("errorSaveFailed");
+        
+        Alert.alert(
+          t("errorOccurred") || "Error",
+          errorMessage,
+          [{ text: t("tryAgain") || "OK" }]
+        );
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
     },
-    [saveConsumption]
+    [saveConsumption, t]
   );
 
   // Calculate total from paginated data only (or get from DB if needed)
@@ -217,10 +233,25 @@ export default function Index() {
   }, []);
 
   const handleDelete = useCallback(
-    (id: string) => {
-      deleteConsumption(id);
+    async (id: string) => {
+      try {
+        await deleteConsumption(id);
+        // Success feedback is handled by the item component
+      } catch (error) {
+        // Show user-friendly error message
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : t("errorDeleteFailed");
+        
+        Alert.alert(
+          t("errorOccurred") || "Error",
+          errorMessage,
+          [{ text: t("tryAgain") || "OK" }]
+        );
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
     },
-    [deleteConsumption]
+    [deleteConsumption, t]
   );
 
   const renderItem: ListRenderItem<Consumption> = useCallback(
