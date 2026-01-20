@@ -23,6 +23,7 @@ import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Dimensions,
   FlatList,
   ScrollView,
   StyleSheet,
@@ -48,6 +49,16 @@ export function StatisticsView() {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("day");
+  
+  // Calculate card width so expense and income take up most of the initial viewport
+  const cardWidth = useMemo(() => {
+    const screenWidth = Dimensions.get("window").width;
+    // Each card should be approximately (screenWidth - padding - gap) / 2.2
+    // This ensures expense and income are fully visible, with a hint of total card
+    const padding = 32; // 16px on each side
+    const gap = 8;
+    return Math.floor((screenWidth - padding - gap * 2) / 2.2);
+  }, []);
   
   // Stats state
   const [stats, setStats] = useState({ 
@@ -276,9 +287,16 @@ export function StatisticsView() {
           onEndReachedThreshold={0.5}
           ListHeaderComponent={
           <>
-        {/* Summary Cards */}
-        <View style={styles.statsContainer}>
-          <View style={[styles.statCardWrapper, styles.statCardWrapperDouble]}>
+        {/* Summary Cards - Horizontally Scrollable */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.statsScrollContent}
+          style={styles.statsScrollView}
+          decelerationRate="fast"
+          pagingEnabled={false}
+        >
+          <View style={[styles.statCardWrapper, { width: cardWidth }]}>
             <GlassContainer intensity="light" style={styles.statCard}>
               <View style={styles.statCardHeader}>
                 <Ionicons
@@ -288,6 +306,7 @@ export function StatisticsView() {
                 />
                 <Text
                   allowFontScaling={false}
+                  numberOfLines={1}
                   style={[styles.statLabel, { color: theme.textSecondary }]}
                 >
                   {t("income")}
@@ -295,12 +314,16 @@ export function StatisticsView() {
               </View>
               <Text
                 allowFontScaling={false}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.7}
                 style={[styles.statValue, { color: theme.text }]}
               >
                 +${formatCurrency(stats.incomeTotal, 2)}
               </Text>
               <Text
                 allowFontScaling={false}
+                numberOfLines={1}
                 style={[styles.statSubtext, { color: theme.textSecondary }]}
               >
                 {stats.incomeCount} {stats.incomeCount === 1 ? t("item") : t("items")}
@@ -308,7 +331,7 @@ export function StatisticsView() {
             </GlassContainer>
           </View>
 
-          <View style={[styles.statCardWrapper, styles.statCardWrapperDouble]}>
+          <View style={[styles.statCardWrapper, { width: cardWidth }]}>
             <GlassContainer intensity="light" style={styles.statCard}>
               <View style={styles.statCardHeader}>
                 <Ionicons
@@ -318,6 +341,7 @@ export function StatisticsView() {
                 />
                 <Text
                   allowFontScaling={false}
+                  numberOfLines={1}
                   style={[styles.statLabel, { color: theme.textSecondary }]}
                 >
                   {t("expense")}
@@ -325,12 +349,16 @@ export function StatisticsView() {
               </View>
               <Text
                 allowFontScaling={false}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.7}
                 style={[styles.statValue, { color: theme.text }]}
               >
                 -${formatCurrency(stats.expenseTotal, 2)}
               </Text>
               <Text
                 allowFontScaling={false}
+                numberOfLines={1}
                 style={[styles.statSubtext, { color: theme.textSecondary }]}
               >
                 {stats.expenseCount} {stats.expenseCount === 1 ? t("item") : t("items")}
@@ -338,16 +366,20 @@ export function StatisticsView() {
             </GlassContainer>
           </View>
 
-          <View style={styles.statCardWrapper}>
+          <View style={[styles.statCardWrapper, { width: cardWidth }]}>
             <GlassContainer intensity="light" style={styles.statCard}>
               <Text
                 allowFontScaling={false}
+                numberOfLines={1}
                 style={[styles.statLabel, { color: theme.textSecondary }]}
               >
                 {t("total")}
               </Text>
               <Text
                 allowFontScaling={false}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.7}
                 style={[
                   styles.statValue,
                   { color: theme.text },
@@ -358,24 +390,7 @@ export function StatisticsView() {
               </Text>
             </GlassContainer>
           </View>
-
-          <View style={styles.statCardWrapper}>
-            <GlassContainer intensity="light" style={styles.statCard}>
-              <Text
-                allowFontScaling={false}
-                style={[styles.statLabel, { color: theme.textSecondary }]}
-              >
-                {t("logDay")}
-              </Text>
-              <Text
-                allowFontScaling={false}
-                style={[styles.statValue, { color: theme.text }]}
-              >
-                {stats.logDay}
-              </Text>
-            </GlassContainer>
-          </View>
-        </View>
+        </ScrollView>
 
         {/* View Mode Toggle */}
         <GlassContainer intensity="medium" style={styles.toggleContainer}>
@@ -679,42 +694,49 @@ const styles = StyleSheet.create({
     height: 100,
     zIndex: 10,
   },
-  statsContainer: {
-    flexDirection: "row",
-    gap: 8,
+  statsScrollView: {
     marginBottom: 16,
   },
-  statCardWrapper: {
-    flex: 1,
-    minWidth: 0,
+  statsScrollContent: {
+    paddingHorizontal: 16, // Padding for first and last cards
+    paddingRight: 16, // Extra padding on right for last card
+    gap: 8,
   },
-  statCardWrapperDouble: {
-    flex: 2,
+  statCardWrapper: {
+    // Width is set dynamically via inline style based on screen width
+    minHeight: 100, // Fixed minimum height for consistency
+    marginRight: 8, // Gap between cards
   },
   statCard: {
     width: "100%",
+    height: 100, // Fixed height for all cards - ensures stability
     padding: 12,
     borderRadius: 16,
     alignItems: "center",
-    minHeight: 80,
-    justifyContent: "center",
+    justifyContent: "space-between", // Distribute content evenly
   },
   statCardHeader: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    marginBottom: 8,
+    marginBottom: 4,
+    width: "100%",
+    justifyContent: "center",
   },
   statLabel: {
     fontSize: 13,
+    fontWeight: "500",
   },
   statValue: {
-    fontSize: 20,
+    fontSize: 18, // Slightly reduced for better fit
     fontWeight: "600",
-    marginBottom: 4,
+    textAlign: "center",
+    width: "100%",
+    marginVertical: 4,
   },
   statSubtext: {
     fontSize: 11,
+    marginTop: 2,
   },
   toggleContainer: {
     flexDirection: "row",
