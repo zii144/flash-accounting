@@ -1,12 +1,16 @@
 import { ConsumptionForm } from "@/components/ConsumptionForm";
 import { ConsumptionItem } from "@/components/ConsumptionItem";
+import { GlassContainer } from "@/components/GlassContainer";
 import { GlassTabBar } from "@/components/GlassTabBar";
+import { SettingsModal } from "@/components/SettingsModal";
 import { StatisticsView } from "@/components/StatisticsView";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
 import { formatCurrency } from "@/utils/formatting";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import React, { useCallback, useMemo, useState } from "react";
 import {
   FlatList,
@@ -15,6 +19,7 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
@@ -27,6 +32,12 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState<"accounting" | "statistics">(
     "accounting"
   );
+  const [settingsVisible, setSettingsVisible] = useState(false);
+
+  const handleSettingsPress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSettingsVisible(true);
+  }, []);
 
   const handleSubmit = useCallback(
     (data: Omit<Consumption, "id" | "date">) => {
@@ -95,9 +106,19 @@ export default function Index() {
           style={styles.content}
         >
           <View style={styles.header}>
-            <Text style={[styles.title, { color: theme.text }]}>
-              {t("flashAccounting")}
-            </Text>
+            <View style={styles.headerTop}>
+              <Text style={[styles.title, { color: theme.text }]}>
+                {t("flashAccounting")}
+              </Text>
+              <TouchableOpacity
+                style={styles.settingsButton}
+                onPress={handleSettingsPress}
+              >
+                <GlassContainer intensity="medium" style={styles.settingsGlass}>
+                  <Ionicons name="settings-outline" size={20} color={theme.text} />
+                </GlassContainer>
+              </TouchableOpacity>
+            </View>
             <Text style={[styles.total, { color: theme.textSecondary }]}>
               {t("total")}: ${formatCurrency(totalAmount, 2)}
             </Text>
@@ -138,6 +159,12 @@ export default function Index() {
       )}
 
       <GlassTabBar activeTab={activeTab} onTabChange={handleTabChange} />
+
+      <SettingsModal
+        visible={settingsVisible}
+        onClose={() => setSettingsVisible(false)}
+        consumptions={consumptions}
+      />
     </SafeAreaView>
   );
 }
@@ -155,11 +182,28 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     alignItems: "center",
   },
+  headerTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    marginBottom: 8,
+  },
   title: {
     fontSize: 28,
     fontWeight: "700",
-    marginBottom: 8,
     letterSpacing: -0.5,
+    flex: 1,
+  },
+  settingsButton: {
+    marginLeft: 12,
+  },
+  settingsGlass: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
   total: {
     fontSize: 18,
