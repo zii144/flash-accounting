@@ -14,6 +14,7 @@ import { FEATURES, getFeatureTranslationKeys } from "@/utils/features";
 import { formatCurrency } from "@/utils/formatting";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FlatList,
@@ -186,6 +187,25 @@ export default function Index() {
     [paginatedData]
   );
 
+  // Gradient colors for fade overlay
+  const fadeGradientColors = useMemo(() => {
+    if (theme.isDark) {
+      return [
+        'rgba(0, 0, 0, 0)',
+        'rgba(0, 0, 0, 0.3)',
+        'rgba(0, 0, 0, 0.7)',
+        theme.background,
+      ] as const;
+    } else {
+      return [
+        'rgba(255, 255, 255, 0)',
+        'rgba(255, 255, 255, 0.3)',
+        'rgba(255, 255, 255, 0.7)',
+        theme.background,
+      ] as const;
+    }
+  }, [theme.isDark, theme.background]);
+
   const handleLoadMore = useCallback(() => {
     if (!isLoadingMore && hasMore) {
       loadPage(page + 1, true);
@@ -272,36 +292,44 @@ export default function Index() {
 
           <ConsumptionForm onSubmit={handleSubmit} />
 
-          <FlatList
-            data={paginatedData}
-            keyExtractor={keyExtractor}
-            renderItem={renderItem}
-            contentContainerStyle={styles.listContent}
-            showsVerticalScrollIndicator={false}
-            removeClippedSubviews
-            maxToRenderPerBatch={10}
-            updateCellsBatchingPeriod={50}
-            initialNumToRender={10}
-            windowSize={10}
-            getItemLayout={(data, index) => ({
-              length: 72,
-              offset: 72 * index,
-              index,
-            })}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
-            ListEmptyComponent={ListEmptyComponent}
-            onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.5}
-            ListFooterComponent={
-              isLoadingMore ? (
-                <View style={styles.loadingFooter}>
-                  <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
-                    {t("loading") || "Loading..."}
-                  </Text>
-                </View>
-              ) : null
-            }
-          />
+          <View style={styles.listWrapper}>
+            <FlatList
+              data={paginatedData}
+              keyExtractor={keyExtractor}
+              renderItem={renderItem}
+              contentContainerStyle={styles.listContent}
+              showsVerticalScrollIndicator={false}
+              removeClippedSubviews
+              maxToRenderPerBatch={10}
+              updateCellsBatchingPeriod={50}
+              initialNumToRender={10}
+              windowSize={10}
+              getItemLayout={(data, index) => ({
+                length: 72,
+                offset: 72 * index,
+                index,
+              })}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
+              ListEmptyComponent={ListEmptyComponent}
+              onEndReached={handleLoadMore}
+              onEndReachedThreshold={0.5}
+              ListFooterComponent={
+                isLoadingMore ? (
+                  <View style={styles.loadingFooter}>
+                    <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
+                      {t("loading") || "Loading..."}
+                    </Text>
+                  </View>
+                ) : null
+              }
+            />
+            <LinearGradient
+              colors={fadeGradientColors}
+              locations={[0, 0.4, 0.7, 1]}
+              style={styles.fadeOverlay}
+              pointerEvents="none"
+            />
+          </View>
         </Animated.View>
       ) : (
         <Animated.View
@@ -374,8 +402,20 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     alignSelf: "flex-start",
   },
+  listWrapper: {
+    flex: 1,
+    position: "relative",
+  },
   listContent: {
     paddingBottom: 120,
+  },
+  fadeOverlay: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 100,
+    zIndex: 10,
   },
   separator: {
     height: 0,

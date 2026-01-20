@@ -20,6 +20,7 @@ import {
 } from "@/utils/formatting";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FlatList,
@@ -216,6 +217,25 @@ export function StatisticsView() {
     }
   }, [isLoadingMore, isLoadingStats, hasMore, page]);
 
+  // Gradient colors for fade overlay
+  const fadeGradientColors = useMemo(() => {
+    if (theme.isDark) {
+      return [
+        'rgba(0, 0, 0, 0)',
+        'rgba(0, 0, 0, 0.3)',
+        'rgba(0, 0, 0, 0.7)',
+        theme.background,
+      ] as const;
+    } else {
+      return [
+        'rgba(255, 255, 255, 0)',
+        'rgba(255, 255, 255, 0.3)',
+        'rgba(255, 255, 255, 0.7)',
+        theme.background,
+      ] as const;
+    }
+  }, [theme.isDark, theme.background]);
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
@@ -231,20 +251,21 @@ export function StatisticsView() {
           </GlassContainer>
         </TouchableOpacity>
       </View>
-      <FlatList
-        style={styles.content}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        data={displayData}
-        keyExtractor={(item) => item.date}
-        removeClippedSubviews
-        maxToRenderPerBatch={10}
-        updateCellsBatchingPeriod={50}
-        initialNumToRender={10}
-        windowSize={10}
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.5}
-        ListHeaderComponent={
+      <View style={styles.listWrapper}>
+        <FlatList
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          data={displayData}
+          keyExtractor={(item) => item.date}
+          removeClippedSubviews
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
+          initialNumToRender={10}
+          windowSize={10}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListHeaderComponent={
           <>
         {/* Summary Cards */}
         <View style={styles.statsContainer}>
@@ -511,6 +532,13 @@ export function StatisticsView() {
           </View>
         }
       />
+      <LinearGradient
+        colors={fadeGradientColors}
+        locations={[0, 0.4, 0.7, 1]}
+        style={styles.fadeOverlay}
+        pointerEvents="none"
+      />
+      </View>
 
       <SettingsModal
         visible={settingsVisible}
@@ -549,6 +577,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  listWrapper: {
+    flex: 1,
+    position: "relative",
+  },
   content: {
     flex: 1,
   },
@@ -556,6 +588,14 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingTop: 12,
     paddingBottom: 140,
+  },
+  fadeOverlay: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 100,
+    zIndex: 10,
   },
   statsContainer: {
     flexDirection: "row",
