@@ -4,16 +4,16 @@ import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
 import { getAll } from "@/utils/db";
 import { Ionicons } from "@expo/vector-icons";
-import { documentDirectory, EncodingType, writeAsStringAsync } from "expo-file-system";
+import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import React, { useCallback, useMemo, useState } from "react";
 import {
-  Alert,
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    Modal,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
@@ -76,14 +76,9 @@ export function SettingsModal({
       // Create file with timestamp
       const timestamp = new Date().toISOString().split("T")[0];
       const fileName = `flash-accounting-${timestamp}.csv`;
-      if (!documentDirectory) {
-        throw new Error("Unable to determine document directory");
-      }
-      const fileUri = `${documentDirectory}${fileName}`;
-
-      await writeAsStringAsync(fileUri, csvContent, {
-        encoding: EncodingType.UTF8,
-      });
+      const file = new File(Paths.document, fileName);
+      await file.write(csvContent);
+      const fileUri = file.uri;
 
       // Check if sharing is available
       const isAvailable = await Sharing.isAvailableAsync();

@@ -1,25 +1,25 @@
-import { useTheme } from "@/contexts/ThemeContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { UpcomingFeaturesBanner } from "@/components/UpcomingFeaturesBanner";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import React, { useCallback, useRef } from "react";
 import {
   Dimensions,
   StyleSheet,
-  TouchableOpacity,
   View,
 } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, {
-  useAnimatedScrollHandler,
-  useSharedValue,
-  useAnimatedStyle,
-  interpolate,
   Extrapolation,
   FadeIn,
   FadeOut,
+  interpolate,
+  SharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
 } from "react-native-reanimated";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import * as Haptics from "expo-haptics";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -139,7 +139,7 @@ export function FeaturesCarousel({
 interface CarouselItemProps {
   item: FeatureItem;
   index: number;
-  scrollX: Animated.SharedValue<number>;
+  scrollX: SharedValue<number>;
   isLast: boolean;
   onDismiss: () => void;
   onDontShowAgain: () => void;
@@ -201,7 +201,7 @@ function CarouselItem({
 
 interface PaginationDotProps {
   index: number;
-  scrollX: Animated.SharedValue<number>;
+  scrollX: SharedValue<number>;
   theme: any;
 }
 

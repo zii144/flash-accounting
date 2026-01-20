@@ -1,8 +1,22 @@
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useTheme } from "@/contexts/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+// Static fallback theme for error boundary - must be independent of context
+const FALLBACK_THEME = {
+  background: '#FFFFFF',
+  inputBackground: '#F5F5F5',
+  text: '#000000',
+  textSecondary: '#666666',
+  foreground: '#000000',
+};
+
+// Static fallback translations for error boundary
+const FALLBACK_TRANSLATIONS: Record<string, string> = {
+  errorOccurred: "Something went wrong",
+  errorMessage: "We encountered an unexpected error. Please try again or restart the app.",
+  tryAgain: "Try Again",
+};
 
 interface Props {
   children: ReactNode;
@@ -79,36 +93,10 @@ interface ErrorFallbackProps {
 }
 
 function ErrorFallback({ onReset, error }: ErrorFallbackProps) {
-  // Safely get theme with fallback
-  let theme: { background: string; inputBackground: string; text: string; textSecondary: string; foreground: string };
-  try {
-    theme = useTheme().theme;
-  } catch {
-    // Fallback theme if ThemeContext is not available
-    theme = {
-      background: '#FFFFFF',
-      inputBackground: '#F5F5F5',
-      text: '#000000',
-      textSecondary: '#666666',
-      foreground: '#000000',
-    };
-  }
-
-  // Safely get translations with fallback
-  let t: (key: string) => string;
-  try {
-    t = useLanguage().t;
-  } catch {
-    // Fallback if LanguageContext is not available
-    t = (key: string) => {
-      const fallbacks: Record<string, string> = {
-        errorOccurred: "Something went wrong",
-        errorMessage: "We encountered an unexpected error. Please try again or restart the app.",
-        tryAgain: "Try Again",
-      };
-      return fallbacks[key] || key;
-    };
-  }
+  // Use static fallback values to ensure error boundary works independently of context
+  // This is intentional - error boundaries must be resilient and work even when contexts fail
+  const theme = FALLBACK_THEME;
+  const t = (key: string) => FALLBACK_TRANSLATIONS[key] || key;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
