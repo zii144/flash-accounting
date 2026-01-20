@@ -147,7 +147,7 @@ export function useConsumptionStorage() {
 
   const deleteConsumption = useCallback(async (id: string) => {
     try {
-      if (!id) {
+      if (!id || typeof id !== 'string') {
         throw new Error('Invalid consumption ID');
       }
 
@@ -156,7 +156,10 @@ export function useConsumptionStorage() {
       // Check if deletion was successful
       if (result.changes === 0) {
         console.warn('No consumption found with ID:', id);
+        // Don't throw error - item might have already been deleted
         // Still update state optimistically
+      } else {
+        console.log(`Successfully deleted consumption with ID: ${id} (${result.changes} row(s) affected)`);
       }
 
       // Optimistically update local state

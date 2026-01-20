@@ -133,7 +133,19 @@ export function StatisticsView() {
 
   const handleDelete = useCallback(
     async (id: string) => {
-      await deleteConsumption(id);
+      try {
+        await deleteConsumption(id);
+        // Refresh the data after deletion
+        if (loadDataRef.current) {
+          loadDataRef.current(1, false);
+        }
+      } catch (error) {
+        console.error('Failed to delete consumption:', error);
+        // Refresh anyway to ensure UI is in sync
+        if (loadDataRef.current) {
+          loadDataRef.current(1, false);
+        }
+      }
     },
     [deleteConsumption]
   );

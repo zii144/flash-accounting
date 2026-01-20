@@ -239,9 +239,17 @@ export default function Index() {
   const handleDelete = useCallback(
     async (id: string) => {
       try {
+        // Optimistically remove from paginatedData immediately
+        setPaginatedData((prev) => prev.filter((c) => c.id !== id));
+        
         await deleteConsumption(id);
         // Success feedback is handled by the item component
       } catch (error) {
+        // On error, reload the current page to restore correct state
+        if (loadPageRef.current) {
+          loadPageRef.current(page, false);
+        }
+        
         // Show user-friendly error message
         const errorMessage = error instanceof Error 
           ? error.message 
@@ -255,7 +263,7 @@ export default function Index() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
     },
-    [deleteConsumption, t]
+    [deleteConsumption, t, page]
   );
 
   const handleEdit = useCallback((consumption: Consumption) => {

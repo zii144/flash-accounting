@@ -1,8 +1,8 @@
 import { useTheme } from "@/contexts/ThemeContext";
 import {
   GlassView,
-  isLiquidGlassAvailable,
   isGlassEffectAPIAvailable,
+  isLiquidGlassAvailable,
 } from "expo-glass-effect";
 import React from "react";
 import { Platform, StyleSheet, ViewStyle } from "react-native";
@@ -10,7 +10,6 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  withTiming,
 } from "react-native-reanimated";
 
 interface GlassContainerProps {
@@ -28,7 +27,6 @@ export function GlassContainer({
 }: GlassContainerProps) {
   const { theme } = useTheme();
   const scale = useSharedValue(animated ? 0.95 : 1);
-  const opacity = useSharedValue(animated ? 0 : 1);
   const [isAnimationComplete, setIsAnimationComplete] = React.useState(!animated);
 
   React.useEffect(() => {
@@ -36,14 +34,13 @@ export function GlassContainer({
       scale.value = withSpring(1, {
         damping: 15,
         stiffness: 150,
-      });
-      opacity.value = withTiming(1, { duration: 300 }, (finished) => {
+      }, (finished) => {
         if (finished) {
           setIsAnimationComplete(true);
         }
       });
     }
-  }, [animated, scale, opacity]);
+  }, [animated, scale]);
 
   // On iOS 26+, use native Liquid Glass effect
   // On other platforms, fallback to semi-transparent background
@@ -80,11 +77,9 @@ export function GlassContainer({
   });
 
   // Fallback for other platforms or during animation
-  // Use opacity animation only for fallback, not for GlassView
   const fallbackAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [{ scale: scale.value }],
-      opacity: opacity.value,
     };
   });
 
