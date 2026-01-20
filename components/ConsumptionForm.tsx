@@ -7,6 +7,7 @@ import { TYPING_FEEDBACK_DELAY } from "@/utils/constants";
 import {
   sanitizeAmount,
   sanitizeDescription,
+  sanitizeDescriptionLive,
   validateAmount,
   validateConsumption,
   validateDescription,
@@ -137,8 +138,8 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   // Debounced typing sound
   const handleTyping = useCallback(
     (text: string, callback: (text: string) => void) => {
-      // Sanitize description
-      const sanitized = sanitizeDescription(text);
+      // Sanitize description (no trim during typing to allow spaces)
+      const sanitized = sanitizeDescriptionLive(text);
       callback(sanitized);
 
       // Validate description

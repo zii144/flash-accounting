@@ -558,7 +558,7 @@ export function StatisticsView() {
                   </Text>
                 </View>
                 <Text style={[styles.groupTotal, { color: theme.text }]}>
-                  ${formatCurrency(item.total, 2)}
+                  {item.total >= 0 ? "+" : "-"}${formatCurrency(Math.abs(item.total), 2)}
                 </Text>
               </GlassContainer>
 

@@ -227,6 +227,17 @@ export function sanitizeDescription(description?: string): string {
 }
 
 /**
+ * Sanitizes description during live typing (no trim, to allow spaces)
+ */
+export function sanitizeDescriptionLive(description?: string): string {
+  if (!description) {
+    return "";
+  }
+
+  return description.slice(0, MAX_DESCRIPTION_LENGTH);
+}
+
+/**
  * Sanitizes amount input (removes invalid characters, limits decimals)
  */
 export function sanitizeAmount(amount: string | number): string {

@@ -1,5 +1,5 @@
-import { getAll } from '@/utils/db';
 import { TimeFilter } from '@/utils/constants';
+import { getAll } from '@/utils/db';
 
 export interface ConsumptionStats {
   total: number;
@@ -170,16 +170,19 @@ export function useConsumptionStats() {
           };
         }
         
+        const entryType = (row.type || 'expense') as 'expense' | 'income';
+        
         grouped[dateKey].consumptions.push({
           id: row.id,
           amount: row.amount,
           description: row.description,
-          type: (row.type || 'expense') as 'expense' | 'income',
+          type: entryType,
           category: row.category || undefined,
           date: row.date_full,
         });
         
-        grouped[dateKey].total += row.amount;
+        // Calculate net total: income adds, expense subtracts
+        grouped[dateKey].total += entryType === 'income' ? row.amount : -row.amount;
       });
 
       // Sort groups by date, and items within groups by the selected criteria
@@ -277,16 +280,19 @@ export function useConsumptionStats() {
           };
         }
         
+        const entryType = (row.type || 'expense') as 'expense' | 'income';
+        
         grouped[monthKey].consumptions.push({
           id: row.id,
           amount: row.amount,
           description: row.description,
-          type: (row.type || 'expense') as 'expense' | 'income',
+          type: entryType,
           category: row.category || undefined,
           date: row.date_full,
         });
         
-        grouped[monthKey].total += row.amount;
+        // Calculate net total: income adds, expense subtracts
+        grouped[monthKey].total += entryType === 'income' ? row.amount : -row.amount;
       });
 
       // Sort groups by date, and items within groups by the selected criteria
