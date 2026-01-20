@@ -385,8 +385,14 @@ export function StatisticsView() {
                   { color: theme.text },
                 ]}
               >
-                {stats.netTotal >= 0 ? "+" : ""}
-                ${formatCurrency(Math.abs(stats.netTotal), 2)}
+                {`${stats.netTotal >= 0 ? "+" : ""}$${formatCurrency(Math.abs(stats.netTotal), 2)}`}
+              </Text>
+              <Text
+                allowFontScaling={false}
+                numberOfLines={1}
+                style={[styles.statSubtext, { color: theme.textSecondary }]}
+              >
+                {stats.incomeCount + stats.expenseCount} {stats.incomeCount + stats.expenseCount === 1 ? t("item") : t("items")}
               </Text>
             </GlassContainer>
           </View>
