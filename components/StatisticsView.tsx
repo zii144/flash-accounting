@@ -6,6 +6,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStats } from "@/hooks/useConsumptionStats";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
+import { logger } from "@/utils/logger";
 import {
   SORT_OPTIONS,
   TIME_FILTERS,
@@ -140,7 +141,7 @@ export function StatisticsView() {
           loadDataRef.current(1, false);
         }
       } catch (error) {
-        console.error('Failed to delete consumption:', error);
+        logger.error('Failed to delete consumption', error, { consumptionId: id });
         // Refresh anyway to ensure UI is in sync
         if (loadDataRef.current) {
           loadDataRef.current(1, false);
@@ -254,7 +255,7 @@ export function StatisticsView() {
           setPage(pageNum);
         }
       } catch (error) {
-        console.error('Failed to load stats:', error);
+        logger.error('Failed to load stats', error, { viewMode, timeFilter, sortBy, sortOrder });
       } finally {
         if (!cancelled) {
           setIsLoadingStats(false);

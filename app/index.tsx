@@ -13,6 +13,7 @@ import { Consumption } from "@/types/consumption";
 import { dismissFeatureCarousel, shouldShowFeatureCarousel } from "@/utils/feature-carousel";
 import { FEATURES, getFeatureTranslationKeys } from "@/utils/features";
 import { formatCurrency } from "@/utils/formatting";
+import { logger } from "@/utils/logger";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -80,7 +81,7 @@ export default function Index() {
         const shouldShow = await shouldShowFeatureCarousel();
         setCarouselVisible(shouldShow);
       } catch (error) {
-        console.error('Failed to check carousel visibility:', error);
+        logger.error('Failed to check carousel visibility', error);
         // On error, show the carousel to be safe
         setCarouselVisible(true);
       } finally {
@@ -96,7 +97,7 @@ export default function Index() {
       await dismissFeatureCarousel();
       setCarouselVisible(false);
     } catch (error) {
-      console.error('Failed to dismiss carousel:', error);
+      logger.error('Failed to dismiss carousel', error);
       // Still hide the carousel even if save fails
       setCarouselVisible(false);
     }
@@ -130,7 +131,7 @@ export default function Index() {
         setHasMore(result.hasMore);
         setPage(pageNum);
       } catch (error) {
-        console.error('Failed to load page:', error);
+        logger.error('Failed to load page', error, { page: pageNum });
       } finally {
         setIsLoadingMore(false);
       }

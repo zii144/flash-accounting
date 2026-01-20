@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { logger } from "@/utils/logger";
 
 // Static fallback theme for error boundary - must be independent of context
 const FALLBACK_THEME = {
@@ -52,10 +53,15 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log error to console in development
-    if (__DEV__) {
-      console.error("ErrorBoundary caught an error:", error, errorInfo);
-    }
+    // Log error using logger (handles __DEV__ check internally)
+    logger.error(
+      "ErrorBoundary caught an error",
+      error,
+      {
+        componentStack: errorInfo.componentStack,
+        errorBoundary: true,
+      }
+    );
 
     // In production, you would send this to an error reporting service
     // Example: Sentry.captureException(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });

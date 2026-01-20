@@ -1,5 +1,6 @@
 import { TimeFilter } from '@/utils/constants';
 import { getAll } from '@/utils/db';
+import { logger } from '@/utils/logger';
 
 export interface ConsumptionStats {
   total: number;
@@ -102,7 +103,7 @@ export function useConsumptionStats() {
         logDay,
       };
     } catch (error) {
-      console.error('Failed to get stats:', error);
+      logger.error('Failed to get stats', error, { timeFilter });
       return { 
         total: 0, 
         expenseTotal: 0,
@@ -129,10 +130,14 @@ export function useConsumptionStats() {
     try {
       const [whereClause, params] = buildTimeFilterClause(timeFilter);
       
+      // Validate and sanitize sortBy and sortOrder to prevent SQL injection
+      const validSortBy = sortBy === 'date' || sortBy === 'amount' ? sortBy : 'date';
+      const validSortOrder = sortOrder === 'ASC' || sortOrder === 'DESC' ? sortOrder : 'DESC';
+      
       // Always sort by date first for grouping, then by the selected field
-      const orderBy = sortBy === 'date' 
-        ? `date ${sortOrder}`
-        : `date DESC, amount ${sortOrder}`;
+      const orderBy = validSortBy === 'date' 
+        ? `date ${validSortOrder}`
+        : `date DESC, amount ${validSortOrder}`;
       
       const results = await getAll<{
         date: string;
@@ -215,7 +220,7 @@ export function useConsumptionStats() {
         hasMore: offset + paginatedData.length < total,
       };
     } catch (error) {
-      console.error('Failed to get grouped by day:', error);
+      logger.error('Failed to get grouped by day', error, { timeFilter, sortBy, sortOrder });
       return {
         data: [],
         total: 0,
@@ -239,10 +244,14 @@ export function useConsumptionStats() {
     try {
       const [whereClause, params] = buildTimeFilterClause(timeFilter);
       
+      // Validate and sanitize sortBy and sortOrder to prevent SQL injection
+      const validSortBy = sortBy === 'date' || sortBy === 'amount' ? sortBy : 'date';
+      const validSortOrder = sortOrder === 'ASC' || sortOrder === 'DESC' ? sortOrder : 'DESC';
+      
       // Always sort by date first for grouping, then by the selected field
-      const orderBy = sortBy === 'date' 
-        ? `date ${sortOrder}`
-        : `date DESC, amount ${sortOrder}`;
+      const orderBy = validSortBy === 'date' 
+        ? `date ${validSortOrder}`
+        : `date DESC, amount ${validSortOrder}`;
       
       const results = await getAll<{
         year_month: string;
@@ -325,7 +334,7 @@ export function useConsumptionStats() {
         hasMore: offset + paginatedData.length < total,
       };
     } catch (error) {
-      console.error('Failed to get grouped by month:', error);
+      logger.error('Failed to get grouped by month', error, { timeFilter, sortBy, sortOrder });
       return {
         data: [],
         total: 0,
@@ -347,6 +356,10 @@ export function useConsumptionStats() {
     try {
       const [whereClause, params] = buildTimeFilterClause(timeFilter);
       
+      // Validate and sanitize sortBy and sortOrder to prevent SQL injection
+      const validSortBy = sortBy === 'date' || sortBy === 'amount' ? sortBy : 'date';
+      const validSortOrder = sortOrder === 'ASC' || sortOrder === 'DESC' ? sortOrder : 'DESC';
+      
       return await getAll<{
         id: string;
         amount: number;
@@ -357,11 +370,11 @@ export function useConsumptionStats() {
       }>(
         `SELECT * FROM consumptions
          ${whereClause}
-         ORDER BY ${sortBy} ${sortOrder}`,
+         ORDER BY ${validSortBy} ${validSortOrder}`,
         params
       );
     } catch (error) {
-      console.error('Failed to get filtered consumptions:', error);
+      logger.error('Failed to get filtered consumptions', error, { timeFilter, sortBy, sortOrder });
       return [];
     }
   };

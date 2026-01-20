@@ -1,6 +1,7 @@
 import { Consumption } from '@/types/consumption';
 import { getAll, run } from '@/utils/db';
 import { initializeDatabase } from '@/utils/db-schema';
+import { logger } from '@/utils/logger';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface PaginationOptions {
@@ -38,7 +39,7 @@ export function useConsumptionStorage() {
       );
       setTotalCount(countResult[0]?.count || 0);
     } catch (error) {
-      console.error('Failed to load consumptions:', error);
+      logger.error('Failed to load consumptions', error);
       setConsumptions([]);
       setTotalCount(0);
     }
@@ -55,7 +56,7 @@ export function useConsumptionStorage() {
       setTotalCount(countResult[0]?.count || 0);
       setConsumptions([]); // Start with empty array for pagination
     } catch (error) {
-      console.error('Failed to initialize database:', error);
+      logger.error('Failed to initialize database', error);
       setConsumptions([]);
       setTotalCount(0);
     } finally {
@@ -71,8 +72,10 @@ export function useConsumptionStorage() {
         const { page, pageSize, sortBy = 'date', sortOrder = 'DESC' } = options;
         const offset = (page - 1) * pageSize;
 
-        // Build ORDER BY clause
-        const orderBy = `${sortBy} ${sortOrder}`;
+        // Validate and sanitize sortBy and sortOrder to prevent SQL injection
+        const validSortBy = sortBy === 'date' || sortBy === 'amount' ? sortBy : 'date';
+        const validSortOrder = sortOrder === 'ASC' || sortOrder === 'DESC' ? sortOrder : 'DESC';
+        const orderBy = `${validSortBy} ${validSortOrder}`;
 
         // Get paginated data
         const data = await getAll<Consumption>(
@@ -94,7 +97,7 @@ export function useConsumptionStorage() {
           hasMore: offset + data.length < total,
         };
       } catch (error) {
-        console.error('Failed to load paginated consumptions:', error);
+        logger.error('Failed to load paginated consumptions', error);
         throw error;
       }
     },
@@ -135,7 +138,7 @@ export function useConsumptionStorage() {
       setConsumptions((prev) => [consumption, ...prev]);
       setTotalCount((prev) => prev + 1);
     } catch (error) {
-      console.error('Failed to save consumption:', error);
+      logger.error('Failed to save consumption', error, { consumptionId: consumption.id });
       // Re-throw with more context
       throw new Error(
         error instanceof Error 
@@ -155,18 +158,18 @@ export function useConsumptionStorage() {
 
       // Check if deletion was successful
       if (result.changes === 0) {
-        console.warn('No consumption found with ID:', id);
+        logger.warn('No consumption found with ID', { consumptionId: id });
         // Don't throw error - item might have already been deleted
         // Still update state optimistically
       } else {
-        console.log(`Successfully deleted consumption with ID: ${id} (${result.changes} row(s) affected)`);
+        logger.debug(`Successfully deleted consumption`, { consumptionId: id, changes: result.changes });
       }
 
       // Optimistically update local state
       setConsumptions((prev) => prev.filter((c) => c.id !== id));
       setTotalCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
-      console.error('Failed to delete consumption:', error);
+      logger.error('Failed to delete consumption', error, { consumptionId: id });
       // Re-throw with more context
       throw new Error(
         error instanceof Error 
@@ -208,7 +211,7 @@ export function useConsumptionStorage() {
         prev.map((c) => (c.id === consumption.id ? { ...c, ...consumption } : c))
       );
     } catch (error) {
-      console.error('Failed to update consumption:', error);
+      logger.error('Failed to update consumption', error, { consumptionId: consumption.id });
       throw new Error(
         error instanceof Error
           ? `Failed to update consumption: ${error.message}`
@@ -223,7 +226,7 @@ export function useConsumptionStorage() {
       setConsumptions([]);
       setTotalCount(0);
     } catch (error) {
-      console.error('Failed to clear consumptions:', error);
+      logger.error('Failed to clear consumptions', error);
       throw error;
     }
   }, []);

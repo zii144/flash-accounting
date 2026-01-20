@@ -1,5 +1,6 @@
 import { getFirst, run } from './db';
 import { FEATURES } from './features';
+import { logger } from './logger';
 
 const FEATURE_CAROUSEL_KEY = 'feature_carousel_dismissed_version';
 
@@ -31,7 +32,7 @@ export async function getDismissedFeaturesVersion(): Promise<string | null> {
     );
     return result?.value || null;
   } catch (error) {
-    console.error('Failed to get dismissed features version:', error);
+    logger.error('Failed to get dismissed features version', error);
     return null;
   }
 }
@@ -46,7 +47,7 @@ export async function setDismissedFeaturesVersion(version: string): Promise<void
       [FEATURE_CAROUSEL_KEY, version]
     );
   } catch (error) {
-    console.error('Failed to save dismissed features version:', error);
+    logger.error('Failed to save dismissed features version', error);
     throw error;
   }
 }
@@ -65,7 +66,7 @@ export async function shouldShowFeatureCarousel(): Promise<boolean> {
     // Show if never dismissed or if version changed (new features)
     return dismissedVersion === null || dismissedVersion !== currentVersion;
   } catch (error) {
-    console.error('Failed to check carousel visibility:', error);
+    logger.error('Failed to check carousel visibility', error);
     // On error, show the carousel to be safe
     return true;
   }
@@ -79,7 +80,7 @@ export async function dismissFeatureCarousel(): Promise<void> {
     const currentVersion = generateFeaturesVersion();
     await setDismissedFeaturesVersion(currentVersion);
   } catch (error) {
-    console.error('Failed to dismiss carousel:', error);
+    logger.error('Failed to dismiss carousel', error);
     throw error;
   }
 }

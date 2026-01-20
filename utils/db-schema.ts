@@ -2,6 +2,7 @@ import { Consumption } from '@/types/consumption';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STORAGE_KEYS } from './constants';
 import { getFirst, run, transaction } from './db';
+import { logger } from './logger';
 
 const MIGRATION_KEY = '@flash_accounting_db_migrated';
 
@@ -141,9 +142,9 @@ export async function migrateFromAsyncStorage(): Promise<void> {
     // Mark migration as completed
     await markMigrationCompleted();
 
-    console.log(`Migrated ${consumptions.length} consumptions from AsyncStorage to SQLite`);
+    logger.info(`Migrated ${consumptions.length} consumptions from AsyncStorage to SQLite`);
   } catch (error) {
-    console.error('Migration failed:', error);
+    logger.error('Migration failed', error);
     // Don't throw - allow app to continue even if migration fails
     // Migration will be retried on next app start
   }

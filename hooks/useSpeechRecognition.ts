@@ -83,7 +83,7 @@ export function useSpeechRecognition() {
         recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
           setError(event.error || "Speech recognition error");
           setIsListening(false);
-          console.error("Speech recognition error:", event);
+          logger.error("Speech recognition error", event.error, { event });
         };
 
         recognitionRef.current = recognition;
@@ -116,7 +116,7 @@ export function useSpeechRecognition() {
       recognitionRef.current.start();
     } catch (err) {
       setError("Failed to start speech recognition");
-      console.error(err);
+      logger.error("Failed to start speech recognition", err);
     }
   };
 
@@ -129,7 +129,7 @@ export function useSpeechRecognition() {
       recognitionRef.current.stop();
       setIsListening(false);
     } catch (err) {
-      console.error(err);
+      logger.error("Failed to stop speech recognition", err);
     }
   };
 
@@ -143,7 +143,7 @@ export function useSpeechRecognition() {
       setIsListening(false);
       setTranscript("");
     } catch (err) {
-      console.error(err);
+      logger.error("Failed to cancel speech recognition", err);
     }
   };
 

@@ -1,5 +1,6 @@
 import { STORAGE_KEYS, SUPPORTED_LANGUAGES } from "@/utils/constants";
 import type { ResolvedLanguage } from "@/utils/formatting";
+import { logger } from "@/utils/logger";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Localization from "expo-localization";
 import React, {
@@ -27,14 +28,14 @@ const getDeviceLanguage = (): ResolvedLanguage => {
 
     // Ensure locales is an array and has at least one element
     if (!Array.isArray(locales) || locales.length === 0) {
-      console.warn("No device locales found, falling back to English");
+      logger.warn("No device locales found, falling back to English");
       return "en";
     }
 
     // Use the first locale (primary device language)
     const primaryLocale = locales[0];
     if (!primaryLocale) {
-      console.warn("Primary locale is undefined, falling back to English");
+      logger.warn("Primary locale is undefined, falling back to English");
       return "en";
     }
 
@@ -55,8 +56,9 @@ const getDeviceLanguage = (): ResolvedLanguage => {
 
     // If we still don't have a language code, fall back to English
     if (!langCode) {
-      console.warn(
-        `Could not extract language code from locale: ${JSON.stringify(primaryLocale)}, falling back to English`
+      logger.warn(
+        "Could not extract language code from locale, falling back to English",
+        { locale: primaryLocale }
       );
       return "en";
     }
@@ -74,15 +76,16 @@ const getDeviceLanguage = (): ResolvedLanguage => {
 
     const resolvedLang = languageMap[langCode];
     if (!resolvedLang) {
-      console.log(
-        `Device language "${langCode}" is not supported, falling back to English`
+      logger.debug(
+        "Device language is not supported, falling back to English",
+        { langCode }
       );
       return "en";
     }
 
     return resolvedLang;
   } catch (error) {
-    console.error("Failed to detect device language:", error);
+    logger.error("Failed to detect device language", error);
     // Always fall back to English on any error
     return "en";
   }
@@ -623,7 +626,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         setLanguageState("device");
       }
     } catch (error) {
-      console.error("Failed to load language:", error);
+      logger.error("Failed to load language", error);
       setLanguageState("device");
     }
   };
@@ -633,7 +636,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       await AsyncStorage.setItem(STORAGE_KEYS.LANGUAGE, lang);
       setLanguageState(lang);
     } catch (error) {
-      console.error("Failed to save language:", error);
+      logger.error("Failed to save language", error);
     }
   };
 

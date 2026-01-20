@@ -3,6 +3,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
 import { getAll } from "@/utils/db";
+import { logger } from "@/utils/logger";
 import { Ionicons } from "@expo/vector-icons";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
@@ -95,7 +96,7 @@ export function SettingsModal({
         );
       }
     } catch (error) {
-      console.error("Export error:", error);
+      logger.error("Export error", error);
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       Alert.alert(t("exportError"), errorMessage);
@@ -122,7 +123,7 @@ export function SettingsModal({
               Alert.alert(t("clearSuccess"));
               onClose();
             } catch (error) {
-              console.error("Clear error:", error);
+              logger.error("Clear error", error);
               const errorMessage =
                 error instanceof Error
                   ? error.message
