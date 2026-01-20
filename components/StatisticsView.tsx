@@ -44,7 +44,7 @@ interface GroupedConsumption {
 export function StatisticsView() {
   const { theme } = useTheme();
   const { resolvedLanguage, t } = useLanguage();
-  const { consumptions, updateConsumption } = useConsumptionStorage();
+  const { consumptions, updateConsumption, deleteConsumption } = useConsumptionStorage();
   const statsHook = useConsumptionStats();
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
@@ -130,6 +130,13 @@ export function StatisticsView() {
     setEditModalVisible(false);
     setEditingConsumption(null);
   }, []);
+
+  const handleDelete = useCallback(
+    async (id: string) => {
+      await deleteConsumption(id);
+    },
+    [deleteConsumption]
+  );
 
   // Parse sort option to SQL format
   const sortConfig = useMemo(() => {
@@ -687,6 +694,7 @@ export function StatisticsView() {
         consumption={editingConsumption}
         onClose={handleEditClose}
         onSave={handleEditSave}
+        onDelete={handleDelete}
       />
     </View>
   );

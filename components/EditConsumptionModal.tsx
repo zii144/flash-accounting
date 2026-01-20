@@ -26,6 +26,7 @@ interface EditConsumptionModalProps {
   consumption: Consumption | null;
   onClose: () => void;
   onSave: (consumption: Consumption) => Promise<void>;
+  onDelete: (id: string) => void;
 }
 
 export function EditConsumptionModal({
@@ -33,6 +34,7 @@ export function EditConsumptionModal({
   consumption,
   onClose,
   onSave,
+  onDelete,
 }: EditConsumptionModalProps) {
   const { theme } = useTheme();
   const { t } = useLanguage();
@@ -103,6 +105,30 @@ export function EditConsumptionModal({
     Keyboard.dismiss();
     onClose();
   }, [onClose]);
+
+  const handleDelete = useCallback(() => {
+    if (!consumption) return;
+
+    Alert.alert(
+      t("deleteEntry") || "Delete Entry",
+      t("deleteConfirmation") || "Are you sure you want to delete this entry?",
+      [
+        {
+          text: t("cancel") || "Cancel",
+          style: "cancel",
+        },
+        {
+          text: t("delete") || "Delete",
+          style: "destructive",
+          onPress: () => {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            onDelete(consumption.id);
+            onClose();
+          },
+        },
+      ]
+    );
+  }, [consumption, onDelete, onClose, t]);
 
   return (
     <Modal
@@ -267,22 +293,40 @@ export function EditConsumptionModal({
               </View>
             </View>
 
-            {/* Save Button */}
-            <TouchableOpacity
-              style={[
-                styles.saveButton,
-                { backgroundColor: theme.foreground },
-                isSaving && styles.saveButtonDisabled,
-              ]}
-              onPress={handleSave}
-              disabled={isSaving}
-            >
-              <Text
-                style={[styles.saveButtonText, { color: theme.background }]}
+            {/* Action Buttons */}
+            <View style={styles.actionButtons}>
+              <TouchableOpacity
+                style={[
+                  styles.deleteButton,
+                  {
+                    borderColor: theme.isDark
+                      ? "rgba(255, 59, 48, 0.5)"
+                      : "rgba(255, 59, 48, 0.3)",
+                  },
+                ]}
+                onPress={handleDelete}
               >
-                {isSaving ? t("saving") || "Saving..." : t("save") || "Save"}
-              </Text>
-            </TouchableOpacity>
+                <Ionicons name="trash-outline" size={18} color="#FF3B30" />
+                <Text style={styles.deleteButtonText}>
+                  {t("delete")}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.saveButton,
+                  { backgroundColor: theme.foreground },
+                  isSaving && styles.saveButtonDisabled,
+                ]}
+                onPress={handleSave}
+                disabled={isSaving}
+              >
+                <Text
+                  style={[styles.saveButtonText, { color: theme.background }]}
+                >
+                  {isSaving ? t("saving") || "Saving..." : t("save") || "Save"}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </Animated.View>
       </KeyboardAvoidingView>
@@ -375,11 +419,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
+  actionButtons: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 8,
+  },
+  deleteButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 16,
+    borderRadius: 16,
+    borderWidth: 1.5,
+  },
+  deleteButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FF3B30",
+  },
   saveButton: {
+    flex: 1,
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: "center",
-    marginTop: 8,
   },
   saveButtonDisabled: {
     opacity: 0.6,

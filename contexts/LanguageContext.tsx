@@ -169,6 +169,9 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     save: "Save",
     saving: "Saving...",
     type: "Type",
+    delete: "Delete",
+    deleteEntry: "Delete Entry",
+    deleteConfirmation: "Are you sure you want to delete this entry?",
   },
   zh: {
     accounting: "記帳",
@@ -250,6 +253,9 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     save: "儲存",
     saving: "儲存中...",
     type: "類型",
+    delete: "刪除",
+    deleteEntry: "刪除記錄",
+    deleteConfirmation: "確定要刪除此記錄嗎？",
   },
   es: {
     accounting: "Contabilidad",
@@ -332,6 +338,9 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     save: "Guardar",
     saving: "Guardando...",
     type: "Tipo",
+    delete: "Eliminar",
+    deleteEntry: "Eliminar entrada",
+    deleteConfirmation: "¿Estás seguro de que quieres eliminar esta entrada?",
   },
   fr: {
     accounting: "Comptabilité",
@@ -413,6 +422,9 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     save: "Enregistrer",
     saving: "Enregistrement...",
     type: "Type",
+    delete: "Supprimer",
+    deleteEntry: "Supprimer l'entrée",
+    deleteConfirmation: "Êtes-vous sûr de vouloir supprimer cette entrée?",
   },
   de: {
     accounting: "Buchhaltung",
@@ -495,6 +507,9 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     save: "Speichern",
     saving: "Speichern...",
     type: "Typ",
+    delete: "Löschen",
+    deleteEntry: "Eintrag löschen",
+    deleteConfirmation: "Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?",
   },
   ja: {
     accounting: "会計",
@@ -576,6 +591,9 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     save: "保存",
     saving: "保存中...",
     type: "種類",
+    delete: "削除",
+    deleteEntry: "削除",
+    deleteConfirmation: "このエントリを削除してもよろしいですか？",
   },
 };
 

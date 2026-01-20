@@ -20,13 +20,11 @@ const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 interface ConsumptionItemProps {
   consumption: Consumption;
-  onDelete: (id: string) => void;
   onEdit: (consumption: Consumption) => void;
 }
 
 function ConsumptionItemComponent({
   consumption,
-  onDelete,
   onEdit,
 }: ConsumptionItemProps) {
   const { theme } = useTheme();
@@ -47,10 +45,6 @@ function ConsumptionItemComponent({
     transform: [{ scale: scale.value }],
     opacity: opacity.value,
   }));
-
-  const handleDelete = useCallback(() => {
-    onDelete(consumption.id);
-  }, [consumption.id, onDelete]);
 
   const handleEdit = useCallback(() => {
     onEdit(consumption);
@@ -150,13 +144,6 @@ function ConsumptionItemComponent({
               >
                 <Ionicons name="pencil-outline" size={16} color={theme.text} />
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleDelete}
-                style={[styles.actionButton, { backgroundColor: theme.border }]}
-                activeOpacity={0.7}
-              >
-                <Text style={[styles.deleteText, { color: theme.text }]}>×</Text>
-              </TouchableOpacity>
             </View>
           </GlassContainer>
         </AnimatedTouchable>
@@ -240,11 +227,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
-  },
-  deleteText: {
-    fontSize: 24,
-    fontWeight: "300",
-    lineHeight: 24,
   },
 });
 

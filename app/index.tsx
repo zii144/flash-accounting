@@ -281,9 +281,9 @@ export default function Index() {
 
   const renderItem: ListRenderItem<Consumption> = useCallback(
     ({ item }) => (
-      <ConsumptionItem consumption={item} onDelete={handleDelete} onEdit={handleEdit} />
+      <ConsumptionItem consumption={item} onEdit={handleEdit} />
     ),
-    [handleDelete, handleEdit]
+    [handleEdit]
   );
 
   const keyExtractor = useCallback((item: Consumption) => item.id, []);
@@ -419,6 +419,7 @@ export default function Index() {
         consumption={editingConsumption}
         onClose={handleEditClose}
         onSave={handleEditSave}
+        onDelete={handleDelete}
       />
     </SafeAreaView>
   );
