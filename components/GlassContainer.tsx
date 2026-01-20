@@ -1,5 +1,9 @@
 import { useTheme } from "@/contexts/ThemeContext";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
+import {
+  GlassView,
+  isLiquidGlassAvailable,
+  isGlassEffectAPIAvailable,
+} from "expo-glass-effect";
 import React from "react";
 import { Platform, StyleSheet, ViewStyle } from "react-native";
 import Animated, {
@@ -25,6 +29,7 @@ export function GlassContainer({
   const { theme } = useTheme();
   const scale = useSharedValue(animated ? 0.95 : 1);
   const opacity = useSharedValue(animated ? 0 : 1);
+  const [isAnimationComplete, setIsAnimationComplete] = React.useState(!animated);
 
   React.useEffect(() => {
     if (animated) {
@@ -32,16 +37,13 @@ export function GlassContainer({
         damping: 15,
         stiffness: 150,
       });
-      opacity.value = withTiming(1, { duration: 300 });
+      opacity.value = withTiming(1, { duration: 300 }, (finished) => {
+        if (finished) {
+          setIsAnimationComplete(true);
+        }
+      });
     }
   }, [animated, scale, opacity]);
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-      opacity: opacity.value,
-    };
-  });
 
   // On iOS 26+, use native Liquid Glass effect
   // On other platforms, fallback to semi-transparent background
@@ -50,20 +52,45 @@ export function GlassContainer({
   React.useEffect(() => {
     if (Platform.OS === "ios") {
       try {
-        setIsAvailable(isLiquidGlassAvailable());
+        // Check both compile-time availability and runtime API availability
+        // This prevents crashes on iOS 26.2 where the API might not be available
+        const compileTimeAvailable = isLiquidGlassAvailable();
+        const runtimeAvailable = isGlassEffectAPIAvailable();
+        setIsAvailable(compileTimeAvailable && runtimeAvailable);
       } catch {
         setIsAvailable(false);
       }
     }
   }, []);
 
-  if (isAvailable) {
-    // Map our intensity prop to GlassView's style prop
-    // 'clear' for light, 'regular' for medium/heavy
-    const glassEffectStyle = intensity === "light" ? "clear" : "regular";
+  // Map our intensity prop to GlassView's style prop
+  // 'clear' for light, 'regular' for medium/heavy
+  const glassEffectStyle = intensity === "light" ? "clear" : "regular";
 
+  // Use GlassView only if available AND animation is complete (or not animated)
+  // This prevents opacity < 1 on GlassView which causes rendering issues
+  const shouldUseGlassView = isAvailable && isAnimationComplete;
+
+  // For GlassView, we can't use opacity < 1, so only animate scale
+  // Never apply opacity to GlassView or its parent (per Expo docs)
+  const glassAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
+  // Fallback for other platforms or during animation
+  // Use opacity animation only for fallback, not for GlassView
+  const fallbackAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+      opacity: opacity.value,
+    };
+  });
+
+  if (shouldUseGlassView) {
     return (
-      <Animated.View style={animatedStyle}>
+      <Animated.View style={glassAnimatedStyle}>
         <GlassView
           glassEffectStyle={glassEffectStyle}
           style={[styles.glassContainer, style]}
@@ -75,7 +102,6 @@ export function GlassContainer({
     );
   }
 
-  // Fallback for other platforms
   const fallbackBackgroundColor = theme.isDark
     ? "rgba(255, 255, 255, 0.05)"
     : "rgba(0, 0, 0, 0.03)";
@@ -83,7 +109,7 @@ export function GlassContainer({
   return (
     <Animated.View
       style={[
-        animatedStyle,
+        fallbackAnimatedStyle,
         styles.fallbackContainer,
         { backgroundColor: fallbackBackgroundColor },
         style,
