@@ -4,6 +4,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { Consumption, ConsumptionType } from "@/types/consumption";
 import { TYPING_FEEDBACK_DELAY } from "@/utils/constants";
+import { formatAmountInput, parseAmountInput } from "@/utils/formatting";
 import {
   sanitizeAmount,
   sanitizeDescription,
@@ -54,40 +55,6 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   const [amountError, setAmountError] = useState<string | null>(null);
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Format number with thousand separators
-  const formatAmountInput = (value: string): string => {
-    // Remove all non-digit characters except decimal point
-    const cleaned = value.replace(/[^\d.]/g, "");
-
-    // Handle multiple decimal points - keep only the first one
-    const parts = cleaned.split(".");
-    if (parts.length > 2) {
-      const integerPart = parts[0];
-      const decimalPart = parts.slice(1).join("");
-      return `${integerPart}.${decimalPart}`;
-    }
-
-    const integerPart = parts[0];
-    const decimalPart = parts[1] || "";
-
-    // Add thousand separators to integer part
-    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-
-    // Limit decimal places to 2
-    const limitedDecimal = decimalPart.slice(0, 2);
-
-    if (limitedDecimal) {
-      return `${formattedInteger}.${limitedDecimal}`;
-    }
-
-    return formattedInteger;
-  };
-
-  // Parse formatted amount back to number string
-  const parseAmountInput = (value: string): string => {
-    return value.replace(/,/g, "");
-  };
 
   // Handle amount input change
   const handleAmountChange = (text: string) => {

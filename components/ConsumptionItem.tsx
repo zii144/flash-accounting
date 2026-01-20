@@ -21,11 +21,13 @@ const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 interface ConsumptionItemProps {
   consumption: Consumption;
   onDelete: (id: string) => void;
+  onEdit: (consumption: Consumption) => void;
 }
 
 function ConsumptionItemComponent({
   consumption,
   onDelete,
+  onEdit,
 }: ConsumptionItemProps) {
   const { theme } = useTheme();
   const { resolvedLanguage, t } = useLanguage();
@@ -49,6 +51,10 @@ function ConsumptionItemComponent({
   const handleDelete = useCallback(() => {
     onDelete(consumption.id);
   }, [consumption.id, onDelete]);
+
+  const handleEdit = useCallback(() => {
+    onEdit(consumption);
+  }, [consumption, onEdit]);
 
   const displayDate = formatDate(
     consumption.date,
@@ -136,13 +142,22 @@ function ConsumptionItemComponent({
                 </Text>
               </View>
             </View>
-            <TouchableOpacity
-              onPress={handleDelete}
-              style={[styles.deleteButton, { backgroundColor: theme.border }]}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.deleteText, { color: theme.text }]}>×</Text>
-            </TouchableOpacity>
+            <View style={styles.actionButtons}>
+              <TouchableOpacity
+                onPress={handleEdit}
+                style={[styles.actionButton, { backgroundColor: theme.border }]}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="pencil-outline" size={16} color={theme.text} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleDelete}
+                style={[styles.actionButton, { backgroundColor: theme.border }]}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.deleteText, { color: theme.text }]}>×</Text>
+              </TouchableOpacity>
+            </View>
           </GlassContainer>
         </AnimatedTouchable>
       </Animated.View>
@@ -213,13 +228,18 @@ const styles = StyleSheet.create({
   time: {
     fontSize: 12,
   },
-  deleteButton: {
+  actionButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginLeft: 12,
+  },
+  actionButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: 12,
   },
   deleteText: {
     fontSize: 24,

@@ -165,6 +165,10 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     errorNetworkFailed: "Network error. Please check your connection.",
     errorDatabaseFailed: "Database error. Please restart the app.",
     loading: "Loading...",
+    editEntry: "Edit Entry",
+    save: "Save",
+    saving: "Saving...",
+    type: "Type",
   },
   zh: {
     accounting: "記帳",
@@ -242,6 +246,10 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     errorNetworkFailed: "網路錯誤。請檢查您的連線。",
     errorDatabaseFailed: "資料庫錯誤。請重新啟動應用程式。",
     loading: "載入中...",
+    editEntry: "編輯記錄",
+    save: "儲存",
+    saving: "儲存中...",
+    type: "類型",
   },
   es: {
     accounting: "Contabilidad",
@@ -320,6 +328,10 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     errorNetworkFailed: "Error de red. Por favor, verifica tu conexión.",
     errorDatabaseFailed: "Error de base de datos. Por favor, reinicia la aplicación.",
     loading: "Cargando...",
+    editEntry: "Editar entrada",
+    save: "Guardar",
+    saving: "Guardando...",
+    type: "Tipo",
   },
   fr: {
     accounting: "Comptabilité",
@@ -397,6 +409,10 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     errorNetworkFailed: "Erreur réseau. Veuillez vérifier votre connexion.",
     errorDatabaseFailed: "Erreur de base de données. Veuillez redémarrer l'application.",
     loading: "Chargement...",
+    editEntry: "Modifier l'entrée",
+    save: "Enregistrer",
+    saving: "Enregistrement...",
+    type: "Type",
   },
   de: {
     accounting: "Buchhaltung",
@@ -475,6 +491,10 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     errorNetworkFailed: "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
     errorDatabaseFailed: "Datenbankfehler. Bitte starten Sie die App neu.",
     loading: "Laden...",
+    editEntry: "Eintrag bearbeiten",
+    save: "Speichern",
+    saving: "Speichern...",
+    type: "Typ",
   },
   ja: {
     accounting: "会計",
@@ -552,6 +572,10 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     errorNetworkFailed: "ネットワークエラー。接続を確認してください。",
     errorDatabaseFailed: "データベースエラー。アプリを再起動してください。",
     loading: "読み込み中...",
+    editEntry: "編集",
+    save: "保存",
+    saving: "保存中...",
+    type: "種類",
   },
 };
 

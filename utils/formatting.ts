@@ -105,3 +105,41 @@ export const formatMonthLabel = (
     year: "numeric",
   });
 };
+
+/**
+ * Format amount input with thousand separators
+ */
+export const formatAmountInput = (value: string): string => {
+  // Remove all non-digit characters except decimal point
+  const cleaned = value.replace(/[^\d.]/g, "");
+
+  // Handle multiple decimal points - keep only the first one
+  const parts = cleaned.split(".");
+  if (parts.length > 2) {
+    const integerPart = parts[0];
+    const decimalPart = parts.slice(1).join("");
+    return `${integerPart}.${decimalPart}`;
+  }
+
+  const integerPart = parts[0];
+  const decimalPart = parts[1] || "";
+
+  // Add thousand separators to integer part
+  const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  // Limit decimal places to 2
+  const limitedDecimal = decimalPart.slice(0, 2);
+
+  if (limitedDecimal) {
+    return `${formattedInteger}.${limitedDecimal}`;
+  }
+
+  return formattedInteger;
+};
+
+/**
+ * Parse formatted amount back to number string (remove commas)
+ */
+export const parseAmountInput = (value: string): string => {
+  return value.replace(/,/g, "");
+};

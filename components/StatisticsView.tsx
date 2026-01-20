@@ -1,3 +1,4 @@
+import { EditConsumptionModal } from "@/components/EditConsumptionModal";
 import { GlassContainer } from "@/components/GlassContainer";
 import { SettingsModal } from "@/components/SettingsModal";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -43,12 +44,14 @@ interface GroupedConsumption {
 export function StatisticsView() {
   const { theme } = useTheme();
   const { resolvedLanguage, t } = useLanguage();
-  const { consumptions } = useConsumptionStorage();
+  const { consumptions, updateConsumption } = useConsumptionStorage();
   const statsHook = useConsumptionStats();
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("day");
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingConsumption, setEditingConsumption] = useState<Consumption | null>(null);
   
   // Calculate card width so expense and income take up most of the initial viewport
   const cardWidth = useMemo(() => {
@@ -105,6 +108,27 @@ export function StatisticsView() {
       const currentIndex = SORT_OPTIONS.indexOf(prev);
       return SORT_OPTIONS[(currentIndex + 1) % SORT_OPTIONS.length];
     });
+  }, []);
+
+  const handleEdit = useCallback((consumption: Consumption) => {
+    setEditingConsumption(consumption);
+    setEditModalVisible(true);
+  }, []);
+
+  const handleEditSave = useCallback(
+    async (consumption: Consumption) => {
+      await updateConsumption(consumption);
+      // Refresh the data after update
+      if (loadDataRef.current) {
+        loadDataRef.current(1, false);
+      }
+    },
+    [updateConsumption]
+  );
+
+  const handleEditClose = useCallback(() => {
+    setEditModalVisible(false);
+    setEditingConsumption(null);
   }, []);
 
   // Parse sort option to SQL format
@@ -614,14 +638,23 @@ export function StatisticsView() {
                         : t("noDescription")}
                     </Text>
                   </View>
-                  <Text
-                    style={[
-                      styles.consumptionTime,
-                      { color: theme.textSecondary },
-                    ]}
-                  >
-                    {formatTime(consumption.date, resolvedLanguage)}
-                  </Text>
+                  <View style={styles.consumptionActions}>
+                    <Text
+                      style={[
+                        styles.consumptionTime,
+                        { color: theme.textSecondary },
+                      ]}
+                    >
+                      {formatTime(consumption.date, resolvedLanguage)}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => handleEdit(consumption as Consumption)}
+                      style={[styles.editButton, { backgroundColor: theme.border }]}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons name="pencil-outline" size={14} color={theme.text} />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               ))}
             </Animated.View>
@@ -647,6 +680,13 @@ export function StatisticsView() {
         visible={settingsVisible}
         onClose={() => setSettingsVisible(false)}
         consumptions={consumptions}
+      />
+
+      <EditConsumptionModal
+        visible={editModalVisible}
+        consumption={editingConsumption}
+        onClose={handleEditClose}
+        onSave={handleEditSave}
       />
     </View>
   );
@@ -865,9 +905,20 @@ const styles = StyleSheet.create({
   consumptionDescription: {
     fontSize: 14,
   },
+  consumptionActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   consumptionTime: {
     fontSize: 12,
-    marginLeft: 12,
+  },
+  editButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: "center",
+    alignItems: "center",
   },
   emptyContainer: {
     paddingVertical: 60,

@@ -1,5 +1,6 @@
 import { ConsumptionForm } from "@/components/ConsumptionForm";
 import { ConsumptionItem } from "@/components/ConsumptionItem";
+import { EditConsumptionModal } from "@/components/EditConsumptionModal";
 import { FeatureItem, FeaturesCarousel } from "@/components/FeaturesCarousel";
 import { GlassContainer } from "@/components/GlassContainer";
 import { GlassTabBar } from "@/components/GlassTabBar";
@@ -38,6 +39,7 @@ export default function Index() {
     consumptions,
     isLoading,
     saveConsumption,
+    updateConsumption,
     deleteConsumption,
     loadPaginated,
     totalCount,
@@ -46,6 +48,8 @@ export default function Index() {
     "accounting"
   );
   const [settingsVisible, setSettingsVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingConsumption, setEditingConsumption] = useState<Consumption | null>(null);
   const [carouselVisible, setCarouselVisible] = useState(false);
   const [isCheckingCarousel, setIsCheckingCarousel] = useState(true);
   const [page, setPage] = useState(1);
@@ -254,11 +258,32 @@ export default function Index() {
     [deleteConsumption, t]
   );
 
+  const handleEdit = useCallback((consumption: Consumption) => {
+    setEditingConsumption(consumption);
+    setEditModalVisible(true);
+  }, []);
+
+  const handleEditSave = useCallback(
+    async (consumption: Consumption) => {
+      await updateConsumption(consumption);
+      // Refresh the list after update
+      if (loadPageRef.current) {
+        loadPageRef.current(1, false);
+      }
+    },
+    [updateConsumption]
+  );
+
+  const handleEditClose = useCallback(() => {
+    setEditModalVisible(false);
+    setEditingConsumption(null);
+  }, []);
+
   const renderItem: ListRenderItem<Consumption> = useCallback(
     ({ item }) => (
-      <ConsumptionItem consumption={item} onDelete={handleDelete} />
+      <ConsumptionItem consumption={item} onDelete={handleDelete} onEdit={handleEdit} />
     ),
-    [handleDelete]
+    [handleDelete, handleEdit]
   );
 
   const keyExtractor = useCallback((item: Consumption) => item.id, []);
@@ -387,6 +412,13 @@ export default function Index() {
         visible={settingsVisible}
         onClose={() => setSettingsVisible(false)}
         consumptions={consumptions}
+      />
+
+      <EditConsumptionModal
+        visible={editModalVisible}
+        consumption={editingConsumption}
+        onClose={handleEditClose}
+        onSave={handleEditSave}
       />
     </SafeAreaView>
   );

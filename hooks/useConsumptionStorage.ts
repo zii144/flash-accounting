@@ -173,6 +173,47 @@ export function useConsumptionStorage() {
     }
   }, []);
 
+  const updateConsumption = useCallback(async (consumption: Consumption) => {
+    try {
+      if (!consumption.id) {
+        throw new Error('Invalid consumption data: missing ID');
+      }
+
+      if (consumption.amount <= 0 || isNaN(consumption.amount)) {
+        throw new Error('Invalid consumption data: amount must be greater than zero');
+      }
+
+      const result = await run(
+        `UPDATE consumptions 
+         SET amount = ?, description = ?, type = ?, category = ?
+         WHERE id = ?`,
+        [
+          consumption.amount,
+          consumption.description || '',
+          consumption.type || 'expense',
+          consumption.category || null,
+          consumption.id,
+        ]
+      );
+
+      if (result.changes === 0) {
+        throw new Error('Consumption not found');
+      }
+
+      // Optimistically update local state
+      setConsumptions((prev) =>
+        prev.map((c) => (c.id === consumption.id ? { ...c, ...consumption } : c))
+      );
+    } catch (error) {
+      console.error('Failed to update consumption:', error);
+      throw new Error(
+        error instanceof Error
+          ? `Failed to update consumption: ${error.message}`
+          : 'Failed to update consumption. Please try again.'
+      );
+    }
+  }, []);
+
   const clearAll = useCallback(async () => {
     try {
       await run('DELETE FROM consumptions');
@@ -189,6 +230,7 @@ export function useConsumptionStorage() {
     isLoading,
     totalCount,
     saveConsumption,
+    updateConsumption,
     deleteConsumption,
     clearAll,
     refresh: loadConsumptions,
