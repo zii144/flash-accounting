@@ -95,6 +95,27 @@ export function UpcomingFeaturesBanner({
           </View>
 
           <View style={styles.textContainer}>
+            <View style={styles.titleRow}>
+              <View
+                style={[
+                  styles.comingSoonBadge,
+                  {
+                    backgroundColor: theme.isDark
+                      ? "rgba(255, 255, 255, 0.1)"
+                      : "rgba(0, 0, 0, 0.08)",
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.comingSoonText,
+                    { color: theme.textSecondary },
+                  ]}
+                >
+                  {t("comingSoon")}
+                </Text>
+              </View>
+            </View>
             <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
             <Text style={[styles.message, { color: theme.textSecondary }]}>
               {message}
@@ -168,6 +189,23 @@ const styles = StyleSheet.create({
   textContainer: {
     flex: 1,
     gap: 4,
+  },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  comingSoonBadge: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    alignSelf: "flex-start",
+  },
+  comingSoonText: {
+    fontSize: 11,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   title: {
     fontSize: 16,

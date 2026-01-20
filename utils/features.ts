@@ -44,16 +44,16 @@ export interface FeatureConfig {
  */
 export const FEATURES: FeatureConfig[] = [
   {
-    id: "new-features",
-    icon: "sparkles-outline",
+    id: "cloud-backup-sync",
+    icon: "cloud-outline",
   },
   {
-    id: "enhanced-analytics",
-    icon: "analytics-outline",
+    id: "receipt-scan-ocr",
+    icon: "scan-outline",
   },
   {
-    id: "export-improvements",
-    icon: "download-outline",
+    id: "export-pdf-spreadsheet",
+    icon: "document-outline",
   },
 ];
 
