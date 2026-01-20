@@ -13,7 +13,7 @@ import { formatCurrency } from "@/utils/formatting";
 import { FEATURES, getFeatureTranslationKeys } from "@/utils/features";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   ListRenderItem,
@@ -26,16 +26,28 @@ import {
 } from "react-native";
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
 
+const PAGE_SIZE = 20;
+
 export default function Index() {
   const { theme } = useTheme();
   const { t } = useLanguage();
-  const { consumptions, isLoading, saveConsumption, deleteConsumption } =
-    useConsumptionStorage();
+  const {
+    consumptions,
+    isLoading,
+    saveConsumption,
+    deleteConsumption,
+    loadPaginated,
+    totalCount,
+  } = useConsumptionStorage();
   const [activeTab, setActiveTab] = useState<"accounting" | "statistics">(
     "accounting"
   );
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [carouselVisible, setCarouselVisible] = useState(true);
+  const [page, setPage] = useState(1);
+  const [paginatedData, setPaginatedData] = useState<Consumption[]>([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   const featureItems: FeatureItem[] = useMemo(
     () =>
@@ -55,6 +67,51 @@ export default function Index() {
     setSettingsVisible(true);
   }, []);
 
+  // Load paginated data
+  const loadPage = useCallback(
+    async (pageNum: number, append: boolean = false) => {
+      if (isLoadingMore) return;
+      
+      setIsLoadingMore(true);
+      try {
+        const result = await loadPaginated({
+          page: pageNum,
+          pageSize: PAGE_SIZE,
+          sortBy: 'date',
+          sortOrder: 'DESC',
+        });
+        
+        if (append) {
+          setPaginatedData((prev) => [...prev, ...result.data]);
+        } else {
+          setPaginatedData(result.data);
+        }
+        
+        setHasMore(result.hasMore);
+        setPage(pageNum);
+      } catch (error) {
+        console.error('Failed to load page:', error);
+      } finally {
+        setIsLoadingMore(false);
+      }
+    },
+    [loadPaginated, isLoadingMore]
+  );
+
+  // Load initial page
+  useEffect(() => {
+    if (!isLoading && activeTab === 'accounting') {
+      loadPage(1, false);
+    }
+  }, [isLoading, activeTab, loadPage]);
+
+  // Refresh paginated data when consumptions change (e.g., after add/delete)
+  useEffect(() => {
+    if (activeTab === 'accounting' && !isLoading) {
+      loadPage(page, false);
+    }
+  }, [totalCount, activeTab, isLoading, page, loadPage]); // Reload when total count changes
+
   const handleSubmit = useCallback(
     (data: Omit<Consumption, "id" | "date">) => {
       const consumption: Consumption = {
@@ -71,6 +128,12 @@ export default function Index() {
     () => consumptions.reduce((sum, c) => sum + c.amount, 0),
     [consumptions]
   );
+
+  const handleLoadMore = useCallback(() => {
+    if (!isLoadingMore && hasMore) {
+      loadPage(page + 1, true);
+    }
+  }, [isLoadingMore, hasMore, page, loadPage]);
 
   const handleTabChange = useCallback((tab: "accounting" | "statistics") => {
     setActiveTab(tab);
@@ -151,7 +214,7 @@ export default function Index() {
           <ConsumptionForm onSubmit={handleSubmit} />
 
           <FlatList
-            data={consumptions}
+            data={paginatedData}
             keyExtractor={keyExtractor}
             renderItem={renderItem}
             contentContainerStyle={styles.listContent}
@@ -168,6 +231,17 @@ export default function Index() {
             })}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
             ListEmptyComponent={ListEmptyComponent}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              isLoadingMore ? (
+                <View style={styles.loadingFooter}>
+                  <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
+                    {t("loading") || "Loading..."}
+                  </Text>
+                </View>
+              ) : null
+            }
           />
         </Animated.View>
       ) : (
@@ -256,6 +330,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   emptySubtext: {
+    fontSize: 14,
+  },
+  loadingFooter: {
+    paddingVertical: 20,
+    alignItems: "center",
+  },
+  loadingText: {
     fontSize: 14,
   },
 });

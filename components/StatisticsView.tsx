@@ -3,6 +3,7 @@ import { SettingsModal } from "@/components/SettingsModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
+import { useConsumptionStats } from "@/hooks/useConsumptionStats";
 import { Consumption } from "@/types/consumption";
 import {
   SORT_OPTIONS,
@@ -19,7 +20,7 @@ import {
 } from "@/utils/formatting";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   ScrollView,
@@ -41,9 +42,16 @@ export function StatisticsView() {
   const { theme } = useTheme();
   const { resolvedLanguage, t } = useLanguage();
   const { consumptions } = useConsumptionStorage();
+  const statsHook = useConsumptionStats();
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   const [settingsVisible, setSettingsVisible] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("day");
+  
+  // Stats state
+  const [stats, setStats] = useState({ total: 0, count: 0, logDay: 0 });
+  const [displayData, setDisplayData] = useState<GroupedConsumption[]>([]);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
 
   const handleSettingsPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -65,138 +73,101 @@ export function StatisticsView() {
     });
   }, []);
 
-  // Filter consumptions by time
-  const filteredConsumptions = useMemo(() => {
-    const now = new Date();
-    return consumptions.filter((c) => {
-      const date = new Date(c.date);
-      switch (timeFilter) {
-        case "today":
-          return date.toDateString() === now.toDateString();
-        case "week": {
-          const weekAgo = new Date(now);
-          weekAgo.setDate(weekAgo.getDate() - 7);
-          return date >= weekAgo;
-        }
-        case "month": {
-          return (
-            date.getMonth() === now.getMonth() &&
-            date.getFullYear() === now.getFullYear()
-          );
-        }
-        case "year": {
-          return date.getFullYear() === now.getFullYear();
-        }
-        default:
-          return true;
-      }
-    });
-  }, [consumptions, timeFilter]);
-
-  // Sort consumptions
-  const sortedConsumptions = useMemo(() => {
-    const sorted = [...filteredConsumptions];
+  // Parse sort option to SQL format
+  const sortConfig = useMemo(() => {
     switch (sortOption) {
       case "date-desc":
-        return sorted.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
+        return { sortBy: 'date' as const, sortOrder: 'DESC' as const };
       case "date-asc":
-        return sorted.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
+        return { sortBy: 'date' as const, sortOrder: 'ASC' as const };
       case "amount-desc":
-        return sorted.sort((a, b) => b.amount - a.amount);
+        return { sortBy: 'amount' as const, sortOrder: 'DESC' as const };
       case "amount-asc":
-        return sorted.sort((a, b) => a.amount - b.amount);
+        return { sortBy: 'amount' as const, sortOrder: 'ASC' as const };
       default:
-        return sorted;
+        return { sortBy: 'date' as const, sortOrder: 'DESC' as const };
     }
-  }, [filteredConsumptions, sortOption]);
+  }, [sortOption]);
 
-  // Group by day
-  const groupedByDay = useMemo(() => {
-    const groups: { [key: string]: Consumption[] } = {};
+  // Load stats and grouped data using SQL queries
+  useEffect(() => {
+    let cancelled = false;
 
-    sortedConsumptions.forEach((c) => {
-      const date = new Date(c.date);
-      const key = date.toDateString();
+    const loadData = async () => {
+      setIsLoadingStats(true);
+      try {
+        // Load stats
+        const statsData = await statsHook.getStats(timeFilter);
+        if (!cancelled) {
+          setStats(statsData);
+        }
 
-      if (!groups[key]) {
-        groups[key] = [];
+        // Load grouped data
+        if (viewMode === "day") {
+          const grouped = await statsHook.getGroupedByDay(
+            timeFilter,
+            sortConfig.sortBy,
+            sortConfig.sortOrder
+          );
+          if (!cancelled) {
+            const formatted = grouped.map((group) => {
+              const date = new Date(group.date);
+              const dateLabel = formatGroupedDate(
+                date.toDateString(),
+                resolvedLanguage,
+                t("today_label"),
+                t("yesterday")
+              );
+              return {
+                ...group,
+                dateLabel,
+                consumptions: group.consumptions.map((c) => ({
+                  ...c,
+                  category: c.category,
+                })) as Consumption[],
+              };
+            });
+            setDisplayData(formatted);
+          }
+        } else {
+          const grouped = await statsHook.getGroupedByMonth(
+            timeFilter,
+            sortConfig.sortBy,
+            sortConfig.sortOrder
+          );
+          if (!cancelled) {
+            const formatted = grouped.map((group) => {
+              const dateLabel = formatMonthLabel(
+                group.consumptions[0]?.date || group.date,
+                resolvedLanguage
+              );
+              return {
+                ...group,
+                dateLabel,
+                consumptions: group.consumptions.map((c) => ({
+                  ...c,
+                  category: c.category,
+                })) as Consumption[],
+              };
+            });
+            setDisplayData(formatted);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load stats:', error);
+      } finally {
+        if (!cancelled) {
+          setIsLoadingStats(false);
+        }
       }
-      groups[key].push(c);
-    });
+    };
 
-    return Object.entries(groups)
-      .map(([date, items]) => {
-        const dateLabel = formatGroupedDate(
-          date,
-          resolvedLanguage,
-          t("today_label"),
-          t("yesterday")
-        );
+    loadData();
 
-        return {
-          date,
-          dateLabel,
-          consumptions: items,
-          total: items.reduce((sum, item) => sum + item.amount, 0),
-        } as GroupedConsumption;
-      })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [sortedConsumptions, resolvedLanguage, t]);
-
-  // Group by month
-  const groupedByMonth = useMemo(() => {
-    const groups: { [key: string]: Consumption[] } = {};
-
-    sortedConsumptions.forEach((c) => {
-      const date = new Date(c.date);
-      const key = `${date.getFullYear()}-${date.getMonth()}`;
-
-      if (!groups[key]) {
-        groups[key] = [];
-      }
-      groups[key].push(c);
-    });
-
-    return Object.entries(groups)
-      .map(([key, items]) => {
-        const dateLabel = formatMonthLabel(items[0].date, resolvedLanguage);
-
-        return {
-          date: key,
-          dateLabel,
-          consumptions: items,
-          total: items.reduce((sum, item) => sum + item.amount, 0),
-        } as GroupedConsumption;
-      })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [sortedConsumptions, resolvedLanguage]);
-
-  const [viewMode, setViewMode] = useState<ViewMode>("day");
-  const displayData = useMemo(
-    () => (viewMode === "day" ? groupedByDay : groupedByMonth),
-    [viewMode, groupedByDay, groupedByMonth]
-  );
-
-  const totalAmount = useMemo(
-    () => filteredConsumptions.reduce((sum, c) => sum + c.amount, 0),
-    [filteredConsumptions]
-  );
-
-  // Calculate log day (days since first entry)
-  const logDay = useMemo(() => {
-    if (consumptions.length === 0) return 0;
-    const dates = consumptions.map((c) => new Date(c.date).getTime());
-    const firstDate = Math.min(...dates);
-    const today = new Date().setHours(0, 0, 0, 0);
-    const firstDay = new Date(firstDate).setHours(0, 0, 0, 0);
-    const diffTime = today - firstDay;
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, diffDays);
-  }, [consumptions]);
+    return () => {
+      cancelled = true;
+    };
+  }, [timeFilter, viewMode, sortConfig, statsHook, resolvedLanguage, t]);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -232,7 +203,7 @@ export function StatisticsView() {
                 allowFontScaling={false}
                 style={[styles.statValue, { color: theme.text }]}
               >
-                ${formatCurrency(totalAmount, 2)}
+                ${formatCurrency(stats.total, 2)}
               </Text>
             </GlassContainer>
           </View>
@@ -249,7 +220,7 @@ export function StatisticsView() {
                 allowFontScaling={false}
                 style={[styles.statValue, { color: theme.text }]}
               >
-                {filteredConsumptions.length}
+                {stats.count}
               </Text>
             </GlassContainer>
           </View>
@@ -266,7 +237,7 @@ export function StatisticsView() {
                 allowFontScaling={false}
                 style={[styles.statValue, { color: theme.text }]}
               >
-                {logDay}
+                {stats.logDay}
               </Text>
             </GlassContainer>
           </View>

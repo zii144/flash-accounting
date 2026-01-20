@@ -1,49 +1,123 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Consumption } from '@/types/consumption';
-import { STORAGE_KEYS } from '@/utils/constants';
+import { getAll, run } from '@/utils/db';
+import { initializeDatabase } from '@/utils/db-schema';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+export interface PaginationOptions {
+  page: number;
+  pageSize: number;
+  sortBy?: 'date' | 'amount';
+  sortOrder?: 'ASC' | 'DESC';
+}
+
+export interface PaginatedResult {
+  data: Consumption[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}
 
 export function useConsumptionStorage() {
   const [consumptions, setConsumptions] = useState<Consumption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
   const isInitializedRef = useRef(false);
 
+  // Load all consumptions (for backward compatibility)
   const loadConsumptions = useCallback(async () => {
     try {
-      const data = await AsyncStorage.getItem(STORAGE_KEYS.CONSUMPTIONS);
-      if (data) {
-        const parsed = JSON.parse(data);
-        setConsumptions(Array.isArray(parsed) ? parsed : []);
-      } else {
-        setConsumptions([]);
-      }
+      const results = await getAll<Consumption>(
+        'SELECT * FROM consumptions ORDER BY date DESC'
+      );
+      setConsumptions(results);
+      
+      // Update total count
+      const countResult = await getAll<{ count: number }>(
+        'SELECT COUNT(*) as count FROM consumptions'
+      );
+      setTotalCount(countResult[0]?.count || 0);
     } catch (error) {
       console.error('Failed to load consumptions:', error);
+      setConsumptions([]);
+      setTotalCount(0);
+    }
+  }, []);
+
+  // Initialize database and load initial data
+  const initialize = useCallback(async () => {
+    try {
+      await initializeDatabase();
+      await loadConsumptions();
+    } catch (error) {
+      console.error('Failed to initialize database:', error);
       setConsumptions([]);
     } finally {
       setIsLoading(false);
       isInitializedRef.current = true;
     }
-  }, []);
+  }, [loadConsumptions]);
+
+  // Load paginated consumptions
+  const loadPaginatedConsumptions = useCallback(
+    async (options: PaginationOptions): Promise<PaginatedResult> => {
+      try {
+        const { page, pageSize, sortBy = 'date', sortOrder = 'DESC' } = options;
+        const offset = (page - 1) * pageSize;
+
+        // Build ORDER BY clause
+        const orderBy = `${sortBy} ${sortOrder}`;
+
+        // Get paginated data
+        const data = await getAll<Consumption>(
+          `SELECT * FROM consumptions ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
+          [pageSize, offset]
+        );
+
+        // Get total count
+        const countResult = await getAll<{ count: number }>(
+          'SELECT COUNT(*) as count FROM consumptions'
+        );
+        const total = countResult[0]?.count || 0;
+
+        return {
+          data,
+          total,
+          page,
+          pageSize,
+          hasMore: offset + data.length < total,
+        };
+      } catch (error) {
+        console.error('Failed to load paginated consumptions:', error);
+        throw error;
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     if (!isInitializedRef.current) {
-      loadConsumptions();
+      initialize();
     }
-  }, [loadConsumptions]);
+  }, [initialize]);
 
   const saveConsumption = useCallback(async (consumption: Consumption) => {
     try {
-      setConsumptions((prev) => {
-        const updated = [consumption, ...prev];
-        // Update storage asynchronously without blocking UI
-        AsyncStorage.setItem(STORAGE_KEYS.CONSUMPTIONS, JSON.stringify(updated)).catch(
-          (error) => {
-            console.error('Failed to save consumption:', error);
-          }
-        );
-        return updated;
-      });
+      await run(
+        `INSERT INTO consumptions (id, amount, description, category, date) 
+         VALUES (?, ?, ?, ?, ?)`,
+        [
+          consumption.id,
+          consumption.amount,
+          consumption.description,
+          consumption.category || null,
+          consumption.date,
+        ]
+      );
+
+      // Optimistically update local state
+      setConsumptions((prev) => [consumption, ...prev]);
+      setTotalCount((prev) => prev + 1);
     } catch (error) {
       console.error('Failed to save consumption:', error);
       throw error;
@@ -52,16 +126,11 @@ export function useConsumptionStorage() {
 
   const deleteConsumption = useCallback(async (id: string) => {
     try {
-      setConsumptions((prev) => {
-        const updated = prev.filter((c) => c.id !== id);
-        // Update storage asynchronously without blocking UI
-        AsyncStorage.setItem(STORAGE_KEYS.CONSUMPTIONS, JSON.stringify(updated)).catch(
-          (error) => {
-            console.error('Failed to delete consumption:', error);
-          }
-        );
-        return updated;
-      });
+      await run('DELETE FROM consumptions WHERE id = ?', [id]);
+
+      // Optimistically update local state
+      setConsumptions((prev) => prev.filter((c) => c.id !== id));
+      setTotalCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Failed to delete consumption:', error);
       throw error;
@@ -70,8 +139,9 @@ export function useConsumptionStorage() {
 
   const clearAll = useCallback(async () => {
     try {
-      await AsyncStorage.removeItem(STORAGE_KEYS.CONSUMPTIONS);
+      await run('DELETE FROM consumptions');
       setConsumptions([]);
+      setTotalCount(0);
     } catch (error) {
       console.error('Failed to clear consumptions:', error);
       throw error;
@@ -81,9 +151,11 @@ export function useConsumptionStorage() {
   return {
     consumptions,
     isLoading,
+    totalCount,
     saveConsumption,
     deleteConsumption,
     clearAll,
     refresh: loadConsumptions,
+    loadPaginated: loadPaginatedConsumptions,
   };
 }
