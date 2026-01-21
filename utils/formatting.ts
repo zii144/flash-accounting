@@ -122,15 +122,17 @@ export const formatAmountInput = (value: string): string => {
   }
 
   const integerPart = parts[0];
-  const decimalPart = parts[1] || "";
+  const decimalPart = parts[1];
+  const hasDecimalPoint = cleaned.includes(".");
 
   // Add thousand separators to integer part
   const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
   // Limit decimal places to 2
-  const limitedDecimal = decimalPart.slice(0, 2);
+  const limitedDecimal = decimalPart ? decimalPart.slice(0, 2) : "";
 
-  if (limitedDecimal) {
+  // Preserve decimal point even if no decimal digits yet (e.g., "2.")
+  if (hasDecimalPoint) {
     return `${formattedInteger}.${limitedDecimal}`;
   }
 
