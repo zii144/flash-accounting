@@ -56,7 +56,7 @@ export function GlassTabBar({ activeTab, onTabChange }: GlassTabBarProps) {
         onTabChange(tab);
       }
     },
-    [activeTab, onTabChange]
+    [activeTab, onTabChange],
   );
 
   const accountingStyle = useAnimatedStyle(() => {
@@ -64,7 +64,7 @@ export function GlassTabBar({ activeTab, onTabChange }: GlassTabBarProps) {
       accountingProgress.value,
       [0, 1],
       [1, 1.02],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     );
     return {
       transform: [{ scale }],
@@ -76,7 +76,7 @@ export function GlassTabBar({ activeTab, onTabChange }: GlassTabBarProps) {
       statisticsProgress.value,
       [0, 1],
       [1, 1.02],
-      Extrapolate.CLAMP
+      Extrapolate.CLAMP,
     );
     return {
       transform: [{ scale }],
@@ -104,7 +104,7 @@ export function GlassTabBar({ activeTab, onTabChange }: GlassTabBarProps) {
       style={[
         styles.container,
         {
-          paddingBottom: Math.max(insets.bottom, 16),
+          paddingBottom: Math.max(insets.bottom - 12, 8),
           paddingHorizontal: 16,
         },
       ]}

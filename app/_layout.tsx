@@ -1,7 +1,7 @@
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { Stack } from "expo-router";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { Stack } from "expo-router";
 
 export default function RootLayout() {
   return (
@@ -11,7 +11,7 @@ export default function RootLayout() {
           <Stack
             screenOptions={{
               headerShown: false,
-              contentStyle: { backgroundColor: 'transparent' },
+              contentStyle: { backgroundColor: "transparent" },
             }}
           />
         </LanguageProvider>

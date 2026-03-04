@@ -27,18 +27,23 @@ export function GlassContainer({
 }: GlassContainerProps) {
   const { theme } = useTheme();
   const scale = useSharedValue(animated ? 0.95 : 1);
-  const [isAnimationComplete, setIsAnimationComplete] = React.useState(!animated);
+  const [isAnimationComplete, setIsAnimationComplete] =
+    React.useState(!animated);
 
   React.useEffect(() => {
     if (animated) {
-      scale.value = withSpring(1, {
-        damping: 15,
-        stiffness: 150,
-      }, (finished) => {
-        if (finished) {
-          setIsAnimationComplete(true);
-        }
-      });
+      scale.value = withSpring(
+        1,
+        {
+          damping: 15,
+          stiffness: 150,
+        },
+        (finished) => {
+          if (finished) {
+            setIsAnimationComplete(true);
+          }
+        },
+      );
     }
   }, [animated, scale]);
 
