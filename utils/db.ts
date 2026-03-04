@@ -61,20 +61,56 @@ export async function getFirst<T = any>(
 }
 
 /**
+ * Type for the run function passed to transaction operations.
+ * Use this instead of the global run() to ensure queries execute within the transaction.
+ */
+export type RunInTransaction = (
+  sql: string,
+  params?: (string | number | null)[]
+) => Promise<SQLite.SQLiteRunResult>;
+
+/**
  * Executes multiple SQL operations in a transaction
- * If any operation fails, all changes are rolled back
- * @param operations Array of operations to execute, each returning a promise
+ * If any operation fails, all changes are rolled back.
+ * Uses withExclusiveTransactionAsync on native (Android, iOS) for proper locking and error handling.
+ * Falls back to withTransactionAsync on web where exclusive transactions aren't supported.
+ *
+ * @param operations Array of operations that receive runInTransaction - use it for all DB writes
  */
 export async function transaction(
-  operations: (() => Promise<void>)[]
+  operations: ((runInTransaction: RunInTransaction) => Promise<void>)[]
 ): Promise<void> {
   const database = await openDatabase();
-  
-  await database.withTransactionAsync(async () => {
-    for (const operation of operations) {
-      await operation();
-    }
-  });
+
+  // withExclusiveTransactionAsync is not supported on web - it properly handles
+  // constraint violations and avoids database lock issues on native
+  if (
+    typeof (database as SQLite.SQLiteDatabase & { withExclusiveTransactionAsync?: unknown })
+      .withExclusiveTransactionAsync === 'function'
+  ) {
+    await (
+      database as SQLite.SQLiteDatabase & {
+        withExclusiveTransactionAsync: (
+          task: (txn: { runAsync: SQLite.SQLiteDatabase['runAsync'] }) => Promise<void>
+        ) => Promise<void>;
+      }
+    ).withExclusiveTransactionAsync(async (txn) => {
+      const runInTransaction: RunInTransaction = (sql, params = []) =>
+        txn.runAsync(sql, params);
+      for (const operation of operations) {
+        await operation(runInTransaction);
+      }
+    });
+  } else {
+    // Web fallback
+    await database.withTransactionAsync(async () => {
+      const runInTransaction: RunInTransaction = (sql, params = []) =>
+        database.runAsync(sql, params);
+      for (const operation of operations) {
+        await operation(runInTransaction);
+      }
+    });
+  }
 }
 
 /**

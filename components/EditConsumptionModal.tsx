@@ -2,7 +2,7 @@ import { GlassContainer } from "@/components/GlassContainer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Consumption, ConsumptionType } from "@/types/consumption";
-import { formatAmountInput, parseAmountInput } from "@/utils/formatting";
+import { formatAmountInput, LOCALE_MAP, parseAmountInput } from "@/utils/formatting";
 import { Ionicons } from "@expo/vector-icons";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import * as Haptics from "expo-haptics";
@@ -37,10 +37,12 @@ export function EditConsumptionModal({
   onDelete,
 }: EditConsumptionModalProps) {
   const { theme } = useTheme();
-  const { t } = useLanguage();
+  const { t, resolvedLanguage } = useLanguage();
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<ConsumptionType>("expense");
+  const [logDate, setLogDate] = useState<Date>(() => new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isGlassAvailable, setIsGlassAvailable] = useState(false);
 
@@ -61,6 +63,7 @@ export function EditConsumptionModal({
       setAmount(formatAmountInput(consumption.amount.toString()));
       setDescription(consumption.description || "");
       setType(consumption.type);
+      setLogDate(new Date(consumption.date));
     }
   }, [consumption]);
 
@@ -68,6 +71,23 @@ export function EditConsumptionModal({
     const formatted = formatAmountInput(text);
     setAmount(formatted);
   }, []);
+
+  const handleDateChange = useCallback(
+    (event: { type: string }, selectedDate?: Date) => {
+      if (Platform.OS === "android") {
+        setShowDatePicker(false);
+      }
+      if (event.type === "set" && selectedDate) {
+        // Preserve original time when changing date
+        setLogDate((prev) => {
+          const merged = new Date(selectedDate);
+          merged.setHours(prev.getHours(), prev.getMinutes(), prev.getSeconds(), prev.getMilliseconds());
+          return merged;
+        });
+      }
+    },
+    []
+  );
 
   const handleSave = useCallback(async () => {
     if (!consumption) return;
@@ -88,6 +108,7 @@ export function EditConsumptionModal({
         amount: amountNum,
         description: description.trim(),
         type,
+        date: logDate.toISOString(),
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       onClose();
@@ -99,7 +120,7 @@ export function EditConsumptionModal({
     } finally {
       setIsSaving(false);
     }
-  }, [consumption, amount, description, type, onSave, onClose, t]);
+  }, [consumption, amount, description, type, logDate, onSave, onClose, t]);
 
   const handleClose = useCallback(() => {
     Keyboard.dismiss();
@@ -222,6 +243,84 @@ export function EditConsumptionModal({
                   maxLength={500}
                 />
               </GlassContainer>
+            </View>
+
+            {/* Log Date */}
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>
+                {t("logDate")}
+              </Text>
+              {Platform.OS !== "web" ? (
+                <>
+                  <TouchableOpacity
+                    onPress={() => setShowDatePicker(true)}
+                    activeOpacity={0.7}
+                  >
+                    <GlassContainer intensity="light" style={styles.dateContainer}>
+                      <Ionicons
+                        name="calendar-outline"
+                        size={20}
+                        color={theme.textSecondary}
+                        style={styles.dateIcon}
+                      />
+                      <Text style={[styles.dateText, { color: theme.text }]}>
+                        {logDate.toLocaleDateString(LOCALE_MAP[resolvedLanguage] || "en-US", {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </Text>
+                      <Ionicons
+                        name="chevron-forward"
+                        size={18}
+                        color={theme.textSecondary}
+                      />
+                    </GlassContainer>
+                  </TouchableOpacity>
+                  {showDatePicker && (() => {
+                    const DateTimePicker = require("@react-native-community/datetimepicker").default;
+                    return (
+                      <View style={styles.datePickerWrapper}>
+                        <DateTimePicker
+                          value={logDate}
+                          mode="date"
+                          display={Platform.OS === "ios" ? "spinner" : "default"}
+                          onChange={handleDateChange}
+                          maximumDate={new Date()}
+                        />
+                        {Platform.OS === "ios" && (
+                          <TouchableOpacity
+                            style={[styles.datePickerDone, { backgroundColor: theme.foreground }]}
+                            onPress={() => setShowDatePicker(false)}
+                          >
+                            <Text style={[styles.datePickerDoneText, { color: theme.background }]}>
+                              {t("confirm") || "Done"}
+                            </Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    );
+                  })()}
+                </>
+              ) : (
+                <GlassContainer intensity="light" style={styles.dateContainer}>
+                  <Ionicons
+                    name="calendar-outline"
+                    size={20}
+                    color={theme.textSecondary}
+                    style={styles.dateIcon}
+                  />
+                  <Text style={[styles.dateText, { color: theme.text }]}>
+                    {logDate.toLocaleDateString(LOCALE_MAP[resolvedLanguage] || "en-US", {
+                      weekday: "short",
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </Text>
+                </GlassContainer>
+              )}
             </View>
 
             {/* Type Toggle */}
@@ -378,6 +477,34 @@ const styles = StyleSheet.create({
   },
   inputGroup: {
     marginBottom: 20,
+  },
+  dateContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  dateIcon: {
+    marginRight: 12,
+  },
+  dateText: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  datePickerWrapper: {
+    marginTop: 12,
+  },
+  datePickerDone: {
+    marginTop: 12,
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  datePickerDoneText: {
+    fontSize: 16,
+    fontWeight: "600",
   },
   label: {
     fontSize: 14,

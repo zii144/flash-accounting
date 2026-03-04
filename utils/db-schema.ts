@@ -118,11 +118,13 @@ export async function migrateFromAsyncStorage(): Promise<void> {
       return;
     }
 
-    // Insert all consumptions in a transaction
+    // Insert all consumptions in a transaction.
+    // Use INSERT OR IGNORE to make migration idempotent - skip duplicates when retrying
+    // after partial completion (avoids UNIQUE constraint + finalizeAsync errors).
     await transaction(
-      consumptions.map((consumption) => async () => {
-        await run(
-          `INSERT INTO consumptions (id, amount, description, type, category, date) 
+      consumptions.map((consumption) => async (runInTransaction) => {
+        await runInTransaction(
+          `INSERT OR IGNORE INTO consumptions (id, amount, description, type, category, date) 
            VALUES (?, ?, ?, ?, ?, ?)`,
           [
             consumption.id,

@@ -175,6 +175,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     delete: "Delete",
     deleteEntry: "Delete Entry",
     deleteConfirmation: "Are you sure you want to delete this entry?",
+    logDate: "Log Date",
   },
   zh: {
     accounting: "記帳",
@@ -259,6 +260,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     delete: "刪除",
     deleteEntry: "刪除記錄",
     deleteConfirmation: "確定要刪除此記錄嗎？",
+    logDate: "記錄日期",
   },
   es: {
     accounting: "Contabilidad",
@@ -344,6 +346,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     delete: "Eliminar",
     deleteEntry: "Eliminar entrada",
     deleteConfirmation: "¿Estás seguro de que quieres eliminar esta entrada?",
+    logDate: "Fecha del registro",
   },
   fr: {
     accounting: "Comptabilité",
@@ -428,6 +431,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     delete: "Supprimer",
     deleteEntry: "Supprimer l'entrée",
     deleteConfirmation: "Êtes-vous sûr de vouloir supprimer cette entrée?",
+    logDate: "Date du journal",
   },
   de: {
     accounting: "Buchhaltung",
@@ -513,6 +517,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     delete: "Löschen",
     deleteEntry: "Eintrag löschen",
     deleteConfirmation: "Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?",
+    logDate: "Buchungsdatum",
   },
   ja: {
     accounting: "会計",
@@ -597,6 +602,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     delete: "削除",
     deleteEntry: "削除",
     deleteConfirmation: "このエントリを削除してもよろしいですか？",
+    logDate: "記録日",
   },
 };
 

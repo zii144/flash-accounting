@@ -185,19 +185,24 @@ export function useConsumptionStorage() {
         throw new Error('Invalid consumption data: missing ID');
       }
 
+      if (!consumption.date) {
+        throw new Error('Invalid consumption data: missing date');
+      }
+
       if (consumption.amount <= 0 || isNaN(consumption.amount)) {
         throw new Error('Invalid consumption data: amount must be greater than zero');
       }
 
       const result = await run(
         `UPDATE consumptions 
-         SET amount = ?, description = ?, type = ?, category = ?
+         SET amount = ?, description = ?, type = ?, category = ?, date = ?
          WHERE id = ?`,
         [
           consumption.amount,
           consumption.description || '',
           consumption.type || 'expense',
           consumption.category || null,
+          consumption.date,
           consumption.id,
         ]
       );
