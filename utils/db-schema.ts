@@ -5,6 +5,7 @@ import { getFirst, run, transaction } from './db';
 import { logger } from './logger';
 
 const MIGRATION_KEY = '@flash_accounting_db_migrated';
+let databaseInitializationPromise: Promise<void> | null = null;
 
 /**
  * Database schema version
@@ -157,6 +158,25 @@ export async function migrateFromAsyncStorage(): Promise<void> {
  * Should be called once when the app starts
  */
 export async function initializeDatabase(): Promise<void> {
-  await initializeSchema();
-  await migrateFromAsyncStorage();
+  if (databaseInitializationPromise) {
+    return databaseInitializationPromise;
+  }
+
+  databaseInitializationPromise = (async () => {
+    await initializeSchema();
+    await migrateFromAsyncStorage();
+  })().catch((error) => {
+    databaseInitializationPromise = null;
+    throw error;
+  });
+
+  return databaseInitializationPromise;
+}
+
+/**
+ * Ensures database schema is ready before any feature queries run.
+ * Retries initialization if a previous attempt failed.
+ */
+export async function ensureDatabaseInitialized(): Promise<void> {
+  await initializeDatabase();
 }

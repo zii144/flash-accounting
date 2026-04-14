@@ -3,9 +3,7 @@ import { ConsumptionItem } from "@/components/ConsumptionItem";
 import { EditConsumptionModal } from "@/components/EditConsumptionModal";
 import { FeatureItem, FeaturesCarousel } from "@/components/FeaturesCarousel";
 import { GlassContainer } from "@/components/GlassContainer";
-import { GlassTabBar } from "@/components/GlassTabBar";
 import { SettingsModal } from "@/components/SettingsModal";
-import { StatisticsView } from "@/components/StatisticsView";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
@@ -22,18 +20,17 @@ import {
   Alert,
   FlatList,
   ListRenderItem,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const PAGE_SIZE = 5;
 
-export default function Index() {
+export function AccountingScreen() {
   const { theme } = useTheme();
   const { t } = useLanguage();
   const {
@@ -45,9 +42,6 @@ export default function Index() {
     loadPaginated,
     totalCount,
   } = useConsumptionStorage();
-  const [activeTab, setActiveTab] = useState<"accounting" | "statistics">(
-    "accounting"
-  );
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingConsumption, setEditingConsumption] = useState<Consumption | null>(null);
@@ -59,7 +53,6 @@ export default function Index() {
   const [hasMore, setHasMore] = useState(true);
   const prevTotalCountRef = useRef<number>(0);
   const loadPageRef = useRef<((pageNum: number, append?: boolean) => Promise<void>) | null>(null);
-  const lastActiveTabRef = useRef<string>('');
 
   const featureItems: FeatureItem[] = useMemo(
     () =>
@@ -74,15 +67,13 @@ export default function Index() {
     []
   );
 
-  // Check if carousel should be shown on mount
   useEffect(() => {
     const checkCarouselVisibility = async () => {
       try {
         const shouldShow = await shouldShowFeatureCarousel();
         setCarouselVisible(shouldShow);
       } catch (error) {
-        logger.error('Failed to check carousel visibility', error);
-        // On error, show the carousel to be safe
+        logger.error("Failed to check carousel visibility", error);
         setCarouselVisible(true);
       } finally {
         setIsCheckingCarousel(false);
@@ -97,8 +88,7 @@ export default function Index() {
       await dismissFeatureCarousel();
       setCarouselVisible(false);
     } catch (error) {
-      logger.error('Failed to dismiss carousel', error);
-      // Still hide the carousel even if save fails
+      logger.error("Failed to dismiss carousel", error);
       setCarouselVisible(false);
     }
   }, []);
@@ -108,72 +98,60 @@ export default function Index() {
     setSettingsVisible(true);
   }, []);
 
-  // Load paginated data
   const loadPage = useCallback(
     async (pageNum: number, append: boolean = false) => {
-      if (isLoadingMore) return;
-      
+      if (isLoadingMore) {
+        return;
+      }
+
       setIsLoadingMore(true);
       try {
         const result = await loadPaginated({
           page: pageNum,
           pageSize: PAGE_SIZE,
-          sortBy: 'date',
-          sortOrder: 'DESC',
+          sortBy: "date",
+          sortOrder: "DESC",
         });
-        
+
         if (append) {
           setPaginatedData((prev) => [...prev, ...result.data]);
         } else {
           setPaginatedData(result.data);
         }
-        
+
         setHasMore(result.hasMore);
         setPage(pageNum);
       } catch (error) {
-        logger.error('Failed to load page', error, { page: pageNum });
+        logger.error("Failed to load page", error, { page: pageNum });
       } finally {
         setIsLoadingMore(false);
       }
     },
-    [loadPaginated, isLoadingMore]
+    [isLoadingMore, loadPaginated]
   );
 
-  // Store loadPage in ref to avoid dependency issues
   useEffect(() => {
     loadPageRef.current = loadPage;
   }, [loadPage]);
 
-  // Load initial page when app loads or tab switches to accounting
   useEffect(() => {
     if (!isLoading && loadPageRef.current) {
-      if (activeTab === 'accounting' && lastActiveTabRef.current !== activeTab) {
-        // Switching to accounting tab - load page 1
-        lastActiveTabRef.current = activeTab;
-        prevTotalCountRef.current = totalCount;
-        setPaginatedData([]); // Clear existing data
-        loadPageRef.current(1, false);
-      } else if (activeTab !== 'accounting') {
-        // Switching away from accounting - reset ref for next time
-        lastActiveTabRef.current = activeTab;
-      }
+      prevTotalCountRef.current = totalCount;
+      loadPageRef.current(1, false);
     }
-  }, [isLoading, activeTab, totalCount]);
+  }, [isLoading, totalCount]);
 
-  // Refresh paginated data when consumptions change (e.g., after add/delete)
-  // Only reload if totalCount actually changed and we're on accounting tab
   useEffect(() => {
     if (
-      activeTab === 'accounting' && 
-      !isLoading && 
+      !isLoading &&
       totalCount !== prevTotalCountRef.current &&
       !isLoadingMore &&
       loadPageRef.current
     ) {
       prevTotalCountRef.current = totalCount;
-      loadPageRef.current(1, false); // Reset to page 1 when data changes
+      loadPageRef.current(1, false);
     }
-  }, [totalCount, activeTab, isLoading, isLoadingMore]);
+  }, [isLoading, isLoadingMore, totalCount]);
 
   const handleSubmit = useCallback(
     async (data: Omit<Consumption, "id" | "date">) => {
@@ -184,87 +162,66 @@ export default function Index() {
           date: new Date().toISOString(),
         };
         await saveConsumption(consumption);
-        // Success feedback is handled by the form
       } catch (error) {
-        // Show user-friendly error message
-        const errorMessage = error instanceof Error 
-          ? error.message 
-          : t("errorSaveFailed");
-        
-        Alert.alert(
-          t("errorOccurred") || "Error",
-          errorMessage,
-          [{ text: t("tryAgain") || "OK" }]
-        );
+        const errorMessage = error instanceof Error ? error.message : t("errorSaveFailed");
+
+        Alert.alert(t("errorOccurred") || "Error", errorMessage, [
+          { text: t("tryAgain") || "OK" },
+        ]);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
     },
     [saveConsumption, t]
   );
 
-  // Calculate total from paginated data only (or get from DB if needed)
   const totalAmount = useMemo(
-    () => paginatedData.reduce((sum, c) => sum + c.amount, 0),
+    () => paginatedData.reduce((sum, consumption) => sum + consumption.amount, 0),
     [paginatedData]
   );
 
-  // Gradient colors for fade overlay
   const fadeGradientColors = useMemo(() => {
     if (theme.isDark) {
       return [
-        'rgba(0, 0, 0, 0)',
-        'rgba(0, 0, 0, 0.3)',
-        'rgba(0, 0, 0, 0.7)',
-        theme.background,
-      ] as const;
-    } else {
-      return [
-        'rgba(255, 255, 255, 0)',
-        'rgba(255, 255, 255, 0.3)',
-        'rgba(255, 255, 255, 0.7)',
+        "rgba(0, 0, 0, 0)",
+        "rgba(0, 0, 0, 0.3)",
+        "rgba(0, 0, 0, 0.7)",
         theme.background,
       ] as const;
     }
-  }, [theme.isDark, theme.background]);
+
+    return [
+      "rgba(255, 255, 255, 0)",
+      "rgba(255, 255, 255, 0.3)",
+      "rgba(255, 255, 255, 0.7)",
+      theme.background,
+    ] as const;
+  }, [theme.background, theme.isDark]);
 
   const handleLoadMore = useCallback(() => {
     if (!isLoadingMore && hasMore) {
       loadPage(page + 1, true);
     }
-  }, [isLoadingMore, hasMore, page, loadPage]);
-
-  const handleTabChange = useCallback((tab: "accounting" | "statistics") => {
-    setActiveTab(tab);
-  }, []);
+  }, [hasMore, isLoadingMore, loadPage, page]);
 
   const handleDelete = useCallback(
     async (id: string) => {
       try {
-        // Optimistically remove from paginatedData immediately
-        setPaginatedData((prev) => prev.filter((c) => c.id !== id));
-        
+        setPaginatedData((prev) => prev.filter((consumption) => consumption.id !== id));
         await deleteConsumption(id);
-        // Success feedback is handled by the item component
       } catch (error) {
-        // On error, reload the current page to restore correct state
         if (loadPageRef.current) {
           loadPageRef.current(page, false);
         }
-        
-        // Show user-friendly error message
-        const errorMessage = error instanceof Error 
-          ? error.message 
-          : t("errorDeleteFailed");
-        
-        Alert.alert(
-          t("errorOccurred") || "Error",
-          errorMessage,
-          [{ text: t("tryAgain") || "OK" }]
-        );
+
+        const errorMessage = error instanceof Error ? error.message : t("errorDeleteFailed");
+
+        Alert.alert(t("errorOccurred") || "Error", errorMessage, [
+          { text: t("tryAgain") || "OK" },
+        ]);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
     },
-    [deleteConsumption, t, page]
+    [deleteConsumption, page, t]
   );
 
   const handleEdit = useCallback((consumption: Consumption) => {
@@ -275,7 +232,6 @@ export default function Index() {
   const handleEditSave = useCallback(
     async (consumption: Consumption) => {
       await updateConsumption(consumption);
-      // Refresh the list after update
       if (loadPageRef.current) {
         loadPageRef.current(1, false);
       }
@@ -289,13 +245,9 @@ export default function Index() {
   }, []);
 
   const renderItem: ListRenderItem<Consumption> = useCallback(
-    ({ item }) => (
-      <ConsumptionItem consumption={item} onEdit={handleEdit} />
-    ),
+    ({ item }) => <ConsumptionItem consumption={item} onEdit={handleEdit} />,
     [handleEdit]
   );
-
-  const keyExtractor = useCallback((item: Consumption) => item.id, []);
 
   const ListEmptyComponent = useMemo(
     () =>
@@ -309,13 +261,11 @@ export default function Index() {
           </Text>
         </View>
       ) : null,
-    [isLoading, theme.textSecondary, t]
+    [isLoading, t, theme.textSecondary]
   );
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.background }]}
-    >
+    <SafeAreaView edges={["top"]} style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={theme.isDark ? "light-content" : "dark-content"} />
 
       {!isCheckingCarousel && (
@@ -328,23 +278,10 @@ export default function Index() {
 
       {!carouselVisible && (
         <>
-          {activeTab === "accounting" ? (
-        <Animated.View
-          key="accounting"
-          entering={FadeIn.duration(400)}
-          exiting={FadeOut.duration(300)}
-          layout={Layout.springify().damping(25)}
-          style={styles.content}
-        >
           <View style={styles.header}>
             <View style={styles.headerTop}>
-              <Text style={[styles.title, { color: theme.text }]}>
-                {t("flashAccounting")}
-              </Text>
-              <TouchableOpacity
-                style={styles.settingsButton}
-                onPress={handleSettingsPress}
-              >
+              <Text style={[styles.title, { color: theme.text }]}>{t("flashAccounting")}</Text>
+              <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>
                 <GlassContainer intensity="medium" style={styles.settingsGlass}>
                   <Ionicons name="settings-outline" size={20} color={theme.text} />
                 </GlassContainer>
@@ -359,8 +296,9 @@ export default function Index() {
 
           <View style={styles.listWrapper}>
             <FlatList
+              contentInsetAdjustmentBehavior="automatic"
               data={paginatedData}
-              keyExtractor={keyExtractor}
+              keyExtractor={(item) => item.id}
               renderItem={renderItem}
               contentContainerStyle={styles.listContent}
               showsVerticalScrollIndicator={false}
@@ -369,7 +307,7 @@ export default function Index() {
               updateCellsBatchingPeriod={50}
               initialNumToRender={10}
               windowSize={10}
-              getItemLayout={(data, index) => ({
+              getItemLayout={(_, index) => ({
                 length: 72,
                 offset: 72 * index,
                 index,
@@ -395,25 +333,6 @@ export default function Index() {
               pointerEvents="none"
             />
           </View>
-        </Animated.View>
-      ) : (
-        <Animated.View
-          key="statistics"
-          entering={FadeIn.duration(400)}
-          exiting={FadeOut.duration(300)}
-          layout={Layout.springify().damping(25)}
-          style={styles.content}
-        >
-          <StatisticsView />
-        </Animated.View>
-      )}
-
-          <Animated.View
-            entering={FadeIn.duration(400).delay(100)}
-            exiting={FadeOut.duration(300)}
-          >
-            <GlassTabBar activeTab={activeTab} onTabChange={handleTabChange} />
-          </Animated.View>
         </>
       )}
 
@@ -436,9 +355,6 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  content: {
     flex: 1,
   },
   header: {
@@ -480,14 +396,14 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   listContent: {
-    paddingBottom: 120,
+    paddingBottom: 32,
   },
   fadeOverlay: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    height: 100,
+    height: 84,
     zIndex: 10,
   },
   separator: {

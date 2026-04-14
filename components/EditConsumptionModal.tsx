@@ -3,6 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Consumption, ConsumptionType } from "@/types/consumption";
 import { formatAmountInput, LOCALE_MAP, parseAmountInput } from "@/utils/formatting";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import * as Haptics from "expo-haptics";
@@ -278,30 +279,27 @@ export function EditConsumptionModal({
                       />
                     </GlassContainer>
                   </TouchableOpacity>
-                  {showDatePicker && (() => {
-                    const DateTimePicker = require("@react-native-community/datetimepicker").default;
-                    return (
-                      <View style={styles.datePickerWrapper}>
-                        <DateTimePicker
-                          value={logDate}
-                          mode="date"
-                          display={Platform.OS === "ios" ? "spinner" : "default"}
-                          onChange={handleDateChange}
-                          maximumDate={new Date()}
-                        />
-                        {Platform.OS === "ios" && (
-                          <TouchableOpacity
-                            style={[styles.datePickerDone, { backgroundColor: theme.foreground }]}
-                            onPress={() => setShowDatePicker(false)}
-                          >
-                            <Text style={[styles.datePickerDoneText, { color: theme.background }]}>
-                              {t("confirm") || "Done"}
-                            </Text>
-                          </TouchableOpacity>
-                        )}
-                      </View>
-                    );
-                  })()}
+                  {showDatePicker ? (
+                    <View style={styles.datePickerWrapper}>
+                      <DateTimePicker
+                        value={logDate}
+                        mode="date"
+                        display={Platform.OS === "ios" ? "spinner" : "default"}
+                        onChange={handleDateChange}
+                        maximumDate={new Date()}
+                      />
+                      {Platform.OS === "ios" && (
+                        <TouchableOpacity
+                          style={[styles.datePickerDone, { backgroundColor: theme.foreground }]}
+                          onPress={() => setShowDatePicker(false)}
+                        >
+                          <Text style={[styles.datePickerDoneText, { color: theme.background }]}>
+                            {t("confirm") || "Done"}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  ) : null}
                 </>
               ) : (
                 <GlassContainer intensity="light" style={styles.dateContainer}>

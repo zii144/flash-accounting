@@ -1,5 +1,6 @@
 import { TimeFilter } from '@/utils/constants';
 import { getAll } from '@/utils/db';
+import { ensureDatabaseInitialized } from '@/utils/db-schema';
 import { logger } from '@/utils/logger';
 
 export interface ConsumptionStats {
@@ -43,6 +44,7 @@ export function useConsumptionStats() {
    */
   const getStats = async (timeFilter: TimeFilter = 'all'): Promise<ConsumptionStats> => {
     try {
+      await ensureDatabaseInitialized();
       const [whereClause, params] = buildTimeFilterClause(timeFilter);
       
       // Get totals and counts by type in a single query
@@ -128,6 +130,7 @@ export function useConsumptionStats() {
     pageSize: number = 15
   ): Promise<PaginatedGroupedResult> => {
     try {
+      await ensureDatabaseInitialized();
       const [whereClause, params] = buildTimeFilterClause(timeFilter);
       
       // Validate and sanitize sortBy and sortOrder to prevent SQL injection
@@ -242,6 +245,7 @@ export function useConsumptionStats() {
     pageSize: number = 15
   ): Promise<PaginatedGroupedResult> => {
     try {
+      await ensureDatabaseInitialized();
       const [whereClause, params] = buildTimeFilterClause(timeFilter);
       
       // Validate and sanitize sortBy and sortOrder to prevent SQL injection
@@ -354,6 +358,7 @@ export function useConsumptionStats() {
     sortOrder: 'ASC' | 'DESC' = 'DESC'
   ) => {
     try {
+      await ensureDatabaseInitialized();
       const [whereClause, params] = buildTimeFilterClause(timeFilter);
       
       // Validate and sanitize sortBy and sortOrder to prevent SQL injection

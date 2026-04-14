@@ -3,6 +3,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
 import { getAll } from "@/utils/db";
+import { ensureDatabaseInitialized } from "@/utils/db-schema";
 import { logger } from "@/utils/logger";
 import { Ionicons } from "@expo/vector-icons";
 import { File, Paths } from "expo-file-system";
@@ -51,6 +52,7 @@ export function SettingsModal({
   const exportToCSV = useCallback(async () => {
     setIsExporting(true);
     try {
+      await ensureDatabaseInitialized();
       // Fetch all consumptions directly from SQLite
       const allConsumptions = await getAll<Consumption>(
         'SELECT * FROM consumptions ORDER BY date DESC'

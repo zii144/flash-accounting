@@ -1,6 +1,6 @@
 import { Consumption } from '@/types/consumption';
 import { getAll, run } from '@/utils/db';
-import { initializeDatabase } from '@/utils/db-schema';
+import { ensureDatabaseInitialized } from '@/utils/db-schema';
 import { logger } from '@/utils/logger';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -28,6 +28,7 @@ export function useConsumptionStorage() {
   // Load all consumptions (for backward compatibility - used by SettingsModal)
   const loadConsumptions = useCallback(async () => {
     try {
+      await ensureDatabaseInitialized();
       const results = await getAll<Consumption>(
         'SELECT * FROM consumptions ORDER BY date DESC'
       );
@@ -48,7 +49,7 @@ export function useConsumptionStorage() {
   // Initialize database - only load count, not all data
   const initialize = useCallback(async () => {
     try {
-      await initializeDatabase();
+      await ensureDatabaseInitialized();
       // Only get the count, don't load all consumptions
       const countResult = await getAll<{ count: number }>(
         'SELECT COUNT(*) as count FROM consumptions'
@@ -69,6 +70,7 @@ export function useConsumptionStorage() {
   const loadPaginatedConsumptions = useCallback(
     async (options: PaginationOptions): Promise<PaginatedResult> => {
       try {
+        await ensureDatabaseInitialized();
         const { page, pageSize, sortBy = 'date', sortOrder = 'DESC' } = options;
         const offset = (page - 1) * pageSize;
 
@@ -112,6 +114,7 @@ export function useConsumptionStorage() {
 
   const saveConsumption = useCallback(async (consumption: Consumption) => {
     try {
+      await ensureDatabaseInitialized();
       // Validate before saving
       if (!consumption.id || !consumption.date) {
         throw new Error('Invalid consumption data: missing required fields');
@@ -150,6 +153,7 @@ export function useConsumptionStorage() {
 
   const deleteConsumption = useCallback(async (id: string) => {
     try {
+      await ensureDatabaseInitialized();
       if (!id || typeof id !== 'string') {
         throw new Error('Invalid consumption ID');
       }
@@ -181,6 +185,7 @@ export function useConsumptionStorage() {
 
   const updateConsumption = useCallback(async (consumption: Consumption) => {
     try {
+      await ensureDatabaseInitialized();
       if (!consumption.id) {
         throw new Error('Invalid consumption data: missing ID');
       }
@@ -227,6 +232,7 @@ export function useConsumptionStorage() {
 
   const clearAll = useCallback(async () => {
     try {
+      await ensureDatabaseInitialized();
       await run('DELETE FROM consumptions');
       setConsumptions([]);
       setTotalCount(0);

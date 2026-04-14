@@ -255,7 +255,12 @@ export function StatisticsView() {
           setPage(pageNum);
         }
       } catch (error) {
-        logger.error('Failed to load stats', error, { viewMode, timeFilter, sortBy, sortOrder });
+        logger.error('Failed to load stats', error, {
+          viewMode,
+          timeFilter,
+          sortBy: sortConfig.sortBy,
+          sortOrder: sortConfig.sortOrder,
+        });
       } finally {
         if (!cancelled) {
           setIsLoadingStats(false);
