@@ -1,4 +1,5 @@
 import { getFirst, run } from './db';
+import { ensureDatabaseInitialized } from './db-schema';
 import { FEATURES } from './features';
 import { logger } from './logger';
 
@@ -26,6 +27,7 @@ function generateFeaturesVersion(): string {
  */
 export async function getDismissedFeaturesVersion(): Promise<string | null> {
   try {
+    await ensureDatabaseInitialized();
     const result = await getFirst<{ value: string }>(
       'SELECT value FROM db_metadata WHERE key = ?',
       [FEATURE_CAROUSEL_KEY]
@@ -42,6 +44,7 @@ export async function getDismissedFeaturesVersion(): Promise<string | null> {
  */
 export async function setDismissedFeaturesVersion(version: string): Promise<void> {
   try {
+    await ensureDatabaseInitialized();
     await run(
       'INSERT OR REPLACE INTO db_metadata (key, value) VALUES (?, ?)',
       [FEATURE_CAROUSEL_KEY, version]
