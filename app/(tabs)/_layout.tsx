@@ -1,7 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Icon, Label, NativeTabs, VectorIcon } from "expo-router/unstable-native-tabs";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { PlatformColor } from "react-native";
 
 function iosColor(name: string, fallback: string) {
@@ -38,23 +37,19 @@ export default function TabsLayout() {
       tintColor={iosColor("systemBlueColor", theme.text)}
     >
       <NativeTabs.Trigger name="index">
-        <Icon
+        <NativeTabs.Trigger.Icon
           sf={{ default: "dollarsign.circle", selected: "dollarsign.circle.fill" }}
-          androidSrc={
-            <VectorIcon family={Ionicons} name="calculator-outline" />
-          }
+          md="calculate"
         />
-        <Label hidden>{t("accounting")}</Label>
+        <NativeTabs.Trigger.Label hidden>{t("accounting")}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="statistics">
-        <Icon
+        <NativeTabs.Trigger.Icon
           sf={{ default: "chart.bar", selected: "chart.bar.fill" }}
-          androidSrc={
-            <VectorIcon family={Ionicons} name="stats-chart-outline" />
-          }
+          md="bar_chart"
         />
-        <Label hidden>{t("statistics")}</Label>
+        <NativeTabs.Trigger.Label hidden>{t("statistics")}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );

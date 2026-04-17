@@ -2,8 +2,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
-import { getAll } from "@/utils/db";
-import { ensureDatabaseInitialized } from "@/utils/db-schema";
 import { logger } from "@/utils/logger";
 import { Ionicons } from "@expo/vector-icons";
 import { File, Paths } from "expo-file-system";
@@ -33,7 +31,7 @@ export function SettingsModal({
 }: SettingsModalProps) {
   const { theme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
-  const { clearAll } = useConsumptionStorage();
+  const { clearAll, getAllForExport } = useConsumptionStorage();
   const [isExporting, setIsExporting] = useState(false);
 
   const languages = useMemo(
@@ -52,11 +50,7 @@ export function SettingsModal({
   const exportToCSV = useCallback(async () => {
     setIsExporting(true);
     try {
-      await ensureDatabaseInitialized();
-      // Fetch all consumptions directly from SQLite
-      const allConsumptions = await getAll<Consumption>(
-        'SELECT * FROM consumptions ORDER BY date DESC'
-      );
+      const allConsumptions = await getAllForExport();
 
       if (allConsumptions.length === 0) {
         Alert.alert(t("exportError"), t("noConsumptionsYet"));
@@ -105,7 +99,7 @@ export function SettingsModal({
     } finally {
       setIsExporting(false);
     }
-  }, [t]);
+  }, [getAllForExport, t]);
 
   const handleClearHistory = useCallback(() => {
     Alert.alert(

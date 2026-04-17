@@ -3,15 +3,17 @@ import { ConsumptionItem } from "@/components/ConsumptionItem";
 import { EditConsumptionModal } from "@/components/EditConsumptionModal";
 import { FeatureItem, FeaturesCarousel } from "@/components/FeaturesCarousel";
 import { GlassContainer } from "@/components/GlassContainer";
-import { SettingsModal } from "@/components/SettingsModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
+import { isAppErrorCode } from "@/utils/app-error";
 import { dismissFeatureCarousel, shouldShowFeatureCarousel } from "@/utils/feature-carousel";
 import { FEATURES, getFeatureTranslationKeys } from "@/utils/features";
 import { formatCurrency } from "@/utils/formatting";
 import { logger } from "@/utils/logger";
+import { useFocusEffect } from "@react-navigation/native";
+import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -34,7 +36,6 @@ export function AccountingScreen() {
   const { theme } = useTheme();
   const { t } = useLanguage();
   const {
-    consumptions,
     isLoading,
     saveConsumption,
     updateConsumption,
@@ -42,7 +43,6 @@ export function AccountingScreen() {
     loadPaginated,
     totalCount,
   } = useConsumptionStorage();
-  const [settingsVisible, setSettingsVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingConsumption, setEditingConsumption] = useState<Consumption | null>(null);
   const [carouselVisible, setCarouselVisible] = useState(false);
@@ -95,7 +95,7 @@ export function AccountingScreen() {
 
   const handleSettingsPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSettingsVisible(true);
+    router.push("/settings");
   }, []);
 
   const loadPage = useCallback(
@@ -153,6 +153,14 @@ export function AccountingScreen() {
     }
   }, [isLoading, isLoadingMore, totalCount]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (!isLoading && loadPageRef.current) {
+        loadPageRef.current(1, false);
+      }
+    }, [isLoading])
+  );
+
   const handleSubmit = useCallback(
     async (data: Omit<Consumption, "id" | "date">) => {
       try {
@@ -163,6 +171,14 @@ export function AccountingScreen() {
         };
         await saveConsumption(consumption);
       } catch (error) {
+        if (isAppErrorCode(error, "LOCAL_LIMIT_REACHED")) {
+          Alert.alert(t("localLimitReachedTitle"), t("localLimitReachedMessage"), [
+            { text: t("confirm") || "OK" },
+          ]);
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          return;
+        }
+
         const errorMessage = error instanceof Error ? error.message : t("errorSaveFailed");
 
         Alert.alert(t("errorOccurred") || "Error", errorMessage, [
@@ -335,13 +351,6 @@ export function AccountingScreen() {
           </View>
         </>
       )}
-
-      <SettingsModal
-        visible={settingsVisible}
-        onClose={() => setSettingsVisible(false)}
-        consumptions={consumptions}
-      />
-
       <EditConsumptionModal
         visible={editModalVisible}
         consumption={editingConsumption}

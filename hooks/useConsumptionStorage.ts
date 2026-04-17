@@ -1,5 +1,17 @@
 import { Consumption } from '@/types/consumption';
-import { getAll, run } from '@/utils/db';
+import { useAuth } from '@/contexts/AuthContext';
+import { usePro } from '@/contexts/ProContext';
+import { AppError } from '@/utils/app-error';
+import { FREE_LOCAL_RECORD_LIMIT } from '@/utils/constants';
+import {
+  cloudClearAll,
+  cloudDelete,
+  cloudGetAll,
+  cloudSave,
+  cloudUpdate,
+  cloudUpsertMany,
+} from '@/utils/cloud/consumptions';
+import { getAll, run, transaction, type RunInTransaction } from '@/utils/db';
 import { ensureDatabaseInitialized } from '@/utils/db-schema';
 import { logger } from '@/utils/logger';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -19,26 +31,78 @@ export interface PaginatedResult {
   hasMore: boolean;
 }
 
+async function getAllLocalConsumptions(): Promise<Consumption[]> {
+  await ensureDatabaseInitialized();
+  return await getAll<Consumption>('SELECT * FROM consumptions ORDER BY date DESC');
+}
+
+async function getLocalConsumptionCount(): Promise<number> {
+  await ensureDatabaseInitialized();
+  const countResult = await getAll<{ count: number }>('SELECT COUNT(*) as count FROM consumptions');
+  return countResult[0]?.count || 0;
+}
+
+async function upsertLocalConsumption(consumption: Consumption): Promise<void> {
+  await ensureDatabaseInitialized();
+  await run(
+    `INSERT OR REPLACE INTO consumptions (id, amount, description, type, category, date)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [
+      consumption.id,
+      consumption.amount,
+      consumption.description || '',
+      consumption.type || 'expense',
+      consumption.category || null,
+      consumption.date,
+    ]
+  );
+}
+
+async function replaceLocalConsumptions(consumptions: Consumption[]): Promise<void> {
+  await ensureDatabaseInitialized();
+
+  const operations = [
+    async (runInTransaction: RunInTransaction) => {
+      await runInTransaction('DELETE FROM consumptions');
+    },
+    ...consumptions.map(
+      (consumption) => async (runInTransaction: RunInTransaction) => {
+          await runInTransaction(
+            `INSERT OR REPLACE INTO consumptions (id, amount, description, type, category, date)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+              consumption.id,
+              consumption.amount,
+              consumption.description || '',
+              consumption.type || 'expense',
+              consumption.category || null,
+              consumption.date,
+            ]
+          );
+        }
+    ),
+  ];
+
+  await transaction(operations);
+}
+
 export function useConsumptionStorage() {
+  const { user } = useAuth();
+  const { isPro } = usePro();
+  const cloudEnabled = Boolean(user?.uid && isPro);
+
   const [consumptions, setConsumptions] = useState<Consumption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const isInitializedRef = useRef(false);
+  const initModeRef = useRef<string>('');
 
   // Load all consumptions (for backward compatibility - used by SettingsModal)
   const loadConsumptions = useCallback(async () => {
     try {
-      await ensureDatabaseInitialized();
-      const results = await getAll<Consumption>(
-        'SELECT * FROM consumptions ORDER BY date DESC'
-      );
+      const results = await getAllLocalConsumptions();
       setConsumptions(results);
-      
-      // Update total count
-      const countResult = await getAll<{ count: number }>(
-        'SELECT COUNT(*) as count FROM consumptions'
-      );
-      setTotalCount(countResult[0]?.count || 0);
+      setTotalCount(results.length);
     } catch (error) {
       logger.error('Failed to load consumptions', error);
       setConsumptions([]);
@@ -49,22 +113,36 @@ export function useConsumptionStorage() {
   // Initialize database - only load count, not all data
   const initialize = useCallback(async () => {
     try {
-      await ensureDatabaseInitialized();
-      // Only get the count, don't load all consumptions
-      const countResult = await getAll<{ count: number }>(
-        'SELECT COUNT(*) as count FROM consumptions'
-      );
-      setTotalCount(countResult[0]?.count || 0);
-      setConsumptions([]); // Start with empty array for pagination
+      if (cloudEnabled && user?.uid) {
+        const localConsumptions = await getAllLocalConsumptions();
+
+        if (localConsumptions.length > 0) {
+          await cloudUpsertMany(user.uid, localConsumptions);
+        }
+
+        const cloudConsumptions = await cloudGetAll(user.uid);
+        await replaceLocalConsumptions(cloudConsumptions);
+        setTotalCount(cloudConsumptions.length);
+        setConsumptions([]);
+      } else {
+        const count = await getLocalConsumptionCount();
+        setTotalCount(count);
+        setConsumptions([]);
+      }
     } catch (error) {
       logger.error('Failed to initialize database', error);
+      try {
+        const fallbackCount = await getLocalConsumptionCount();
+        setTotalCount(fallbackCount);
+      } catch {
+        setTotalCount(0);
+      }
       setConsumptions([]);
-      setTotalCount(0);
     } finally {
       setIsLoading(false);
       isInitializedRef.current = true;
     }
-  }, []);
+  }, [cloudEnabled, user?.uid]);
 
   // Load paginated consumptions
   const loadPaginatedConsumptions = useCallback(
@@ -107,66 +185,70 @@ export function useConsumptionStorage() {
   );
 
   useEffect(() => {
-    if (!isInitializedRef.current) {
+    const nextModeKey = cloudEnabled ? `cloud:${user?.uid ?? ''}` : 'local';
+    if (!isInitializedRef.current || initModeRef.current !== nextModeKey) {
+      initModeRef.current = nextModeKey;
+      isInitializedRef.current = false;
+      setIsLoading(true);
       initialize();
     }
-  }, [initialize]);
+  }, [cloudEnabled, initialize, user?.uid]);
 
   const saveConsumption = useCallback(async (consumption: Consumption) => {
     try {
-      await ensureDatabaseInitialized();
       // Validate before saving
       if (!consumption.id || !consumption.date) {
         throw new Error('Invalid consumption data: missing required fields');
       }
 
       if (consumption.amount <= 0 || isNaN(consumption.amount)) {
-        throw new Error('Invalid consumption data: amount must be greater than zero');
+        throw new AppError('INVALID_CONSUMPTION', 'Invalid consumption data: amount must be greater than zero');
       }
 
-      await run(
-        `INSERT INTO consumptions (id, amount, description, type, category, date) 
-         VALUES (?, ?, ?, ?, ?, ?)`,
-        [
-          consumption.id,
-          consumption.amount,
-          consumption.description || '',
-          consumption.type || 'expense',
-          consumption.category || null,
-          consumption.date,
-        ]
-      );
+      if (cloudEnabled && user?.uid) {
+        await cloudSave(user.uid, consumption);
+        await upsertLocalConsumption(consumption);
+      } else {
+        if (totalCount >= FREE_LOCAL_RECORD_LIMIT) {
+          throw new AppError('LOCAL_LIMIT_REACHED');
+        }
+
+        await upsertLocalConsumption(consumption);
+      }
 
       // Optimistically update local state
       setConsumptions((prev) => [consumption, ...prev]);
       setTotalCount((prev) => prev + 1);
     } catch (error) {
       logger.error('Failed to save consumption', error, { consumptionId: consumption.id });
-      // Re-throw with more context
-      throw new Error(
-        error instanceof Error 
-          ? `Failed to save consumption: ${error.message}`
-          : 'Failed to save consumption. Please try again.'
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        'SAVE_CONSUMPTION_FAILED',
+        error instanceof Error ? error.message : 'Failed to save consumption. Please try again.',
+        { cause: error }
       );
     }
-  }, []);
+  }, [cloudEnabled, totalCount, user?.uid]);
 
   const deleteConsumption = useCallback(async (id: string) => {
     try {
-      await ensureDatabaseInitialized();
       if (!id || typeof id !== 'string') {
         throw new Error('Invalid consumption ID');
       }
 
+      if (cloudEnabled && user?.uid) {
+        await cloudDelete(user.uid, id);
+      }
+
+      await ensureDatabaseInitialized();
       const result = await run('DELETE FROM consumptions WHERE id = ?', [id]);
 
-      // Check if deletion was successful
       if (result.changes === 0) {
         logger.warn('No consumption found with ID', { consumptionId: id });
-        // Don't throw error - item might have already been deleted
-        // Still update state optimistically
       } else {
-        logger.debug(`Successfully deleted consumption`, { consumptionId: id, changes: result.changes });
+        logger.debug('Successfully deleted consumption', { consumptionId: id, changes: result.changes });
       }
 
       // Optimistically update local state
@@ -174,18 +256,19 @@ export function useConsumptionStorage() {
       setTotalCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
       logger.error('Failed to delete consumption', error, { consumptionId: id });
-      // Re-throw with more context
-      throw new Error(
-        error instanceof Error 
-          ? `Failed to delete consumption: ${error.message}`
-          : 'Failed to delete consumption. Please try again.'
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        'DELETE_CONSUMPTION_FAILED',
+        error instanceof Error ? error.message : 'Failed to delete consumption. Please try again.',
+        { cause: error }
       );
     }
-  }, []);
+  }, [cloudEnabled, user?.uid]);
 
   const updateConsumption = useCallback(async (consumption: Consumption) => {
     try {
-      await ensureDatabaseInitialized();
       if (!consumption.id) {
         throw new Error('Invalid consumption data: missing ID');
       }
@@ -195,9 +278,14 @@ export function useConsumptionStorage() {
       }
 
       if (consumption.amount <= 0 || isNaN(consumption.amount)) {
-        throw new Error('Invalid consumption data: amount must be greater than zero');
+        throw new AppError('INVALID_CONSUMPTION', 'Invalid consumption data: amount must be greater than zero');
       }
 
+      if (cloudEnabled && user?.uid) {
+        await cloudUpdate(user.uid, consumption);
+      }
+
+      await ensureDatabaseInitialized();
       const result = await run(
         `UPDATE consumptions 
          SET amount = ?, description = ?, type = ?, category = ?, date = ?
@@ -213,7 +301,7 @@ export function useConsumptionStorage() {
       );
 
       if (result.changes === 0) {
-        throw new Error('Consumption not found');
+        throw new AppError('CONSUMPTION_NOT_FOUND', 'Consumption not found');
       }
 
       // Optimistically update local state
@@ -222,16 +310,23 @@ export function useConsumptionStorage() {
       );
     } catch (error) {
       logger.error('Failed to update consumption', error, { consumptionId: consumption.id });
-      throw new Error(
-        error instanceof Error
-          ? `Failed to update consumption: ${error.message}`
-          : 'Failed to update consumption. Please try again.'
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        'UPDATE_CONSUMPTION_FAILED',
+        error instanceof Error ? error.message : 'Failed to update consumption. Please try again.',
+        { cause: error }
       );
     }
-  }, []);
+  }, [cloudEnabled, user?.uid]);
 
   const clearAll = useCallback(async () => {
     try {
+      if (cloudEnabled && user?.uid) {
+        await cloudClearAll(user.uid);
+      }
+
       await ensureDatabaseInitialized();
       await run('DELETE FROM consumptions');
       setConsumptions([]);
@@ -240,7 +335,24 @@ export function useConsumptionStorage() {
       logger.error('Failed to clear consumptions', error);
       throw error;
     }
+  }, [cloudEnabled, user?.uid]);
+
+  const getAllForExport = useCallback(async (): Promise<Consumption[]> => {
+    return await getAllLocalConsumptions();
   }, []);
+
+  const syncLocalToCloud = useCallback(async (): Promise<{ uploaded: number }> => {
+    if (!user?.uid || !isPro) {
+      throw new AppError('CLOUD_SYNC_NOT_AVAILABLE');
+    }
+
+    const local = await getAllLocalConsumptions();
+    await cloudUpsertMany(user.uid, local);
+    const cloudConsumptions = await cloudGetAll(user.uid);
+    await replaceLocalConsumptions(cloudConsumptions);
+    setTotalCount(cloudConsumptions.length);
+    return { uploaded: local.length };
+  }, [isPro, user?.uid]);
 
   return {
     consumptions,
@@ -252,5 +364,7 @@ export function useConsumptionStorage() {
     clearAll,
     refresh: loadConsumptions,
     loadPaginated: loadPaginatedConsumptions,
+    getAllForExport,
+    syncLocalToCloud,
   };
 }

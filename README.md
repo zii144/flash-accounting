@@ -200,7 +200,24 @@ npm run android    # Run on Android
 npm run ios        # Run on iOS
 npm run web        # Run on web
 npm run lint       # Run ESLint
+npm run build:ios:prod       # EAS iOS production build
+npm run build:android:prod   # EAS Android production build
+npm run submit:ios:prod      # EAS iOS submit
+npm run submit:android:prod  # EAS Android submit
 ```
+
+## 🔐 Auth + Cloud Sync (Pro)
+
+This app is **local-first** by default (SQLite). Users are not forced to log in.
+
+- Sign-in options belong **only in Settings**. See `docs/CURRENT_CAVEATS_AND_NEXT_PERIOD.md` for the exact current provider status in this build.
+- Cloud sync is gated behind **Pro (IAP)**. Auth alone does not unlock cloud saving.
+- When **signed in + Pro**, records sync through **Firestore** and the app refreshes its local cache from cloud.
+
+Setup docs:
+- `docs/FIREBASE.md`
+- `docs/IAP.md`
+- `docs/CURRENT_CAVEATS_AND_NEXT_PERIOD.md`
 
 ## 🐛 Troubleshooting
 

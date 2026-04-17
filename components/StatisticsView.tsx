@@ -1,12 +1,12 @@
 import { EditConsumptionModal } from "@/components/EditConsumptionModal";
 import { GlassContainer } from "@/components/GlassContainer";
-import { SettingsModal } from "@/components/SettingsModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStats } from "@/hooks/useConsumptionStats";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
 import { logger } from "@/utils/logger";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   SORT_OPTIONS,
   TIME_FILTERS,
@@ -20,6 +20,7 @@ import {
   formatMonthLabel,
   formatTime,
 } from "@/utils/formatting";
+import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -34,6 +35,7 @@ import {
   View,
 } from "react-native";
 import Animated, { FadeIn, Layout } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface GroupedConsumption {
   date: string;
@@ -45,11 +47,10 @@ interface GroupedConsumption {
 export function StatisticsView() {
   const { theme } = useTheme();
   const { resolvedLanguage, t } = useLanguage();
-  const { consumptions, updateConsumption, deleteConsumption } = useConsumptionStorage();
+  const { updateConsumption, deleteConsumption } = useConsumptionStorage();
   const statsHook = useConsumptionStats();
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
-  const [settingsVisible, setSettingsVisible] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("day");
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingConsumption, setEditingConsumption] = useState<Consumption | null>(null);
@@ -93,7 +94,7 @@ export function StatisticsView() {
 
   const handleSettingsPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSettingsVisible(true);
+    router.push("/settings");
   }, []);
 
   const handleViewModeChange = useCallback((mode: ViewMode) => {
@@ -280,6 +281,14 @@ export function StatisticsView() {
     };
   }, [timeFilter, viewMode, sortConfig.sortBy, sortConfig.sortOrder, resolvedLanguage, t]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (loadDataRef.current) {
+        loadDataRef.current(1, false);
+      }
+    }, [])
+  );
+
   const handleLoadMore = useCallback(() => {
     if (!isLoadingMore && !isLoadingStats && hasMore && loadDataRef.current) {
       loadDataRef.current(page + 1, true);
@@ -306,7 +315,10 @@ export function StatisticsView() {
   }, [theme.isDark, theme.background]);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <SafeAreaView
+      edges={["top"]}
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
       <View style={styles.header}>
         <Text style={[styles.title, { color: theme.text }]}>
           {t("statistics")}
@@ -323,6 +335,7 @@ export function StatisticsView() {
       <View style={styles.listWrapper}>
         <FlatList
           style={styles.content}
+          contentInsetAdjustmentBehavior="automatic"
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           data={displayData}
@@ -700,13 +713,6 @@ export function StatisticsView() {
         pointerEvents="none"
       />
       </View>
-
-      <SettingsModal
-        visible={settingsVisible}
-        onClose={() => setSettingsVisible(false)}
-        consumptions={consumptions}
-      />
-
       <EditConsumptionModal
         visible={editModalVisible}
         consumption={editingConsumption}
@@ -714,7 +720,7 @@ export function StatisticsView() {
         onSave={handleEditSave}
         onDelete={handleDelete}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -726,9 +732,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingTop: 16,
-    paddingBottom: 4,
+    paddingBottom: 8,
   },
   title: {
     fontSize: 28,
