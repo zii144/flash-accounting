@@ -6,6 +6,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { getAppErrorCode } from "@/utils/app-error";
 import { FREE_LOCAL_RECORD_LIMIT } from "@/utils/constants";
+import { LOCALE_MAP } from "@/utils/formatting";
 import { getLanguageOptions } from "@/utils/language-options";
 import { logger } from "@/utils/logger";
 import { router } from "expo-router";
@@ -73,7 +74,7 @@ function randomNonce(length: number = 32): string {
 
 export function SettingsScreen() {
   const { theme } = useTheme();
-  const { language, t } = useLanguage();
+  const { language, resolvedLanguage, t } = useLanguage();
   const { user, isSignedIn, isFirebaseReady, signInWithCredential, signOut } = useAuth();
   const {
     annualPrice,
@@ -89,7 +90,15 @@ export function SettingsScreen() {
     signOutResetProDebug,
   } = usePro();
   const cloudEnabled = Boolean(user?.uid && isPro);
-  const { clearAll, getAllForExport, syncLocalToCloud, totalCount } = useConsumptionStorage();
+  const {
+    clearAll,
+    getAllForExport,
+    isSyncBusy,
+    pullCloudToLocal,
+    syncLocalToCloud,
+    syncSnapshot,
+    totalCount,
+  } = useConsumptionStorage();
   const [isExporting, setIsExporting] = useState(false);
   const [isAuthBusy, setIsAuthBusy] = useState(false);
   const [isAppleAuthAvailable, setIsAppleAuthAvailable] = useState(false);
@@ -100,6 +109,12 @@ export function SettingsScreen() {
   const shouldShowAuthSetupNotice = !isSignedIn && !showAppleSignIn;
   const shouldShowPurchaseActions = !cloudEnabled && !isPro && isPurchaseConfigured;
   const shouldShowPurchaseSetupNotice = !cloudEnabled && !isPro && !isPurchaseConfigured;
+  const syncPrimaryTitle = syncSnapshot.hasPendingLocalChanges
+    ? t("cloudSyncRetryCta")
+    : t("cloudSyncSyncCta");
+  const syncPrimaryDetail = syncSnapshot.hasPendingLocalChanges
+    ? t("cloudSyncRetryDetail")
+    : t("cloudSyncSyncDetail");
 
   useEffect(() => {
     if (Platform.OS !== "ios" || !isFirebaseReady) {
@@ -322,9 +337,53 @@ export function SettingsScreen() {
     ]);
   }, [syncLocalToCloud, t]);
 
+  const handlePullCloud = useCallback(() => {
+    Alert.alert(t("cloudSyncTitle"), t("cloudSyncPullConfirm"), [
+      { text: t("cancel"), style: "cancel" },
+      {
+        text: t("confirm"),
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const result = await pullCloudToLocal();
+            Alert.alert(
+              t("cloudSyncTitle"),
+              t("cloudSyncPullDone").replace("{count}", String(result.downloaded))
+            );
+          } catch (error) {
+            logger.error("Pull cloud to local failed", error);
+            Alert.alert(t("cloudSyncTitle"), t("cloudSyncPullFailed"));
+          }
+        },
+      },
+    ]);
+  }, [pullCloudToLocal, t]);
+
+  const formatSyncDateTime = useCallback((dateString: string) => {
+    return new Date(dateString).toLocaleString(LOCALE_MAP[resolvedLanguage] ?? "en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }, [resolvedLanguage]);
+
   const cloudStatusMessage = useMemo(() => {
     if (cloudEnabled) {
-      return t("cloudSyncActive");
+      if (syncSnapshot.status === "syncing") {
+        return t("cloudSyncStatusSyncing");
+      }
+
+      if (syncSnapshot.status === "pending") {
+        return t("cloudSyncStatusPending");
+      }
+
+      if (syncSnapshot.status === "error") {
+        return t("cloudSyncStatusError");
+      }
+
+      return t("cloudSyncStatusReady");
     }
 
     if (isSignedIn && !isPro) {
@@ -336,7 +395,30 @@ export function SettingsScreen() {
     }
 
     return t("cloudSyncLockedSignedOut");
-  }, [cloudEnabled, isPro, isSignedIn, t]);
+  }, [cloudEnabled, isPro, isSignedIn, syncSnapshot.status, t]);
+
+  const cloudStatusDetail = useMemo(() => {
+    if (!cloudEnabled) {
+      return null;
+    }
+
+    if (syncSnapshot.status === "pending") {
+      return t("cloudSyncPendingDetail");
+    }
+
+    if (syncSnapshot.status === "error") {
+      return t("cloudSyncErrorDetail");
+    }
+
+    if (syncSnapshot.lastSyncedAt) {
+      return t("cloudSyncLastSynced").replace(
+        "{date}",
+        formatSyncDateTime(syncSnapshot.lastSyncedAt)
+      );
+    }
+
+    return t("cloudSyncNeverSynced");
+  }, [cloudEnabled, formatSyncDateTime, syncSnapshot.lastSyncedAt, syncSnapshot.status, t]);
 
   return (
     <SafeAreaView edges={["top"]} style={[styles.container, { backgroundColor: theme.background }]}>
@@ -445,6 +527,11 @@ export function SettingsScreen() {
                   <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
                     {cloudStatusMessage}
                   </Text>
+                  {cloudStatusDetail ? (
+                    <Text style={[styles.settingMeta, { color: theme.textSecondary }]}>
+                      {cloudStatusDetail}
+                    </Text>
+                  ) : null}
                 </View>
               </View>
             </View>
@@ -525,19 +612,49 @@ export function SettingsScreen() {
               <TouchableOpacity
                 style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
                 onPress={handleSyncLocal}
+                disabled={isSyncBusy}
               >
                 <View style={styles.settingLeft}>
                   <Ionicons name="cloud-upload-outline" size={22} color={theme.text} />
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.settingText, { color: theme.text }]}>
-                      {t("cloudSyncSyncCta")}
+                      {syncPrimaryTitle}
                     </Text>
                     <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                      {t("cloudSyncSyncDetail")}
+                      {syncPrimaryDetail}
                     </Text>
                   </View>
                 </View>
-                <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+                <Ionicons
+                  name={isSyncBusy ? "hourglass-outline" : "chevron-forward"}
+                  size={18}
+                  color={theme.textSecondary}
+                />
+              </TouchableOpacity>
+            )}
+
+            {cloudEnabled && (
+              <TouchableOpacity
+                style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
+                onPress={handlePullCloud}
+                disabled={isSyncBusy}
+              >
+                <View style={styles.settingLeft}>
+                  <Ionicons name="cloud-download-outline" size={22} color={theme.text} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.settingText, { color: theme.text }]}>
+                      {t("cloudSyncPullCta")}
+                    </Text>
+                    <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                      {t("cloudSyncPullDetail")}
+                    </Text>
+                  </View>
+                </View>
+                <Ionicons
+                  name={isSyncBusy ? "hourglass-outline" : "chevron-forward"}
+                  size={18}
+                  color={theme.textSecondary}
+                />
               </TouchableOpacity>
             )}
 
@@ -718,5 +835,10 @@ const styles = StyleSheet.create({
   },
   settingValue: {
     fontWeight: "600",
+  },
+  settingMeta: {
+    marginTop: 4,
+    fontSize: 12,
+    lineHeight: 17,
   },
 });
