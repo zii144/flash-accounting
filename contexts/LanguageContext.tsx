@@ -195,6 +195,8 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     localLimitReachedTitle: "Limit reached",
     localLimitReachedMessage:
       "You reached the free local limit. Upgrade to Pro and sign in to unlock unlimited cloud storage.",
+    localLimitReachedLocalOnlyMessage:
+      "You reached the local record limit for this build. Remove some records to keep using this device.",
     "features.cloud-backup-sync.title": "Cloud Backup & Sync",
     "features.cloud-backup-sync.message":
       "Optional sign-in to sync across devices and restore data after reinstall.",
@@ -331,6 +333,8 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     localLimitReachedTitle: "已達上限",
     localLimitReachedMessage:
       "已達免費本機上限。升級 Pro 並登入即可解鎖無上限雲端儲存。",
+    localLimitReachedLocalOnlyMessage:
+      "此版本已達本機記錄上限。請先刪除部分記錄，再繼續在這台裝置上使用。",
     "features.cloud-backup-sync.title": "雲端備份與同步",
     "features.cloud-backup-sync.message":
       "可選登入以跨裝置同步，並在重新安裝後還原資料。",
@@ -471,6 +475,8 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     localLimitReachedTitle: "Limit reached",
     localLimitReachedMessage:
       "You reached the free local limit. Upgrade to Pro and sign in to unlock unlimited cloud storage.",
+    localLimitReachedLocalOnlyMessage:
+      "Has alcanzado el limite de registros locales de esta version. Elimina algunos registros para seguir usando este dispositivo.",
     "features.cloud-backup-sync.title": "Respaldo en la Nube y Sincronización",
     "features.cloud-backup-sync.message":
       "Inicio de sesión opcional para sincronizar entre dispositivos y restaurar datos después de reinstalar.",
@@ -610,6 +616,8 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     localLimitReachedTitle: "Limit reached",
     localLimitReachedMessage:
       "You reached the free local limit. Upgrade to Pro and sign in to unlock unlimited cloud storage.",
+    localLimitReachedLocalOnlyMessage:
+      "Vous avez atteint la limite d'enregistrements locaux pour cette version. Supprimez quelques entrees pour continuer a utiliser cet appareil.",
     "features.cloud-backup-sync.title": "Sauvegarde Cloud et Synchronisation",
     "features.cloud-backup-sync.message":
       "Connexion optionnelle pour synchroniser entre les appareils et restaurer les données après réinstallation.",
@@ -750,6 +758,8 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     localLimitReachedTitle: "Limit reached",
     localLimitReachedMessage:
       "You reached the free local limit. Upgrade to Pro and sign in to unlock unlimited cloud storage.",
+    localLimitReachedLocalOnlyMessage:
+      "Sie haben das lokale Datensatzlimit fur diese Version erreicht. Loschen Sie einige Eintrage, um dieses Gerat weiter zu verwenden.",
     "features.cloud-backup-sync.title": "Cloud-Backup & Synchronisation",
     "features.cloud-backup-sync.message":
       "Optionaler Anmeldung zur Synchronisation zwischen Geräten und Wiederherstellung von Daten nach Neuinstallation.",
@@ -889,6 +899,8 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     localLimitReachedTitle: "Limit reached",
     localLimitReachedMessage:
       "You reached the free local limit. Upgrade to Pro and sign in to unlock unlimited cloud storage.",
+    localLimitReachedLocalOnlyMessage:
+      "このビルドのローカル記録上限に達しました。このデバイスで使い続けるには、いくつかの記録を削除してください。",
     "features.cloud-backup-sync.title": "クラウドバックアップと同期",
     "features.cloud-backup-sync.message":
       "オプションのサインインでデバイス間で同期し、再インストール後にデータを復元できます。",

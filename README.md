@@ -5,7 +5,6 @@ A modern, beautiful React Native expense tracking app built with Expo. Track you
 ## ✨ Features
 
 - **Quick Expense Tracking**: Add expenses and income with a single tap
-- **Voice Input**: Dictate expense descriptions using speech recognition
 - **Statistics Dashboard**: View your spending patterns with day/month views
 - **Multi-language Support**: Available in English, Traditional Chinese, Spanish, French, German, and Japanese
 - **Dark Mode**: Automatic theme switching based on system preferences
@@ -72,9 +71,7 @@ flash-accounting/
 │   ├── ConsumptionForm.tsx
 │   ├── ConsumptionItem.tsx
 │   ├── ErrorBoundary.tsx
-│   ├── FeaturesCarousel.tsx
 │   ├── GlassContainer.tsx
-│   ├── GlassTabBar.tsx
 │   ├── SettingsModal.tsx
 │   └── StatisticsView.tsx
 ├── contexts/              # React Context providers
@@ -91,8 +88,6 @@ flash-accounting/
 │   ├── db.ts
 │   ├── db-schema.ts
 │   ├── debounce.ts
-│   ├── feature-carousel.ts
-│   ├── features.ts
 │   ├── formatting.ts
 │   └── validation.ts
 └── assets/                # Images, icons, fonts
@@ -117,7 +112,6 @@ Catches React errors and displays user-friendly error messages. Prevents the ent
 ### ConsumptionForm
 Form component for adding expenses/income with:
 - Real-time validation
-- Voice input support
 - Amount formatting with thousand separators
 - Error message display
 
@@ -239,16 +233,6 @@ Private project - All rights reserved
 ## 👥 Contributing
 
 This is a private project. For questions or issues, please contact the maintainer.
-
-## 🔮 Future Enhancements
-
-- Cloud backup and sync
-- Receipt scanning with OCR
-- PDF and spreadsheet export templates
-- Biometric authentication
-- Category management
-- Recurring expenses
-- Budget tracking
 
 ---
 

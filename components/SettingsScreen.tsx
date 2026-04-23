@@ -106,9 +106,9 @@ export function SettingsScreen() {
   const currentLanguageLabel =
     languages.find((option) => option.code === language)?.name ?? t("device");
   const showAppleSignIn = isFirebaseReady && Platform.OS === "ios" && isAppleAuthAvailable;
-  const shouldShowAuthSetupNotice = !isSignedIn && !showAppleSignIn;
-  const shouldShowPurchaseActions = !cloudEnabled && !isPro && isPurchaseConfigured;
-  const shouldShowPurchaseSetupNotice = !cloudEnabled && !isPro && !isPurchaseConfigured;
+  const showAuthSection = isSignedIn || showAppleSignIn;
+  const showCloudSection = cloudEnabled || (isPurchaseConfigured && (isSignedIn || showAppleSignIn));
+  const shouldShowPurchaseActions = showCloudSection && !cloudEnabled && !isPro && isPurchaseConfigured;
   const syncPrimaryTitle = syncSnapshot.hasPendingLocalChanges
     ? t("cloudSyncRetryCta")
     : t("cloudSyncSyncCta");
@@ -438,40 +438,48 @@ export function SettingsScreen() {
       >
         <View style={styles.contentInner}>
           <GlassContainer intensity="medium" style={styles.sectionCard}>
-            <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                {t("authFeatureTitle")}
-              </Text>
-              <Text style={[styles.sectionSubtitle, { color: theme.textSecondary }]}>
-                {t("authFeatureSubtitle")}
-              </Text>
-            </View>
-
-            <View style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
-              <View style={styles.settingLeft}>
-                <Ionicons name="person-circle-outline" size={22} color={theme.text} />
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.settingText, { color: theme.text }]}>
-                    {isSignedIn ? t("authStatusSignedIn") : t("authStatusSignedOut")}
-                  </Text>
-                  {isSignedIn ? (
-                    <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                      {user?.email || user?.displayName || user?.uid}
-                    </Text>
-                  ) : (
-                    <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                      {t("authOptionalNote")}
-                    </Text>
-                  )}
-                </View>
-              </View>
-            </View>
-
-            {!isSignedIn ? (
+            {showAuthSection && (
               <>
-                {showAppleSignIn && (
+                <View style={styles.sectionHeader}>
+                  <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                    {t("authFeatureTitle")}
+                  </Text>
+                  <Text style={[styles.sectionSubtitle, { color: theme.textSecondary }]}>
+                    {t("authFeatureSubtitle")}
+                  </Text>
+                </View>
+
+                <View
+                  style={[
+                    styles.settingItem,
+                    { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                  ]}
+                >
+                  <View style={styles.settingLeft}>
+                    <Ionicons name="person-circle-outline" size={22} color={theme.text} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.settingText, { color: theme.text }]}>
+                        {isSignedIn ? t("authStatusSignedIn") : t("authStatusSignedOut")}
+                      </Text>
+                      {isSignedIn ? (
+                        <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                          {user?.email || user?.displayName || user?.uid}
+                        </Text>
+                      ) : (
+                        <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                          {t("authOptionalNote")}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                </View>
+
+                {!isSignedIn ? (
                   <TouchableOpacity
-                    style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
+                    style={[
+                      styles.settingItem,
+                      { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                    ]}
                     onPress={handleSignInApple}
                     disabled={isAuthBusy || !isAppleAuthAvailable}
                   >
@@ -483,179 +491,174 @@ export function SettingsScreen() {
                     </View>
                     <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
                   </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={[
+                      styles.settingItem,
+                      { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                    ]}
+                    onPress={handleSignOut}
+                    disabled={isAuthBusy}
+                  >
+                    <View style={styles.settingLeft}>
+                      <Ionicons name="log-out-outline" size={22} color={theme.text} />
+                      <Text style={[styles.settingText, { color: theme.text }]}>
+                        {t("authSignOut")}
+                      </Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+                  </TouchableOpacity>
+                )}
+              </>
+            )}
+
+            {showCloudSection && (
+              <>
+                <View
+                  style={[
+                    styles.settingItem,
+                    { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                  ]}
+                >
+                  <View style={styles.settingLeft}>
+                    <Ionicons name="cloud-outline" size={22} color={theme.text} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.settingText, { color: theme.text }]}>
+                        {t("cloudSyncTitle")}
+                      </Text>
+                      <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                        {cloudStatusMessage}
+                      </Text>
+                      {cloudStatusDetail ? (
+                        <Text style={[styles.settingMeta, { color: theme.textSecondary }]}>
+                          {cloudStatusDetail}
+                        </Text>
+                      ) : null}
+                    </View>
+                  </View>
+                </View>
+
+                {shouldShowPurchaseActions && (
+                  <>
+                    <TouchableOpacity
+                      style={[
+                        styles.settingItem,
+                        { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                      ]}
+                      onPress={() => void handlePurchasePro("monthly")}
+                      disabled={isPurchaseBusy || !isPurchaseConfigured}
+                    >
+                      <View style={styles.settingLeft}>
+                        <Ionicons name="cart-outline" size={22} color={theme.text} />
+                        <View style={{ flex: 1 }}>
+                          <Text style={[styles.settingText, { color: theme.text }]}>
+                            {t("cloudSyncMonthlyCta")}
+                          </Text>
+                          <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                            {monthlyPrice ?? recommendedMonthlyPrice}
+                          </Text>
+                        </View>
+                      </View>
+                      <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.settingItem,
+                        { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                      ]}
+                      onPress={() => void handlePurchasePro("annual")}
+                      disabled={isPurchaseBusy || !isPurchaseConfigured}
+                    >
+                      <View style={styles.settingLeft}>
+                        <Ionicons name="sparkles-outline" size={22} color={theme.text} />
+                        <View style={{ flex: 1 }}>
+                          <Text style={[styles.settingText, { color: theme.text }]}>
+                            {t("cloudSyncAnnualCta")}
+                          </Text>
+                          <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                            {annualPrice ?? recommendedAnnualPrice}
+                          </Text>
+                        </View>
+                      </View>
+                      <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.settingItem,
+                        { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                      ]}
+                      onPress={handleRestorePro}
+                      disabled={isPurchaseBusy || !isPurchaseConfigured}
+                    >
+                      <View style={styles.settingLeft}>
+                        <Ionicons name="refresh-outline" size={22} color={theme.text} />
+                        <Text style={[styles.settingText, { color: theme.text }]}>
+                          {t("cloudSyncRestoreCta")}
+                        </Text>
+                      </View>
+                      <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+                    </TouchableOpacity>
+                  </>
                 )}
 
-                {shouldShowAuthSetupNotice && (
-                  <View style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
+                {cloudEnabled && (
+                  <TouchableOpacity
+                    style={[
+                      styles.settingItem,
+                      { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                    ]}
+                    onPress={handleSyncLocal}
+                    disabled={isSyncBusy}
+                  >
                     <View style={styles.settingLeft}>
-                      <Ionicons name="construct-outline" size={22} color={theme.textSecondary} />
+                      <Ionicons name="cloud-upload-outline" size={22} color={theme.text} />
                       <View style={{ flex: 1 }}>
                         <Text style={[styles.settingText, { color: theme.text }]}>
-                          {t("authNotConfiguredTitle")}
+                          {syncPrimaryTitle}
                         </Text>
                         <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                          {t("authNotConfiguredMessage")}
+                          {syncPrimaryDetail}
                         </Text>
                       </View>
                     </View>
-                  </View>
+                    <Ionicons
+                      name={isSyncBusy ? "hourglass-outline" : "chevron-forward"}
+                      size={18}
+                      color={theme.textSecondary}
+                    />
+                  </TouchableOpacity>
+                )}
+
+                {cloudEnabled && (
+                  <TouchableOpacity
+                    style={[
+                      styles.settingItem,
+                      { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                    ]}
+                    onPress={handlePullCloud}
+                    disabled={isSyncBusy}
+                  >
+                    <View style={styles.settingLeft}>
+                      <Ionicons name="cloud-download-outline" size={22} color={theme.text} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.settingText, { color: theme.text }]}>
+                          {t("cloudSyncPullCta")}
+                        </Text>
+                        <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                          {t("cloudSyncPullDetail")}
+                        </Text>
+                      </View>
+                    </View>
+                    <Ionicons
+                      name={isSyncBusy ? "hourglass-outline" : "chevron-forward"}
+                      size={18}
+                      color={theme.textSecondary}
+                    />
+                  </TouchableOpacity>
                 )}
               </>
-            ) : (
-              <TouchableOpacity
-                style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
-                onPress={handleSignOut}
-                disabled={isAuthBusy}
-              >
-                <View style={styles.settingLeft}>
-                  <Ionicons name="log-out-outline" size={22} color={theme.text} />
-                  <Text style={[styles.settingText, { color: theme.text }]}>
-                    {t("authSignOut")}
-                  </Text>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
-              </TouchableOpacity>
-            )}
-
-            <View style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
-              <View style={styles.settingLeft}>
-                <Ionicons name="cloud-outline" size={22} color={theme.text} />
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.settingText, { color: theme.text }]}>
-                    {t("cloudSyncTitle")}
-                  </Text>
-                  <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                    {cloudStatusMessage}
-                  </Text>
-                  {cloudStatusDetail ? (
-                    <Text style={[styles.settingMeta, { color: theme.textSecondary }]}>
-                      {cloudStatusDetail}
-                    </Text>
-                  ) : null}
-                </View>
-              </View>
-            </View>
-
-            {shouldShowPurchaseActions && (
-              <>
-                <TouchableOpacity
-                  style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
-                  onPress={() => void handlePurchasePro("monthly")}
-                  disabled={isPurchaseBusy || !isPurchaseConfigured}
-                >
-                  <View style={styles.settingLeft}>
-                    <Ionicons name="cart-outline" size={22} color={theme.text} />
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.settingText, { color: theme.text }]}>
-                        {t("cloudSyncMonthlyCta")}
-                      </Text>
-                      <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                        {monthlyPrice ?? recommendedMonthlyPrice}
-                      </Text>
-                    </View>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
-                  onPress={() => void handlePurchasePro("annual")}
-                  disabled={isPurchaseBusy || !isPurchaseConfigured}
-                >
-                  <View style={styles.settingLeft}>
-                    <Ionicons name="sparkles-outline" size={22} color={theme.text} />
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.settingText, { color: theme.text }]}>
-                        {t("cloudSyncAnnualCta")}
-                      </Text>
-                      <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                        {annualPrice ?? recommendedAnnualPrice}
-                      </Text>
-                    </View>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
-                  onPress={handleRestorePro}
-                  disabled={isPurchaseBusy || !isPurchaseConfigured}
-                >
-                  <View style={styles.settingLeft}>
-                    <Ionicons name="refresh-outline" size={22} color={theme.text} />
-                    <Text style={[styles.settingText, { color: theme.text }]}>
-                      {t("cloudSyncRestoreCta")}
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
-                </TouchableOpacity>
-              </>
-            )}
-
-            {shouldShowPurchaseSetupNotice && (
-              <View style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
-                <View style={styles.settingLeft}>
-                  <Ionicons name="cart-outline" size={22} color={theme.textSecondary} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.settingText, { color: theme.text }]}>
-                      {t("iapNotReadyTitle")}
-                    </Text>
-                    <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                      {t("iapNotReadyMessage")}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            )}
-
-            {cloudEnabled && (
-              <TouchableOpacity
-                style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
-                onPress={handleSyncLocal}
-                disabled={isSyncBusy}
-              >
-                <View style={styles.settingLeft}>
-                  <Ionicons name="cloud-upload-outline" size={22} color={theme.text} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.settingText, { color: theme.text }]}>
-                      {syncPrimaryTitle}
-                    </Text>
-                    <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                      {syncPrimaryDetail}
-                    </Text>
-                  </View>
-                </View>
-                <Ionicons
-                  name={isSyncBusy ? "hourglass-outline" : "chevron-forward"}
-                  size={18}
-                  color={theme.textSecondary}
-                />
-              </TouchableOpacity>
-            )}
-
-            {cloudEnabled && (
-              <TouchableOpacity
-                style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
-                onPress={handlePullCloud}
-                disabled={isSyncBusy}
-              >
-                <View style={styles.settingLeft}>
-                  <Ionicons name="cloud-download-outline" size={22} color={theme.text} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.settingText, { color: theme.text }]}>
-                      {t("cloudSyncPullCta")}
-                    </Text>
-                    <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                      {t("cloudSyncPullDetail")}
-                    </Text>
-                  </View>
-                </View>
-                <Ionicons
-                  name={isSyncBusy ? "hourglass-outline" : "chevron-forward"}
-                  size={18}
-                  color={theme.textSecondary}
-                />
-              </TouchableOpacity>
             )}
 
             {!cloudEnabled && (

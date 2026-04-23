@@ -1,15 +1,15 @@
 import { ConsumptionForm } from "@/components/ConsumptionForm";
 import { ConsumptionItem } from "@/components/ConsumptionItem";
 import { EditConsumptionModal } from "@/components/EditConsumptionModal";
-import { FeatureItem, FeaturesCarousel } from "@/components/FeaturesCarousel";
 import { GlassContainer } from "@/components/GlassContainer";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePro } from "@/contexts/ProContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
 import { isAppErrorCode } from "@/utils/app-error";
-import { dismissFeatureCarousel, shouldShowFeatureCarousel } from "@/utils/feature-carousel";
-import { FEATURES, getFeatureTranslationKeys } from "@/utils/features";
+import { FREE_LOCAL_RECORD_LIMIT } from "@/utils/constants";
 import { formatCurrency } from "@/utils/formatting";
 import { logger } from "@/utils/logger";
 import { useFocusEffect } from "@react-navigation/native";
@@ -22,6 +22,7 @@ import {
   Alert,
   FlatList,
   ListRenderItem,
+  Platform,
   StatusBar,
   StyleSheet,
   Text,
@@ -35,6 +36,8 @@ const PAGE_SIZE = 5;
 export function AccountingScreen() {
   const { theme } = useTheme();
   const { t } = useLanguage();
+  const { isFirebaseReady, isSignedIn } = useAuth();
+  const { isConfigured: isPurchaseConfigured } = usePro();
   const {
     isLoading,
     saveConsumption,
@@ -45,53 +48,14 @@ export function AccountingScreen() {
   } = useConsumptionStorage();
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingConsumption, setEditingConsumption] = useState<Consumption | null>(null);
-  const [carouselVisible, setCarouselVisible] = useState(false);
-  const [isCheckingCarousel, setIsCheckingCarousel] = useState(true);
   const [page, setPage] = useState(1);
   const [paginatedData, setPaginatedData] = useState<Consumption[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const prevTotalCountRef = useRef<number>(0);
   const loadPageRef = useRef<((pageNum: number, append?: boolean) => Promise<void>) | null>(null);
-
-  const featureItems: FeatureItem[] = useMemo(
-    () =>
-      FEATURES.map((feature) => {
-        const keys = getFeatureTranslationKeys(feature.id);
-        return {
-          titleKey: keys.titleKey,
-          messageKey: keys.messageKey,
-          icon: feature.icon,
-        };
-      }),
-    []
-  );
-
-  useEffect(() => {
-    const checkCarouselVisibility = async () => {
-      try {
-        const shouldShow = await shouldShowFeatureCarousel();
-        setCarouselVisible(shouldShow);
-      } catch (error) {
-        logger.error("Failed to check carousel visibility", error);
-        setCarouselVisible(true);
-      } finally {
-        setIsCheckingCarousel(false);
-      }
-    };
-
-    checkCarouselVisibility();
-  }, []);
-
-  const handleCarouselDismiss = useCallback(async () => {
-    try {
-      await dismissFeatureCarousel();
-      setCarouselVisible(false);
-    } catch (error) {
-      logger.error("Failed to dismiss carousel", error);
-      setCarouselVisible(false);
-    }
-  }, []);
+  const canUnlockCloudStorage =
+    isPurchaseConfigured && (isSignedIn || (Platform.OS === "ios" && isFirebaseReady));
 
   const handleSettingsPress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -172,9 +136,14 @@ export function AccountingScreen() {
         await saveConsumption(consumption);
       } catch (error) {
         if (isAppErrorCode(error, "LOCAL_LIMIT_REACHED")) {
-          Alert.alert(t("localLimitReachedTitle"), t("localLimitReachedMessage"), [
-            { text: t("confirm") || "OK" },
-          ]);
+          const limitMessage = canUnlockCloudStorage
+            ? t("localLimitReachedMessage")
+            : t("localLimitReachedLocalOnlyMessage").replace(
+                "{limit}",
+                String(FREE_LOCAL_RECORD_LIMIT)
+              );
+
+          Alert.alert(t("localLimitReachedTitle"), limitMessage, [{ text: t("confirm") || "OK" }]);
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
           return;
         }
@@ -187,7 +156,7 @@ export function AccountingScreen() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
     },
-    [saveConsumption, t]
+    [canUnlockCloudStorage, saveConsumption, t]
   );
 
   const totalAmount = useMemo(
@@ -284,73 +253,61 @@ export function AccountingScreen() {
     <SafeAreaView edges={["top"]} style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar barStyle={theme.isDark ? "light-content" : "dark-content"} />
 
-      {!isCheckingCarousel && (
-        <FeaturesCarousel
-          items={featureItems}
-          visible={carouselVisible}
-          onDismiss={handleCarouselDismiss}
+      <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <Text style={[styles.title, { color: theme.text }]}>{t("flashAccounting")}</Text>
+          <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>
+            <GlassContainer intensity="medium" style={styles.settingsGlass}>
+              <Ionicons name="settings-outline" size={20} color={theme.text} />
+            </GlassContainer>
+          </TouchableOpacity>
+        </View>
+        <Text style={[styles.total, { color: theme.textSecondary }]}>
+          {t("total")}: ${formatCurrency(totalAmount, 2)}
+        </Text>
+      </View>
+
+      <ConsumptionForm onSubmit={handleSubmit} />
+
+      <View style={styles.listWrapper}>
+        <FlatList
+          contentInsetAdjustmentBehavior="automatic"
+          data={paginatedData}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          removeClippedSubviews
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
+          initialNumToRender={10}
+          windowSize={10}
+          getItemLayout={(_, index) => ({
+            length: 72,
+            offset: 72 * index,
+            index,
+          })}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ListEmptyComponent={ListEmptyComponent}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            isLoadingMore ? (
+              <View style={styles.loadingFooter}>
+                <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
+                  {t("loading") || "Loading..."}
+                </Text>
+              </View>
+            ) : null
+          }
         />
-      )}
-
-      {!carouselVisible && (
-        <>
-          <View style={styles.header}>
-            <View style={styles.headerTop}>
-              <Text style={[styles.title, { color: theme.text }]}>{t("flashAccounting")}</Text>
-              <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>
-                <GlassContainer intensity="medium" style={styles.settingsGlass}>
-                  <Ionicons name="settings-outline" size={20} color={theme.text} />
-                </GlassContainer>
-              </TouchableOpacity>
-            </View>
-            <Text style={[styles.total, { color: theme.textSecondary }]}>
-              {t("total")}: ${formatCurrency(totalAmount, 2)}
-            </Text>
-          </View>
-
-          <ConsumptionForm onSubmit={handleSubmit} />
-
-          <View style={styles.listWrapper}>
-            <FlatList
-              contentInsetAdjustmentBehavior="automatic"
-              data={paginatedData}
-              keyExtractor={(item) => item.id}
-              renderItem={renderItem}
-              contentContainerStyle={styles.listContent}
-              showsVerticalScrollIndicator={false}
-              removeClippedSubviews
-              maxToRenderPerBatch={10}
-              updateCellsBatchingPeriod={50}
-              initialNumToRender={10}
-              windowSize={10}
-              getItemLayout={(_, index) => ({
-                length: 72,
-                offset: 72 * index,
-                index,
-              })}
-              ItemSeparatorComponent={() => <View style={styles.separator} />}
-              ListEmptyComponent={ListEmptyComponent}
-              onEndReached={handleLoadMore}
-              onEndReachedThreshold={0.5}
-              ListFooterComponent={
-                isLoadingMore ? (
-                  <View style={styles.loadingFooter}>
-                    <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
-                      {t("loading") || "Loading..."}
-                    </Text>
-                  </View>
-                ) : null
-              }
-            />
-            <LinearGradient
-              colors={fadeGradientColors}
-              locations={[0, 0.4, 0.7, 1]}
-              style={styles.fadeOverlay}
-              pointerEvents="none"
-            />
-          </View>
-        </>
-      )}
+        <LinearGradient
+          colors={fadeGradientColors}
+          locations={[0, 0.4, 0.7, 1]}
+          style={styles.fadeOverlay}
+          pointerEvents="none"
+        />
+      </View>
       <EditConsumptionModal
         visible={editModalVisible}
         consumption={editingConsumption}
