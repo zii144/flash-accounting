@@ -6,6 +6,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { getAppErrorCode } from "@/utils/app-error";
 import { FREE_LOCAL_RECORD_LIMIT } from "@/utils/constants";
+import { buildConsumptionsCsv } from "@/utils/export";
 import { LOCALE_MAP } from "@/utils/formatting";
 import { getLanguageOptions } from "@/utils/language-options";
 import { logger } from "@/utils/logger";
@@ -164,16 +165,10 @@ export function SettingsScreen() {
         return;
       }
 
-      const headers = ["Date", "Amount", "Description", "Category"];
-      const rows = allConsumptions.map((consumption) => {
-        const date = new Date(consumption.date).toLocaleString();
-        const amount = consumption.amount.toFixed(2);
-        const description = (consumption.description || "").replace(/"/g, '""');
-        const category = (consumption.category || "").replace(/"/g, '""');
-        return `"${date}","${amount}","${description}","${category}"`;
-      });
-
-      const csvContent = [headers.join(","), ...rows].join("\n");
+      const csvContent = buildConsumptionsCsv(
+        allConsumptions,
+        LOCALE_MAP[resolvedLanguage] ?? "en-US"
+      );
       const timestamp = new Date().toISOString().split("T")[0];
       const file = new File(Paths.document, `flash-accounting-${timestamp}.csv`);
       await file.write(csvContent);
@@ -194,7 +189,7 @@ export function SettingsScreen() {
     } finally {
       setIsExporting(false);
     }
-  }, [getAllForExport, t]);
+  }, [getAllForExport, resolvedLanguage, t]);
 
   const handleClearHistory = useCallback(() => {
     Alert.alert(t("clearHistory"), t("clearHistoryConfirm"), [

@@ -1,7 +1,16 @@
-import { TimeFilter } from '@/utils/constants';
-import { getAll } from '@/utils/db';
-import { ensureDatabaseInitialized } from '@/utils/db-schema';
-import { logger } from '@/utils/logger';
+import { useCallback } from "react";
+import type { Consumption } from "@/types/consumption";
+import { TimeFilter } from "@/utils/constants";
+import { normalizeConsumptionRecord } from "@/utils/consumption-record";
+import {
+  compareCalendarKeys,
+  getLocalDaySqlExpression,
+  getLocalMonthSqlExpression,
+} from "@/utils/date-utils";
+import { getAll } from "@/utils/db";
+import { ensureDatabaseInitialized } from "@/utils/db-schema";
+import { getSignedAmount } from "@/utils/ledger";
+import { logger } from "@/utils/logger";
 
 export interface ConsumptionStats {
   total: number;
@@ -16,14 +25,7 @@ export interface ConsumptionStats {
 
 export interface GroupedConsumption {
   date: string;
-  consumptions: Array<{
-    id: string;
-    amount: number;
-    description: string;
-    type: 'expense' | 'income';
-    category?: string;
-    date: string;
-  }>;
+  consumptions: Consumption[];
   total: number;
 }
 
@@ -42,7 +44,7 @@ export function useConsumptionStats() {
   /**
    * Get total amount and count for filtered consumptions
    */
-  const getStats = async (timeFilter: TimeFilter = 'all'): Promise<ConsumptionStats> => {
+  const getStats = useCallback(async (timeFilter: TimeFilter = "all"): Promise<ConsumptionStats> => {
     try {
       await ensureDatabaseInitialized();
       const [whereClause, params] = buildTimeFilterClause(timeFilter);
@@ -79,7 +81,7 @@ export function useConsumptionStats() {
 
       // Calculate log day (days since first entry)
       const firstDateResult = await getAll<{ min_date: string }>(
-        `SELECT MIN(date) as min_date FROM consumptions`
+        "SELECT MIN(date) as min_date FROM consumptions WHERE deletedAt IS NULL"
       );
       
       let logDay = 0;
@@ -105,7 +107,7 @@ export function useConsumptionStats() {
         logDay,
       };
     } catch (error) {
-      logger.error('Failed to get stats', error, { timeFilter });
+      logger.error("Failed to get stats", error, { timeFilter });
       return { 
         total: 0, 
         expenseTotal: 0,
@@ -117,48 +119,55 @@ export function useConsumptionStats() {
         logDay: 0 
       };
     }
-  };
+  }, []);
 
   /**
    * Get consumptions grouped by day (paginated)
    */
-  const getGroupedByDay = async (
-    timeFilter: TimeFilter = 'all',
-    sortBy: 'date' | 'amount' = 'date',
-    sortOrder: 'ASC' | 'DESC' = 'DESC',
+  const getGroupedByDay = useCallback(async (
+    timeFilter: TimeFilter = "all",
+    sortBy: "date" | "amount" = "date",
+    sortOrder: "ASC" | "DESC" = "DESC",
     page: number = 1,
     pageSize: number = 15
   ): Promise<PaginatedGroupedResult> => {
     try {
       await ensureDatabaseInitialized();
       const [whereClause, params] = buildTimeFilterClause(timeFilter);
+      const localDayExpression = getLocalDaySqlExpression("date");
       
       // Validate and sanitize sortBy and sortOrder to prevent SQL injection
-      const validSortBy = sortBy === 'date' || sortBy === 'amount' ? sortBy : 'date';
-      const validSortOrder = sortOrder === 'ASC' || sortOrder === 'DESC' ? sortOrder : 'DESC';
+      const validSortBy = sortBy === "date" || sortBy === "amount" ? sortBy : "date";
+      const validSortOrder = sortOrder === "ASC" || sortOrder === "DESC" ? sortOrder : "DESC";
       
       // Always sort by date first for grouping, then by the selected field
-      const orderBy = validSortBy === 'date' 
+      const orderBy = validSortBy === "date" 
         ? `date ${validSortOrder}`
         : `date DESC, amount ${validSortOrder}`;
       
       const results = await getAll<{
-        date: string;
+        group_date: string;
         id: string;
         amount: number;
         description: string;
         type: string;
         category: string | null;
         date_full: string;
+        createdAt: string | null;
+        updatedAt: string | null;
+        deletedAt: string | null;
       }>(
         `SELECT 
-          DATE(date) as date,
+          ${localDayExpression} as group_date,
           id,
           amount,
           description,
           type,
           category,
-          date as date_full
+          date as date_full,
+          createdAt,
+          updatedAt,
+          deletedAt
          FROM consumptions
          ${whereClause}
          ORDER BY ${orderBy}`,
@@ -167,9 +176,9 @@ export function useConsumptionStats() {
 
       // Group by date
       const grouped: { [key: string]: GroupedConsumption } = {};
-      
+
       results.forEach((row) => {
-        const dateKey = row.date;
+        const dateKey = row.group_date;
         if (!grouped[dateKey]) {
           grouped[dateKey] = {
             date: dateKey,
@@ -178,36 +187,39 @@ export function useConsumptionStats() {
           };
         }
         
-        const entryType = (row.type || 'expense') as 'expense' | 'income';
-        
-        grouped[dateKey].consumptions.push({
+        const entryType = (row.type || "expense") as "expense" | "income";
+
+        grouped[dateKey].consumptions.push(normalizeConsumptionRecord({
           id: row.id,
           amount: row.amount,
           description: row.description,
           type: entryType,
           category: row.category || undefined,
           date: row.date_full,
-        });
+          createdAt: row.createdAt ?? row.date_full,
+          updatedAt: row.updatedAt ?? row.createdAt ?? row.date_full,
+          deletedAt: row.deletedAt,
+        }));
         
         // Calculate net total: income adds, expense subtracts
-        grouped[dateKey].total += entryType === 'income' ? row.amount : -row.amount;
+        grouped[dateKey].total += getSignedAmount({ amount: row.amount, type: entryType });
       });
 
       // Sort groups by date, and items within groups by the selected criteria
       const sortedGroups = Object.values(grouped)
         .map((group) => {
           // Sort items within group if sorting by amount
-          if (sortBy === 'amount') {
+          if (sortBy === "amount") {
             group.consumptions.sort((a, b) => {
-              return sortOrder === 'DESC' ? b.amount - a.amount : a.amount - b.amount;
+              return sortOrder === "DESC" ? b.amount - a.amount : a.amount - b.amount;
             });
           }
           return group;
         })
         .sort((a, b) => {
-          const dateA = new Date(a.date).getTime();
-          const dateB = new Date(b.date).getTime();
-          return sortOrder === 'DESC' ? dateB - dateA : dateA - dateB;
+          return sortOrder === "DESC"
+            ? compareCalendarKeys(b.date, a.date)
+            : compareCalendarKeys(a.date, b.date);
         });
 
       // Apply pagination
@@ -223,7 +235,7 @@ export function useConsumptionStats() {
         hasMore: offset + paginatedData.length < total,
       };
     } catch (error) {
-      logger.error('Failed to get grouped by day', error, { timeFilter, sortBy, sortOrder });
+      logger.error("Failed to get grouped by day", error, { timeFilter, sortBy, sortOrder });
       return {
         data: [],
         total: 0,
@@ -232,28 +244,29 @@ export function useConsumptionStats() {
         hasMore: false,
       };
     }
-  };
+  }, []);
 
   /**
    * Get consumptions grouped by month (paginated)
    */
-  const getGroupedByMonth = async (
-    timeFilter: TimeFilter = 'all',
-    sortBy: 'date' | 'amount' = 'date',
-    sortOrder: 'ASC' | 'DESC' = 'DESC',
+  const getGroupedByMonth = useCallback(async (
+    timeFilter: TimeFilter = "all",
+    sortBy: "date" | "amount" = "date",
+    sortOrder: "ASC" | "DESC" = "DESC",
     page: number = 1,
     pageSize: number = 15
   ): Promise<PaginatedGroupedResult> => {
     try {
       await ensureDatabaseInitialized();
       const [whereClause, params] = buildTimeFilterClause(timeFilter);
+      const localMonthExpression = getLocalMonthSqlExpression("date");
       
       // Validate and sanitize sortBy and sortOrder to prevent SQL injection
-      const validSortBy = sortBy === 'date' || sortBy === 'amount' ? sortBy : 'date';
-      const validSortOrder = sortOrder === 'ASC' || sortOrder === 'DESC' ? sortOrder : 'DESC';
+      const validSortBy = sortBy === "date" || sortBy === "amount" ? sortBy : "date";
+      const validSortOrder = sortOrder === "ASC" || sortOrder === "DESC" ? sortOrder : "DESC";
       
       // Always sort by date first for grouping, then by the selected field
-      const orderBy = validSortBy === 'date' 
+      const orderBy = validSortBy === "date" 
         ? `date ${validSortOrder}`
         : `date DESC, amount ${validSortOrder}`;
       
@@ -265,15 +278,21 @@ export function useConsumptionStats() {
         type: string;
         category: string | null;
         date_full: string;
+        createdAt: string | null;
+        updatedAt: string | null;
+        deletedAt: string | null;
       }>(
         `SELECT 
-          strftime('%Y-%m', date) as year_month,
+          ${localMonthExpression} as year_month,
           id,
           amount,
           description,
           type,
           category,
-          date as date_full
+          date as date_full,
+          createdAt,
+          updatedAt,
+          deletedAt
          FROM consumptions
          ${whereClause}
          ORDER BY ${orderBy}`,
@@ -293,36 +312,39 @@ export function useConsumptionStats() {
           };
         }
         
-        const entryType = (row.type || 'expense') as 'expense' | 'income';
-        
-        grouped[monthKey].consumptions.push({
+        const entryType = (row.type || "expense") as "expense" | "income";
+
+        grouped[monthKey].consumptions.push(normalizeConsumptionRecord({
           id: row.id,
           amount: row.amount,
           description: row.description,
           type: entryType,
           category: row.category || undefined,
           date: row.date_full,
-        });
+          createdAt: row.createdAt ?? row.date_full,
+          updatedAt: row.updatedAt ?? row.createdAt ?? row.date_full,
+          deletedAt: row.deletedAt,
+        }));
         
         // Calculate net total: income adds, expense subtracts
-        grouped[monthKey].total += entryType === 'income' ? row.amount : -row.amount;
+        grouped[monthKey].total += getSignedAmount({ amount: row.amount, type: entryType });
       });
 
       // Sort groups by date, and items within groups by the selected criteria
       const sortedGroups = Object.values(grouped)
         .map((group) => {
           // Sort items within group if sorting by amount
-          if (sortBy === 'amount') {
+          if (sortBy === "amount") {
             group.consumptions.sort((a, b) => {
-              return sortOrder === 'DESC' ? b.amount - a.amount : a.amount - b.amount;
+              return sortOrder === "DESC" ? b.amount - a.amount : a.amount - b.amount;
             });
           }
           return group;
         })
         .sort((a, b) => {
-          const dateA = new Date(a.date).getTime();
-          const dateB = new Date(b.date).getTime();
-          return sortOrder === 'DESC' ? dateB - dateA : dateA - dateB;
+          return sortOrder === "DESC"
+            ? compareCalendarKeys(b.date, a.date)
+            : compareCalendarKeys(a.date, b.date);
         });
 
       // Apply pagination
@@ -338,7 +360,7 @@ export function useConsumptionStats() {
         hasMore: offset + paginatedData.length < total,
       };
     } catch (error) {
-      logger.error('Failed to get grouped by month', error, { timeFilter, sortBy, sortOrder });
+      logger.error("Failed to get grouped by month", error, { timeFilter, sortBy, sortOrder });
       return {
         data: [],
         total: 0,
@@ -347,42 +369,59 @@ export function useConsumptionStats() {
         hasMore: false,
       };
     }
-  };
+  }, []);
 
   /**
    * Get filtered consumptions with sorting
    */
-  const getFilteredConsumptions = async (
-    timeFilter: TimeFilter = 'all',
-    sortBy: 'date' | 'amount' = 'date',
-    sortOrder: 'ASC' | 'DESC' = 'DESC'
-  ) => {
+  const getFilteredConsumptions = useCallback(async (
+    timeFilter: TimeFilter = "all",
+    sortBy: "date" | "amount" = "date",
+    sortOrder: "ASC" | "DESC" = "DESC"
+  ): Promise<Consumption[]> => {
     try {
       await ensureDatabaseInitialized();
       const [whereClause, params] = buildTimeFilterClause(timeFilter);
       
       // Validate and sanitize sortBy and sortOrder to prevent SQL injection
-      const validSortBy = sortBy === 'date' || sortBy === 'amount' ? sortBy : 'date';
-      const validSortOrder = sortOrder === 'ASC' || sortOrder === 'DESC' ? sortOrder : 'DESC';
+      const validSortBy = sortBy === "date" || sortBy === "amount" ? sortBy : "date";
+      const validSortOrder = sortOrder === "ASC" || sortOrder === "DESC" ? sortOrder : "DESC";
       
-      return await getAll<{
+      const results = await getAll<{
         id: string;
         amount: number;
         description: string;
         type: string;
         category: string | null;
         date: string;
+        createdAt: string | null;
+        updatedAt: string | null;
+        deletedAt: string | null;
       }>(
         `SELECT * FROM consumptions
          ${whereClause}
          ORDER BY ${validSortBy} ${validSortOrder}`,
         params
       );
+
+      return results.map((row) =>
+        normalizeConsumptionRecord({
+          id: row.id,
+          amount: row.amount,
+          description: row.description,
+          type: (row.type || "expense") as Consumption["type"],
+          category: row.category ?? undefined,
+          date: row.date,
+          createdAt: row.createdAt ?? row.date,
+          updatedAt: row.updatedAt ?? row.createdAt ?? row.date,
+          deletedAt: row.deletedAt,
+        })
+      );
     } catch (error) {
-      logger.error('Failed to get filtered consumptions', error, { timeFilter, sortBy, sortOrder });
+      logger.error("Failed to get filtered consumptions", error, { timeFilter, sortBy, sortOrder });
       return [];
     }
-  };
+  }, []);
 
   return {
     getStats,
@@ -398,41 +437,41 @@ export function useConsumptionStats() {
  */
 function buildTimeFilterClause(timeFilter: TimeFilter): [string, (string | number)[]] {
   const now = new Date();
+  const conditions = ["deletedAt IS NULL"];
+  const params: (string | number)[] = [];
   
   switch (timeFilter) {
-    case 'today': {
+    case "today": {
       const todayStart = new Date(now);
       todayStart.setHours(0, 0, 0, 0);
       const todayEnd = new Date(now);
       todayEnd.setHours(23, 59, 59, 999);
-      return [
-        `WHERE date >= ? AND date <= ?`,
-        [todayStart.toISOString(), todayEnd.toISOString()]
-      ];
+      conditions.push("date >= ?", "date <= ?");
+      params.push(todayStart.toISOString(), todayEnd.toISOString());
+      break;
     }
-    case 'week': {
+    case "week": {
       const weekAgo = new Date(now);
       weekAgo.setDate(weekAgo.getDate() - 7);
-      return [
-        `WHERE date >= ?`,
-        [weekAgo.toISOString()]
-      ];
+      conditions.push("date >= ?");
+      params.push(weekAgo.toISOString());
+      break;
     }
-    case 'month': {
+    case "month": {
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      return [
-        `WHERE date >= ?`,
-        [monthStart.toISOString()]
-      ];
+      conditions.push("date >= ?");
+      params.push(monthStart.toISOString());
+      break;
     }
-    case 'year': {
+    case "year": {
       const yearStart = new Date(now.getFullYear(), 0, 1);
-      return [
-        `WHERE date >= ?`,
-        [yearStart.toISOString()]
-      ];
+      conditions.push("date >= ?");
+      params.push(yearStart.toISOString());
+      break;
     }
     default:
-      return ['', []];
+      break;
   }
+
+  return [`WHERE ${conditions.join(" AND ")}`, params];
 }

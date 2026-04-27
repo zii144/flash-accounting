@@ -66,5 +66,5 @@ service cloud.firestore {
 
 - Free users save records locally in SQLite.
 - Signed-in Pro users sync through Firestore.
-- On cloud-enabled startup, the app uploads this device's local records to Firestore, then refreshes the local cache from Firestore.
-- New cloud-backed writes update Firestore first, then the local cache.
+- On cloud-enabled startup, the app either refreshes the local cache from Firestore or preserves local data as pending sync state when this device has unsynced changes.
+- New cloud-backed writes save locally first, then attempt to sync to Firestore. If the cloud write fails, the local change remains saved and is marked as pending.

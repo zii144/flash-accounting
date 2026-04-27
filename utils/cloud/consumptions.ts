@@ -1,35 +1,28 @@
 import type { Consumption } from "@/types/consumption";
-import { getFirebase } from "@/utils/firebase";
+import { normalizeConsumptionRecord } from "@/utils/consumption-record";
+import { getActiveConsumptions } from "@/utils/sync";
 import {
   collection,
-  deleteDoc,
   doc,
-  getCountFromServer,
   getDocs,
-  limit,
-  orderBy,
-  query,
   setDoc,
-  updateDoc,
-  where,
-  writeBatch,
-  type QueryConstraint,
 } from "firebase/firestore";
+import { getFirebase } from "@/utils/firebase";
 
 function toFirestoreConsumption(consumption: Consumption): Record<string, unknown> {
-  const normalized: Record<string, unknown> = {
-    id: consumption.id,
-    amount: Number(consumption.amount),
-    description: consumption.description ?? "",
-    type: (consumption.type ?? "expense") as "expense" | "income",
-    date: consumption.date,
+  const normalized = normalizeConsumptionRecord(consumption);
+
+  return {
+    id: normalized.id,
+    amount: Number(normalized.amount),
+    description: normalized.description,
+    type: normalized.type,
+    category: normalized.category ?? null,
+    date: normalized.date,
+    createdAt: normalized.createdAt,
+    updatedAt: normalized.updatedAt,
+    deletedAt: normalized.deletedAt ?? null,
   };
-
-  if (typeof consumption.category === "string" && consumption.category.length > 0) {
-    normalized.category = consumption.category;
-  }
-
-  return normalized;
 }
 
 function requireServices() {
@@ -45,24 +38,32 @@ function userConsumptionsCollection(uid: string) {
   return collection(firestore, "users", uid, "consumptions");
 }
 
-export async function cloudGetTotalCount(uid: string): Promise<number> {
+function sortByDateDesc(left: Consumption, right: Consumption): number {
+  return right.date.localeCompare(left.date);
+}
+
+export async function cloudGetSnapshot(uid: string): Promise<Consumption[]> {
   const col = userConsumptionsCollection(uid);
-  const snap = await getCountFromServer(col);
-  return snap.data().count;
+  const snap = await getDocs(col);
+  return snap.docs.map((docSnapshot) =>
+    normalizeConsumptionRecord(docSnapshot.data() as Consumption)
+  );
+}
+
+export async function cloudGetTotalCount(uid: string): Promise<number> {
+  const snapshot = await cloudGetSnapshot(uid);
+  return getActiveConsumptions(snapshot).length;
 }
 
 export async function cloudGetAll(uid: string): Promise<Consumption[]> {
-  const col = userConsumptionsCollection(uid);
-  const snap = await getDocs(query(col, orderBy("date", "desc")));
-  return snap.docs.map((d) => d.data() as Consumption);
+  const snapshot = await cloudGetSnapshot(uid);
+  return getActiveConsumptions(snapshot);
 }
 
 export async function cloudGetMinDate(uid: string): Promise<string | null> {
-  const col = userConsumptionsCollection(uid);
-  const snap = await getDocs(query(col, orderBy("date", "asc"), limit(1)));
-  if (snap.empty) return null;
-  const first = snap.docs[0]?.data() as Consumption | undefined;
-  return first?.date ?? null;
+  const activeConsumptions = await cloudGetAll(uid);
+  const earliest = [...activeConsumptions].sort((left, right) => left.date.localeCompare(right.date))[0];
+  return earliest?.date ?? null;
 }
 
 export async function cloudLoadPaginated(
@@ -81,29 +82,20 @@ export async function cloudLoadPaginated(
   hasMore: boolean;
 }> {
   const { page, pageSize, sortBy = "date", sortOrder = "DESC" } = options;
-  const col = userConsumptionsCollection(uid);
+  const activeConsumptions = await cloudGetAll(uid);
+  const sorted = [...activeConsumptions].sort((left, right) => {
+    if (sortBy === "amount") {
+      return sortOrder === "DESC" ? right.amount - left.amount : left.amount - right.amount;
+    }
 
-  const total = await cloudGetTotalCount(uid);
-  const fetchLimit = Math.min(total, page * pageSize);
+    return sortOrder === "DESC"
+      ? right.date.localeCompare(left.date)
+      : left.date.localeCompare(right.date);
+  });
 
-  const constraints: QueryConstraint[] = [
-    orderBy(sortBy, sortOrder === "ASC" ? "asc" : "desc"),
-    limit(fetchLimit),
-  ];
-
-  let snap;
-  try {
-    snap = await getDocs(query(col, ...constraints));
-  } catch {
-    // Fallback to date ordering if composite indexes are missing.
-    snap = await getDocs(
-      query(col, orderBy("date", "desc"), limit(fetchLimit))
-    );
-  }
-
-  const all = snap.docs.map((d) => d.data() as Consumption);
+  const total = sorted.length;
   const offset = (page - 1) * pageSize;
-  const data = all.slice(offset, offset + pageSize);
+  const data = sorted.slice(offset, offset + pageSize);
 
   return {
     data,
@@ -123,69 +115,31 @@ export async function cloudUpsertMany(uid: string, consumptions: Consumption[]):
   const col = userConsumptionsCollection(uid);
 
   for (let index = 0; index < consumptions.length; index += 450) {
-    const batch = writeBatch(col.firestore);
     const chunk = consumptions.slice(index, index + 450);
-
-    for (const consumption of chunk) {
-      batch.set(doc(col, consumption.id), toFirestoreConsumption(consumption), { merge: true });
-    }
-
-    await batch.commit();
+    await Promise.all(
+      chunk.map((consumption) =>
+        setDoc(doc(col, consumption.id), toFirestoreConsumption(consumption), { merge: true })
+      )
+    );
   }
 }
 
 export async function cloudUpdate(uid: string, consumption: Consumption): Promise<void> {
-  const col = userConsumptionsCollection(uid);
-  await updateDoc(doc(col, consumption.id), { ...toFirestoreConsumption(consumption) });
-}
-
-export async function cloudDelete(uid: string, id: string): Promise<void> {
-  const col = userConsumptionsCollection(uid);
-  await deleteDoc(doc(col, id));
+  await cloudSave(uid, consumption);
 }
 
 export async function cloudClearAll(uid: string): Promise<void> {
-  const col = userConsumptionsCollection(uid);
+  const snapshot = await cloudGetSnapshot(uid);
+  const timestamp = new Date().toISOString();
+  const tombstones = snapshot.map((consumption) =>
+    normalizeConsumptionRecord({
+      ...consumption,
+      updatedAt: timestamp,
+      deletedAt: timestamp,
+    })
+  );
 
-  while (true) {
-    const snap = await getDocs(query(col, orderBy("date", "desc"), limit(500)));
-    if (snap.empty) return;
-
-    const batch = writeBatch(col.firestore);
-    for (const d of snap.docs) {
-      batch.delete(d.ref);
-    }
-    await batch.commit();
-  }
-}
-
-export function buildCloudTimeFilterConstraints(
-  timeFilter: "all" | "today" | "week" | "month" | "year"
-): QueryConstraint[] {
-  if (timeFilter === "all") return [];
-
-  const now = new Date();
-  if (timeFilter === "today") {
-    const start = new Date(now);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(now);
-    end.setHours(23, 59, 59, 999);
-    return [where("date", ">=", start.toISOString()), where("date", "<=", end.toISOString())];
-  }
-
-  if (timeFilter === "week") {
-    const weekAgo = new Date(now);
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    return [where("date", ">=", weekAgo.toISOString())];
-  }
-
-  if (timeFilter === "month") {
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    return [where("date", ">=", monthStart.toISOString())];
-  }
-
-  const yearStart = new Date(now.getFullYear(), 0, 1);
-  return [where("date", ">=", yearStart.toISOString())];
+  await cloudUpsertMany(uid, tombstones);
 }
 
 export async function cloudGetAllFiltered(
@@ -194,19 +148,45 @@ export async function cloudGetAllFiltered(
   sortBy: "date" | "amount" = "date",
   sortOrder: "ASC" | "DESC" = "DESC"
 ): Promise<Consumption[]> {
-  const col = userConsumptionsCollection(uid);
-  const constraints: QueryConstraint[] = [
-    ...buildCloudTimeFilterConstraints(timeFilter),
-    orderBy(sortBy, sortOrder === "ASC" ? "asc" : "desc"),
-  ];
+  const activeConsumptions = await cloudGetAll(uid);
+  const now = new Date();
 
-  let snap;
-  try {
-    snap = await getDocs(query(col, ...constraints));
-  } catch {
-    // Most common failure is missing indexes; date ordering is usually available.
-    snap = await getDocs(query(col, ...buildCloudTimeFilterConstraints(timeFilter), orderBy("date", "desc")));
-  }
+  const filtered = activeConsumptions.filter((consumption) => {
+    const recordDate = new Date(consumption.date);
+    if (timeFilter === "all") {
+      return true;
+    }
 
-  return snap.docs.map((d) => d.data() as Consumption);
+    if (timeFilter === "today") {
+      const start = new Date(now);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(now);
+      end.setHours(23, 59, 59, 999);
+      return recordDate >= start && recordDate <= end;
+    }
+
+    if (timeFilter === "week") {
+      const weekAgo = new Date(now);
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return recordDate >= weekAgo;
+    }
+
+    if (timeFilter === "month") {
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      return recordDate >= monthStart;
+    }
+
+    const yearStart = new Date(now.getFullYear(), 0, 1);
+    return recordDate >= yearStart;
+  });
+
+  return filtered.sort((left, right) => {
+    if (sortBy === "amount") {
+      return sortOrder === "DESC" ? right.amount - left.amount : left.amount - right.amount;
+    }
+
+    return sortOrder === "DESC"
+      ? sortByDateDesc(left, right)
+      : left.date.localeCompare(right.date);
+  });
 }

@@ -2,7 +2,7 @@ import { GlassContainer } from "@/components/GlassContainer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
-import { Consumption, ConsumptionType } from "@/types/consumption";
+import { ConsumptionDraft, ConsumptionType } from "@/types/consumption";
 import { TYPING_FEEDBACK_DELAY } from "@/utils/constants";
 import { formatAmountInput, parseAmountInput } from "@/utils/formatting";
 import {
@@ -35,7 +35,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 interface ConsumptionFormProps {
-  onSubmit: (consumption: Omit<Consumption, "id" | "date">) => void;
+  onSubmit: (consumption: ConsumptionDraft) => void;
 }
 
 export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {

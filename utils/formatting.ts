@@ -1,6 +1,7 @@
 /**
  * Utility functions for formatting dates, currency, and other display values
  */
+import { toDisplayDate } from "./date-utils";
 
 export type ResolvedLanguage = "en" | "zh" | "es" | "fr" | "de" | "ja";
 
@@ -35,7 +36,7 @@ export const formatDate = (
   todayLabel: string,
   yesterdayLabel: string
 ): string => {
-  const date = new Date(dateString);
+  const date = toDisplayDate(dateString);
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
@@ -57,7 +58,7 @@ export const formatDate = (
  * Format time based on language
  */
 export const formatTime = (dateString: string, language: ResolvedLanguage): string => {
-  const date = new Date(dateString);
+  const date = toDisplayDate(dateString);
   return date.toLocaleTimeString(LOCALE_MAP[language] || "en-US", {
     hour: "2-digit",
     minute: "2-digit",
@@ -73,7 +74,7 @@ export const formatGroupedDate = (
   todayLabel: string,
   yesterdayLabel: string
 ): string => {
-  const date = new Date(dateString);
+  const date = toDisplayDate(dateString);
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
@@ -99,7 +100,7 @@ export const formatMonthLabel = (
   dateString: string,
   language: ResolvedLanguage
 ): string => {
-  const date = new Date(dateString);
+  const date = toDisplayDate(dateString);
   return date.toLocaleDateString(LOCALE_MAP[language] || "en-US", {
     month: "long",
     year: "numeric",

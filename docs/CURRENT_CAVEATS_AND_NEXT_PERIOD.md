@@ -1,6 +1,6 @@
 # Current caveats and next development period
 
-Last updated: 2026-04-16
+Last updated: 2026-04-27
 
 This document describes the **actual current state** of the codebase, the main caveats that still exist, and a recommended plan for the next development period.
 
@@ -54,15 +54,19 @@ There is no native iOS / Android speech recognition implementation yet.
 ### 2.2 Cloud sync caveats
 
 - Cloud sync only activates when **signed in + Pro**.
-- Sync writes to Firestore and then refreshes the local SQLite cache.
-- Current sync behavior is functional but basic:
-  - no background sync queue
-  - no retry/backoff policy
-  - no explicit conflict resolution strategy
-  - no tombstone / soft-delete model
+- Local writes remain device-first, with sync metadata tracked in SQLite.
+- Current sync behavior now includes:
+  - per-record sync queue persisted in SQLite
+  - `createdAt` / `updatedAt` / `deletedAt` metadata for merge clarity
+  - tombstone-based deletes instead of destructive cloud clears
+  - last-write-wins snapshot merge on initialization and manual sync
+  - manual recovery actions in Settings (`push` / `pull`)
+- Remaining caveats:
   - no real-time Firestore listener
-- When cloud mode is active, a failed cloud write currently fails the save path instead of falling back to a queued local write.
-- Current initialization uploads all local rows to cloud and then refreshes the local cache. This is acceptable for an early version, but it is not a robust multi-device sync model yet.
+  - no retry/backoff scheduler outside the active app session
+  - no explicit user-facing conflict history beyond the last-write-wins policy
+  - no higher-level multi-device integration test coverage yet
+- When cloud mode is active, a failed cloud write keeps the local change queued for the next sync attempt.
 
 ### 2.3 IAP / Pro caveats
 
@@ -82,10 +86,9 @@ There is no native iOS / Android speech recognition implementation yet.
 
 ### 2.5 Quality / operations caveats
 
-- There is no automated test suite yet.
-- There is no CI pipeline in the repo yet.
-- There is no crash reporting service wired up yet.
-- Logger and error boundary are prepared for future monitoring integration, but they only log locally today.
+- Lint, typecheck, and baseline unit tests now exist and can run in GitHub Actions.
+- Sentry crash reporting is wired in, but it still depends on production env/setup (`EXPO_PUBLIC_SENTRY_DSN`, plus optional build-time Sentry envs for symbol uploads).
+- The automated coverage is still focused on shared utilities and repo safety checks, not native end-to-end flows.
 - There is no analytics or product instrumentation plan wired into the app yet.
 
 ### 2.6 Documentation caveats
@@ -137,17 +140,18 @@ Goal:
 
 Recommended work:
 
-1. Add `createdAt`, `updatedAt`, and optional `deletedAt` fields for sync clarity.
-2. Define and document a conflict policy, likely last-write-wins for the near term.
-3. Add a pending local sync queue or retry mechanism for cloud-enabled users.
+1. Validate the current last-write-wins policy on real two-device scenarios and document user-visible expectations.
+2. Add retry/backoff behavior that can resume queued sync safely across app restarts and flaky connectivity.
+3. Add optional real-time or foreground refresh behavior so cross-device updates appear faster.
 4. Separate:
    - local cache writes
    - cloud sync state
    - sync error reporting
-5. Add manual recovery tools in Settings:
-   - push local to cloud
-   - pull cloud to local
-   - inspect sync status
+5. Expand automated coverage around:
+   - merge behavior
+   - queue processing
+   - tombstone deletes
+   - manual push/pull recovery flows
 
 Acceptance criteria:
 

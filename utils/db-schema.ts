@@ -27,7 +27,10 @@ export async function initializeSchema(): Promise<void> {
       description TEXT NOT NULL,
       type TEXT NOT NULL DEFAULT 'expense',
       category TEXT,
-      date TEXT NOT NULL
+      date TEXT NOT NULL,
+      createdAt TEXT,
+      updatedAt TEXT,
+      deletedAt TEXT
     )
   `);
 
@@ -38,6 +41,31 @@ export async function initializeSchema(): Promise<void> {
     // Column might already exist, ignore error
     // This is expected if the column already exists
   }
+
+  try {
+    await run(`ALTER TABLE consumptions ADD COLUMN createdAt TEXT`);
+  } catch {
+    // Column might already exist, ignore error
+  }
+
+  try {
+    await run(`ALTER TABLE consumptions ADD COLUMN updatedAt TEXT`);
+  } catch {
+    // Column might already exist, ignore error
+  }
+
+  try {
+    await run(`ALTER TABLE consumptions ADD COLUMN deletedAt TEXT`);
+  } catch {
+    // Column might already exist, ignore error
+  }
+
+  await run(`
+    UPDATE consumptions
+    SET createdAt = COALESCE(createdAt, date),
+        updatedAt = COALESCE(updatedAt, createdAt, date)
+    WHERE createdAt IS NULL OR updatedAt IS NULL
+  `);
 
   // Create indexes for better query performance
   await run(`
@@ -55,12 +83,37 @@ export async function initializeSchema(): Promise<void> {
     ON consumptions(category)
   `);
 
+  await run(`
+    CREATE INDEX IF NOT EXISTS idx_consumptions_deletedAt
+    ON consumptions(deletedAt)
+  `);
+
   // Create metadata table for tracking migrations and version
   await run(`
     CREATE TABLE IF NOT EXISTS db_metadata (
       key TEXT PRIMARY KEY NOT NULL,
       value TEXT NOT NULL
     )
+  `);
+
+  await run(`
+    CREATE TABLE IF NOT EXISTS sync_queue (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      uid TEXT NOT NULL,
+      consumptionId TEXT NOT NULL,
+      payload TEXT NOT NULL,
+      createdAt TEXT NOT NULL
+    )
+  `);
+
+  await run(`
+    CREATE INDEX IF NOT EXISTS idx_sync_queue_uid_createdAt
+    ON sync_queue(uid, createdAt)
+  `);
+
+  await run(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_sync_queue_uid_consumptionId
+    ON sync_queue(uid, consumptionId)
   `);
 }
 
@@ -125,8 +178,8 @@ export async function migrateFromAsyncStorage(): Promise<void> {
     await transaction(
       consumptions.map((consumption) => async (runInTransaction) => {
         await runInTransaction(
-          `INSERT OR IGNORE INTO consumptions (id, amount, description, type, category, date) 
-           VALUES (?, ?, ?, ?, ?, ?)`,
+          `INSERT OR IGNORE INTO consumptions (id, amount, description, type, category, date, createdAt, updatedAt, deletedAt) 
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             consumption.id,
             consumption.amount,
@@ -134,6 +187,9 @@ export async function migrateFromAsyncStorage(): Promise<void> {
             consumption.type || 'expense',
             consumption.category || null,
             consumption.date,
+            consumption.createdAt || consumption.date,
+            consumption.updatedAt || consumption.createdAt || consumption.date,
+            consumption.deletedAt || null,
           ]
         );
       })

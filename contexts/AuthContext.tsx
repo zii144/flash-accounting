@@ -3,6 +3,7 @@ import type { AuthCredential, User } from "firebase/auth";
 import { onAuthStateChanged, signInWithCredential, signOut as firebaseSignOut } from "firebase/auth";
 import { getFirebase } from "@/utils/firebase";
 import { logger } from "@/utils/logger";
+import { setMonitoringUser } from "@/utils/monitoring";
 
 type AuthContextValue = {
   user: User | null;
@@ -23,6 +24,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsub = onAuthStateChanged(services.auth, (nextUser) => setUser(nextUser));
     return () => unsub();
   }, [services]);
+
+  useEffect(() => {
+    setMonitoringUser(
+      user
+        ? {
+            id: user.uid,
+            email: user.email,
+            username: user.displayName,
+          }
+        : null
+    );
+  }, [user]);
 
   const value = useMemo<AuthContextValue>(() => {
     return {
@@ -57,4 +70,3 @@ export function useAuth(): AuthContextValue {
   }
   return ctx;
 }
-

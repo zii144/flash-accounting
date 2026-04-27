@@ -2,6 +2,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
+import { buildConsumptionsCsv } from "@/utils/export";
+import { LOCALE_MAP } from "@/utils/formatting";
 import { logger } from "@/utils/logger";
 import { Ionicons } from "@expo/vector-icons";
 import { File, Paths } from "expo-file-system";
@@ -30,7 +32,7 @@ export function SettingsModal({
   consumptions,
 }: SettingsModalProps) {
   const { theme } = useTheme();
-  const { language, setLanguage, t } = useLanguage();
+  const { language, resolvedLanguage, setLanguage, t } = useLanguage();
   const { clearAll, getAllForExport } = useConsumptionStorage();
   const [isExporting, setIsExporting] = useState(false);
 
@@ -57,18 +59,10 @@ export function SettingsModal({
         return;
       }
 
-      // Create CSV content with proper escaping
-      const headers = ["Date", "Amount", "Description", "Category"];
-      const rows = allConsumptions.map((c) => {
-        const date = new Date(c.date).toLocaleString();
-        const amount = c.amount.toFixed(2);
-        // Escape quotes in CSV format
-        const description = (c.description || "").replace(/"/g, '""');
-        const category = (c.category || "").replace(/"/g, '""');
-        return `"${date}","${amount}","${description}","${category}"`;
-      });
-
-      const csvContent = [headers.join(","), ...rows].join("\n");
+      const csvContent = buildConsumptionsCsv(
+        allConsumptions,
+        LOCALE_MAP[resolvedLanguage] ?? "en-US"
+      );
 
       // Create file with timestamp
       const timestamp = new Date().toISOString().split("T")[0];
@@ -99,7 +93,7 @@ export function SettingsModal({
     } finally {
       setIsExporting(false);
     }
-  }, [getAllForExport, t]);
+  }, [getAllForExport, resolvedLanguage, t]);
 
   const handleClearHistory = useCallback(() => {
     Alert.alert(

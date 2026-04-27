@@ -215,9 +215,8 @@ export function StatisticsView() {
         if (!cancelled) {
           const formatted = result.data.map((group) => {
             if (viewMode === "day") {
-              const date = new Date(group.date);
               const dateLabel = formatGroupedDate(
-                date.toDateString(),
+                group.date,
                 resolvedLanguage,
                 t("today_label"),
                 t("yesterday")
@@ -225,25 +224,14 @@ export function StatisticsView() {
               return {
                 ...group,
                 dateLabel,
-                consumptions: group.consumptions.map((c) => ({
-                  ...c,
-                  category: c.category,
-                })) as Consumption[],
-              };
-            } else {
-              const dateLabel = formatMonthLabel(
-                group.consumptions[0]?.date || group.date,
-                resolvedLanguage
-              );
-              return {
-                ...group,
-                dateLabel,
-                consumptions: group.consumptions.map((c) => ({
-                  ...c,
-                  category: c.category,
-                })) as Consumption[],
               };
             }
+
+            const dateLabel = formatMonthLabel(group.date, resolvedLanguage);
+            return {
+              ...group,
+              dateLabel,
+            };
           });
 
           if (append) {

@@ -7,8 +7,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { usePro } from "@/contexts/ProContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
-import { Consumption } from "@/types/consumption";
+import { useConsumptionStats } from "@/hooks/useConsumptionStats";
+import { Consumption, ConsumptionDraft } from "@/types/consumption";
 import { isAppErrorCode } from "@/utils/app-error";
+import { createConsumptionRecord } from "@/utils/consumption-record";
 import { FREE_LOCAL_RECORD_LIMIT } from "@/utils/constants";
 import { formatCurrency } from "@/utils/formatting";
 import { logger } from "@/utils/logger";
@@ -36,6 +38,7 @@ const PAGE_SIZE = 5;
 export function AccountingScreen() {
   const { theme } = useTheme();
   const { t } = useLanguage();
+  const { getStats } = useConsumptionStats();
   const { isFirebaseReady, isSignedIn } = useAuth();
   const { isConfigured: isPurchaseConfigured } = usePro();
   const {
@@ -50,6 +53,7 @@ export function AccountingScreen() {
   const [editingConsumption, setEditingConsumption] = useState<Consumption | null>(null);
   const [page, setPage] = useState(1);
   const [paginatedData, setPaginatedData] = useState<Consumption[]>([]);
+  const [ledgerNetTotal, setLedgerNetTotal] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const prevTotalCountRef = useRef<number>(0);
@@ -125,14 +129,37 @@ export function AccountingScreen() {
     }, [isLoading])
   );
 
-  const handleSubmit = useCallback(
-    async (data: Omit<Consumption, "id" | "date">) => {
+  useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void (async () => {
       try {
-        const consumption: Consumption = {
+        const stats = await getStats("all");
+        if (!cancelled) {
+          setLedgerNetTotal(stats.netTotal);
+        }
+      } catch (error) {
+        logger.error("Failed to load ledger total", error);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [getStats, isLoading, totalCount]);
+
+  const handleSubmit = useCallback(
+    async (data: ConsumptionDraft) => {
+      try {
+        const consumption = createConsumptionRecord({
           ...data,
           id: `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
           date: new Date().toISOString(),
-        };
+        });
         await saveConsumption(consumption);
       } catch (error) {
         if (isAppErrorCode(error, "LOCAL_LIMIT_REACHED")) {
@@ -159,10 +186,10 @@ export function AccountingScreen() {
     [canUnlockCloudStorage, saveConsumption, t]
   );
 
-  const totalAmount = useMemo(
-    () => paginatedData.reduce((sum, consumption) => sum + consumption.amount, 0),
-    [paginatedData]
-  );
+  const totalAmount = useMemo(() => {
+    const sign = ledgerNetTotal < 0 ? "-" : "";
+    return `${sign}$${formatCurrency(Math.abs(ledgerNetTotal), 2)}`;
+  }, [ledgerNetTotal]);
 
   const fadeGradientColors = useMemo(() => {
     if (theme.isDark) {
@@ -263,7 +290,7 @@ export function AccountingScreen() {
           </TouchableOpacity>
         </View>
         <Text style={[styles.total, { color: theme.textSecondary }]}>
-          {t("total")}: ${formatCurrency(totalAmount, 2)}
+          {t("total")}: {totalAmount}
         </Text>
       </View>
 

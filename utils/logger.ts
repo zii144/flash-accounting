@@ -4,6 +4,7 @@
  * In production, logs are only shown in __DEV__ mode
  * Can be extended to send logs to a remote service
  */
+import { captureMonitoringException, captureMonitoringMessage } from "./monitoring";
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -39,8 +40,7 @@ class Logger {
     if (this.isDevelopment) {
       console.warn(`[WARN] ${message}`, context || '');
     }
-    // In production, you could send warnings to a monitoring service
-    // Example: Sentry.captureMessage(message, { level: 'warning', extra: context });
+    captureMonitoringMessage(message, 'warning', context);
   }
 
   /**
@@ -53,9 +53,12 @@ class Logger {
     if (this.isDevelopment) {
       console.error(`[ERROR] ${fullMessage}`, context || '', error || '');
     }
+    if (error instanceof Error) {
+      captureMonitoringException(error, { message, ...context });
+      return;
+    }
 
-    // In production, send to error tracking service
-    // Example: Sentry.captureException(error, { extra: { message, ...context } });
+    captureMonitoringMessage(fullMessage, 'error', context);
   }
 
   /**

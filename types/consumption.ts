@@ -7,6 +7,14 @@ export interface Consumption {
   type: ConsumptionType;
   category?: string;
   date: string; // ISO date string
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
 }
+
+export type ConsumptionDraft = Omit<
+  Consumption,
+  "id" | "date" | "createdAt" | "updatedAt" | "deletedAt"
+>;
 
 export type ConsumptionCategory = 'food' | 'transport' | 'entertainment' | 'shopping' | 'bills' | 'other';
