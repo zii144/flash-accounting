@@ -1,35 +1,34 @@
 import { ConsumptionForm } from "@/components/ConsumptionForm";
 import { ConsumptionItem } from "@/components/ConsumptionItem";
 import { EditConsumptionModal } from "@/components/EditConsumptionModal";
-import { GlassContainer } from "@/components/GlassContainer";
+import { GlassIconButton } from "@/components/glass-icon-button";
+import { SymbolIcon } from "@/components/symbol-icon";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePro } from "@/contexts/ProContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { useConsumptionStats } from "@/hooks/useConsumptionStats";
+import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption, ConsumptionDraft } from "@/types/consumption";
 import { isAppErrorCode } from "@/utils/app-error";
-import { createConsumptionRecord } from "@/utils/consumption-record";
 import { FREE_LOCAL_RECORD_LIMIT } from "@/utils/constants";
+import { createConsumptionRecord } from "@/utils/consumption-record";
 import { formatCurrency } from "@/utils/formatting";
 import { logger } from "@/utils/logger";
-import { useFocusEffect } from "expo-router/react-navigation";
-import { router } from "expo-router";
-import { SymbolIcon } from "@/components/symbol-icon";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { router } from "expo-router";
+import { useFocusEffect } from "expo-router/react-navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Alert,
-  FlatList,
-  ListRenderItem,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    FlatList,
+    ListRenderItem,
+    Platform,
+    StatusBar,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -283,13 +282,18 @@ export function AccountingScreen() {
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={[styles.title, { color: theme.text }]}>{t("flashAccounting")}</Text>
-          <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>
-            <GlassContainer intensity="medium" style={styles.settingsGlass}>
-              <SymbolIcon name="settings" size={20} color={theme.text} />
-            </GlassContainer>
-          </TouchableOpacity>
+          <GlassIconButton
+            size={40}
+            onPress={handleSettingsPress}
+            accessibilityLabel={t("settings")}
+          >
+            <SymbolIcon name="settings" size={20} color={theme.text} />
+          </GlassIconButton>
         </View>
-        <Text style={[styles.total, { color: theme.textSecondary }]}>
+        <Text
+          selectable
+          style={[styles.total, { color: theme.textSecondary, fontVariant: ["tabular-nums"] }]}
+        >
           {t("total")}: {totalAmount}
         </Text>
       </View>
@@ -310,8 +314,8 @@ export function AccountingScreen() {
           initialNumToRender={10}
           windowSize={10}
           getItemLayout={(_, index) => ({
-            length: 72,
-            offset: 72 * index,
+            length: 88,
+            offset: 88 * index,
             index,
           })}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
@@ -368,16 +372,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: -0.5,
     flex: 1,
-  },
-  settingsButton: {
-    marginLeft: 12,
-  },
-  settingsGlass: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
   },
   total: {
     fontSize: 18,

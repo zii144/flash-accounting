@@ -1,11 +1,12 @@
 import { GlassContainer } from "@/components/GlassContainer";
+import { GlassIconButton } from "@/components/glass-icon-button";
+import { SymbolIcon } from "@/components/symbol-icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Consumption } from "@/types/consumption";
 import { formatCurrency, formatDate, formatTime } from "@/utils/formatting";
-import { SymbolIcon } from "@/components/symbol-icon";
 import React, { memo, useCallback } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
   FadeInDown,
   FadeOutUp,
@@ -13,10 +14,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  withTiming,
 } from "react-native-reanimated";
-
-const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 interface ConsumptionItemProps {
   consumption: Consumption;
@@ -29,21 +27,10 @@ function ConsumptionItemComponent({
 }: ConsumptionItemProps) {
   const { theme } = useTheme();
   const { resolvedLanguage, t } = useLanguage();
-  const [isPressed, setIsPressed] = React.useState(false);
   const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
-
-  React.useEffect(() => {
-    scale.value = withSpring(isPressed ? 0.98 : 1, {
-      damping: 25,
-      stiffness: 200,
-    });
-    opacity.value = withTiming(isPressed ? 0.9 : 1, { duration: 100 });
-  }, [isPressed, scale, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
-    opacity: opacity.value,
   }));
 
   const handleEdit = useCallback(() => {
@@ -71,57 +58,47 @@ function ConsumptionItemComponent({
       style={styles.outerContainer}
     >
       <Animated.View style={animatedStyle}>
-        <AnimatedTouchable
-          onPressIn={() => setIsPressed(true)}
-          onPressOut={() => setIsPressed(false)}
-          activeOpacity={1}
+        <Pressable
+          onPressIn={() => {
+            scale.value = withSpring(0.985, { damping: 22, stiffness: 280 });
+          }}
+          onPressOut={() => {
+            scale.value = withSpring(1, { damping: 20, stiffness: 240 });
+          }}
           style={styles.wrapper}
         >
-          <GlassContainer intensity="light" style={styles.container}>
+          <GlassContainer intensity="medium" style={styles.container}>
             <View style={styles.content}>
               <View style={styles.mainInfo}>
                 <View style={styles.amountRow}>
-                  <Text style={[styles.amount, { color: theme.text }]}>
+                  <Text
+                    selectable
+                    style={[styles.amount, { color: theme.text, fontVariant: ["tabular-nums"] }]}
+                  >
                     {consumption.type === "income" ? "+" : "-"}
                     ${formatCurrency(consumption.amount, 2)}
                   </Text>
-                  <View
-                    style={[
-                      styles.typeBadge,
-                      {
-                        backgroundColor:
+                  <GlassContainer intensity="clear" style={styles.typeBadge}>
+                    <View style={styles.typeBadgeContent}>
+                      <SymbolIcon
+                        name={
                           consumption.type === "income"
-                            ? theme.isDark
-                              ? "rgba(255, 255, 255, 0.15)"
-                              : "rgba(0, 0, 0, 0.08)"
-                            : "transparent",
-                        borderWidth: consumption.type === "expense" ? 1 : 0,
-                        borderColor: theme.border,
-                      },
-                    ]}
-                  >
-                    <SymbolIcon
-                      name={
-                        consumption.type === "income"
-                          ? "arrow-up-outline"
-                          : "arrow-down-outline"
-                      }
-                      size={12}
-                      color={theme.textSecondary}
-                    />
-                    <Text
-                      style={[
-                        styles.typeText,
-                        { color: theme.textSecondary },
-                      ]}
-                    >
-                      {consumption.type === "income"
-                        ? t("income")
-                        : t("expense")}
-                    </Text>
-                  </View>
+                            ? "arrow-up-outline"
+                            : "arrow-down-outline"
+                        }
+                        size={12}
+                        color={theme.textSecondary}
+                      />
+                      <Text
+                        style={[styles.typeText, { color: theme.textSecondary }]}
+                      >
+                        {consumption.type === "income" ? t("income") : t("expense")}
+                      </Text>
+                    </View>
+                  </GlassContainer>
                 </View>
                 <Text
+                  selectable
                   style={[styles.description, { color: theme.textSecondary }]}
                 >
                   {displayDescription}
@@ -131,22 +108,24 @@ function ConsumptionItemComponent({
                 <Text style={[styles.date, { color: theme.textSecondary }]}>
                   {displayDate}
                 </Text>
-                <Text style={[styles.time, { color: theme.textSecondary }]}>
+                <Text
+                  selectable
+                  style={[styles.time, { color: theme.textSecondary, fontVariant: ["tabular-nums"] }]}
+                >
                   {displayTime}
                 </Text>
               </View>
             </View>
-            <View style={styles.actionButtons}>
-              <TouchableOpacity
-                onPress={handleEdit}
-                style={[styles.actionButton, { backgroundColor: theme.border }]}
-                activeOpacity={0.7}
-              >
-                <SymbolIcon name="pencil" size={16} color={theme.text} />
-              </TouchableOpacity>
-            </View>
+            <GlassIconButton
+              size={34}
+              onPress={handleEdit}
+              accessibilityLabel={t("editConsumption") || "Edit"}
+              style={styles.editButton}
+            >
+              <SymbolIcon name="pencil" size={16} color={theme.text} />
+            </GlassIconButton>
           </GlassContainer>
-        </AnimatedTouchable>
+        </Pressable>
       </Animated.View>
     </Animated.View>
   );
@@ -155,7 +134,7 @@ function ConsumptionItemComponent({
 const styles = StyleSheet.create({
   outerContainer: {
     marginHorizontal: 16,
-    marginVertical: 8,
+    marginVertical: 6,
   },
   wrapper: {
     width: "100%",
@@ -163,10 +142,11 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 16,
-    borderWidth: 0,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    borderCurve: "continuous",
+    gap: 12,
   },
   content: {
     flex: 1,
@@ -188,25 +168,29 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   typeBadge: {
+    borderRadius: 999,
+    borderCurve: "continuous",
+    overflow: "hidden",
+  },
+  typeBadgeContent: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 8,
   },
   typeText: {
     fontSize: 11,
-    fontWeight: "500",
+    fontWeight: "600",
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 0.4,
   },
   description: {
     fontSize: 14,
   },
   meta: {
     alignItems: "flex-end",
-    marginLeft: 16,
+    marginLeft: 12,
   },
   date: {
     fontSize: 13,
@@ -215,18 +199,8 @@ const styles = StyleSheet.create({
   time: {
     fontSize: 12,
   },
-  actionButtons: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginLeft: 12,
-  },
-  actionButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
+  editButton: {
+    flexShrink: 0,
   },
 });
 

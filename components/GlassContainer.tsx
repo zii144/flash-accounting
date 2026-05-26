@@ -1,130 +1,184 @@
 import { useTheme } from "@/contexts/ThemeContext";
+import { BlurView } from "expo-blur";
 import {
   GlassView,
   isGlassEffectAPIAvailable,
   isLiquidGlassAvailable,
 } from "expo-glass-effect";
 import React from "react";
-import { Platform, StyleSheet, ViewStyle } from "react-native";
+import { StyleSheet, View, type ViewStyle } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
 
+export type GlassIntensity = "clear" | "light" | "medium" | "heavy";
+
 interface GlassContainerProps {
   children: React.ReactNode;
   style?: ViewStyle;
-  intensity?: "light" | "medium" | "heavy";
+  intensity?: GlassIntensity;
+  interactive?: boolean;
   animated?: boolean;
+}
+
+function getGlassEffectStyle(intensity: GlassIntensity) {
+  return intensity === "clear" || intensity === "light" ? "clear" : "regular";
+}
+
+function getBlurTint(intensity: GlassIntensity) {
+  switch (intensity) {
+    case "clear":
+    case "light":
+      return "systemUltraThinMaterial" as const;
+    case "heavy":
+      return "systemThickMaterial" as const;
+    default:
+      return "systemMaterial" as const;
+  }
+}
+
+function getBlurIntensity(intensity: GlassIntensity) {
+  switch (intensity) {
+    case "clear":
+      return 35;
+    case "light":
+      return 45;
+    case "heavy":
+      return 90;
+    default:
+      return 70;
+  }
+}
+
+function isNativeGlassAvailable() {
+  if (process.env.EXPO_OS !== "ios") {
+    return false;
+  }
+
+  try {
+    return isLiquidGlassAvailable() && isGlassEffectAPIAvailable();
+  } catch {
+    return false;
+  }
+}
+
+function resolveBorderRadius(style?: ViewStyle) {
+  return typeof style?.borderRadius === "number" ? style.borderRadius : 16;
 }
 
 export function GlassContainer({
   children,
   style,
   intensity = "medium",
+  interactive = false,
   animated = false,
 }: GlassContainerProps) {
   const { theme } = useTheme();
-  const scale = useSharedValue(animated ? 0.95 : 1);
-  const [isAnimationComplete, setIsAnimationComplete] =
-    React.useState(!animated);
+  const scale = useSharedValue(animated ? 0.98 : 1);
+  const [isAnimationComplete, setIsAnimationComplete] = React.useState(!animated);
+  const glassAvailable = React.useMemo(() => isNativeGlassAvailable(), []);
 
   React.useEffect(() => {
-    if (animated) {
-      scale.value = withSpring(
-        1,
-        {
-          damping: 15,
-          stiffness: 150,
-        },
-        (finished) => {
-          if (finished) {
-            setIsAnimationComplete(true);
-          }
-        },
-      );
+    if (!animated) {
+      return;
     }
+
+    scale.value = withSpring(
+      1,
+      {
+        damping: 15,
+        stiffness: 150,
+      },
+      (finished) => {
+        if (finished) {
+          setIsAnimationComplete(true);
+        }
+      },
+    );
   }, [animated, scale]);
 
-  // On iOS 26+, use native Liquid Glass effect
-  // On other platforms, fallback to semi-transparent background
-  const [isAvailable, setIsAvailable] = React.useState(false);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
-  React.useEffect(() => {
-    if (Platform.OS === "ios") {
-      try {
-        // Check both compile-time availability and runtime API availability
-        // This prevents crashes on iOS 26.2 where the API might not be available
-        const compileTimeAvailable = isLiquidGlassAvailable();
-        const runtimeAvailable = isGlassEffectAPIAvailable();
-        setIsAvailable(compileTimeAvailable && runtimeAvailable);
-      } catch {
-        setIsAvailable(false);
-      }
-    }
-  }, []);
+  const borderRadius = resolveBorderRadius(style);
+  const clipStyle = {
+    borderRadius,
+    borderCurve: "continuous" as const,
+    overflow: "hidden" as const,
+  };
+  const shellStyle = [clipStyle, style];
 
-  // Map our intensity prop to GlassView's style prop
-  // 'clear' for light, 'regular' for medium/heavy
-  const glassEffectStyle = intensity === "light" ? "clear" : "regular";
-
-  // Use GlassView only if available AND animation is complete (or not animated)
-  // This prevents opacity < 1 on GlassView which causes rendering issues
-  const shouldUseGlassView = isAvailable && isAnimationComplete;
-
-  // For GlassView, we can't use opacity < 1, so only animate scale
-  // Never apply opacity to GlassView or its parent (per Expo docs)
-  const glassAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-    };
-  });
-
-  // Fallback for other platforms or during animation
-  const fallbackAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-    };
-  });
+  const shouldUseGlassView = glassAvailable && isAnimationComplete;
 
   if (shouldUseGlassView) {
     return (
-      <Animated.View style={glassAnimatedStyle}>
-        <GlassView
-          glassEffectStyle={glassEffectStyle}
-          style={[styles.glassContainer, style]}
-          isInteractive={false}
-        >
-          {children}
-        </GlassView>
+      <Animated.View style={animated ? animatedStyle : undefined}>
+        <View style={clipStyle} collapsable={false}>
+          <GlassView
+            glassEffectStyle={getGlassEffectStyle(intensity)}
+            isInteractive={interactive}
+            colorScheme={theme.isDark ? "dark" : "light"}
+            style={shellStyle}
+          >
+            {children}
+          </GlassView>
+        </View>
+      </Animated.View>
+    );
+  }
+
+  if (process.env.EXPO_OS === "ios" || process.env.EXPO_OS === "web") {
+    return (
+      <Animated.View style={animated ? animatedStyle : undefined}>
+        <View style={[shellStyle, styles.blurShell]} collapsable={false}>
+          <BlurView
+            tint={getBlurTint(intensity)}
+            intensity={getBlurIntensity(intensity)}
+            style={[StyleSheet.absoluteFill, { borderRadius }]}
+          />
+          <View style={styles.blurContent}>{children}</View>
+        </View>
       </Animated.View>
     );
   }
 
   const fallbackBackgroundColor = theme.isDark
-    ? "rgba(255, 255, 255, 0.05)"
-    : "rgba(0, 0, 0, 0.03)";
+    ? "rgba(255, 255, 255, 0.08)"
+    : "rgba(255, 255, 255, 0.72)";
 
   return (
-    <Animated.View
-      style={[
-        fallbackAnimatedStyle,
-        styles.fallbackContainer,
-        { backgroundColor: fallbackBackgroundColor },
-        style,
-      ]}
-    >
-      {children}
+    <Animated.View style={animated ? animatedStyle : undefined}>
+      <View
+        style={[
+          shellStyle,
+          styles.fallbackShell,
+          {
+            backgroundColor: fallbackBackgroundColor,
+            borderColor: theme.isDark
+              ? "rgba(255, 255, 255, 0.12)"
+              : "rgba(0, 0, 0, 0.06)",
+          },
+        ]}
+        collapsable={false}
+      >
+        {children}
+      </View>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  glassContainer: {
-    overflow: "hidden",
+  blurShell: {
+    position: "relative",
   },
-  fallbackContainer: {
-    overflow: "hidden",
+  blurContent: {
+    position: "relative",
+    zIndex: 1,
+  },
+  fallbackShell: {
+    borderWidth: StyleSheet.hairlineWidth,
   },
 });

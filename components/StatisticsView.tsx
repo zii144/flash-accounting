@@ -1,39 +1,40 @@
 import { EditConsumptionModal } from "@/components/EditConsumptionModal";
 import { GlassContainer } from "@/components/GlassContainer";
+import { GlassIconButton } from "@/components/glass-icon-button";
+import { SymbolIcon } from "@/components/symbol-icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStats } from "@/hooks/useConsumptionStats";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
 import type { AppIconName } from "@/utils/app-icons";
-import { logger } from "@/utils/logger";
-import { useFocusEffect } from "expo-router/react-navigation";
 import {
-  SORT_OPTIONS,
-  TIME_FILTERS,
-  type SortOption,
-  type TimeFilter,
-  type ViewMode,
+    SORT_OPTIONS,
+    TIME_FILTERS,
+    type SortOption,
+    type TimeFilter,
+    type ViewMode,
 } from "@/utils/constants";
 import {
-  formatCurrency,
-  formatGroupedDate,
-  formatMonthLabel,
-  formatTime,
+    formatCurrency,
+    formatGroupedDate,
+    formatMonthLabel,
+    formatTime,
 } from "@/utils/formatting";
-import { router } from "expo-router";
-import { SymbolIcon } from "@/components/symbol-icon";
+import { logger } from "@/utils/logger";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { router } from "expo-router";
+import { useFocusEffect } from "expo-router/react-navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  FlatList,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
+    FlatList,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    useWindowDimensions,
+    View,
 } from "react-native";
 import Animated, { FadeIn, Layout } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -323,14 +324,13 @@ export function StatisticsView() {
         <Text style={[styles.title, { color: theme.text }]}>
           {t("statistics")}
         </Text>
-        <TouchableOpacity
-          style={styles.settingsButton}
+        <GlassIconButton
+          size={40}
           onPress={handleSettingsPress}
+          accessibilityLabel={t("settings")}
         >
-          <GlassContainer intensity="medium" style={styles.settingsGlass}>
-            <SymbolIcon name="settings" size={20} color={theme.text} />
-          </GlassContainer>
-        </TouchableOpacity>
+          <SymbolIcon name="settings" size={20} color={theme.text} />
+        </GlassIconButton>
       </View>
       <View style={styles.listWrapper}>
         <FlatList
@@ -734,16 +734,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
     flex: 1,
   },
-  settingsButton: {
-    marginLeft: 12,
-  },
-  settingsGlass: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   listWrapper: {
     flex: 1,
     position: "relative",
@@ -779,11 +769,12 @@ const styles = StyleSheet.create({
   },
   statCard: {
     width: "100%",
-    height: 100, // Fixed height for all cards - ensures stability
+    height: 100,
     padding: 12,
-    borderRadius: 16,
+    borderRadius: 20,
+    borderCurve: "continuous",
     alignItems: "center",
-    justifyContent: "space-between", // Distribute content evenly
+    justifyContent: "space-between",
   },
   statCardHeader: {
     flexDirection: "row",
