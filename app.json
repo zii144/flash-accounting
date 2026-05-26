@@ -8,6 +8,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/icons/AppIcon.icon",
+      "buildNumber": "6",
       "supportsTablet": true,
       "infoPlist": {
         "NSSpeechRecognitionUsageDescription": "This app needs access to speech recognition to allow you to dictate expense descriptions.",
