@@ -28,7 +28,6 @@ import {
     Text,
     TextInput,
     View,
-    DeviceEventEmitter,
 } from "react-native";
 import Animated, {
     useAnimatedStyle,
@@ -273,27 +272,6 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
     },
     [handleSubmit],
   );
-
-  useEffect(() => {
-    const setFormSubscription = DeviceEventEmitter.addListener(
-      "capture:setForm",
-      (payload: { amount?: string; description?: string }) => {
-        setAmount(payload.amount ?? "");
-        setDescription(payload.description ?? "");
-        setAmountError(null);
-        setDescriptionError(null);
-      }
-    );
-    const submitSubscription = DeviceEventEmitter.addListener(
-      "capture:submitExpense",
-      () => handleSubmit("expense")
-    );
-
-    return () => {
-      setFormSubscription.remove();
-      submitSubscription.remove();
-    };
-  }, [handleSubmit]);
 
   return (
     <KeyboardAvoidingView

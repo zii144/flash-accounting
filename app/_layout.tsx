@@ -1,5 +1,4 @@
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { CaptureAutomation } from "@/components/CaptureAutomation";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ProProvider } from "@/contexts/ProContext";
@@ -38,7 +37,6 @@ export default function RootLayout() {
                       }}
                     />
                   </Stack>
-                  <CaptureAutomation />
                 </ConsumptionStorageProvider>
               </ProProvider>
             </AuthProvider>
