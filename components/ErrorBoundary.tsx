@@ -5,11 +5,12 @@ import { logger } from "@/utils/logger";
 
 // Static fallback theme for error boundary - must be independent of context
 const FALLBACK_THEME = {
-  background: '#FFFFFF',
-  inputBackground: '#F5F5F5',
-  text: '#000000',
-  textSecondary: '#666666',
-  foreground: '#000000',
+  background: "#F2F2F7",
+  surface: "#FFFFFF",
+  inputBackground: "#FFFFFF",
+  text: "#000000",
+  textSecondary: "#636366",
+  foreground: "#000000",
 };
 
 // Static fallback translations for error boundary

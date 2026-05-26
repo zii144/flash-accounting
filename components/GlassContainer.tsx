@@ -147,7 +147,7 @@ export function GlassContainer({
 
   const fallbackBackgroundColor = theme.isDark
     ? "rgba(255, 255, 255, 0.08)"
-    : "rgba(255, 255, 255, 0.72)";
+    : theme.surface;
 
   return (
     <Animated.View style={animated ? animatedStyle : undefined}>
@@ -159,7 +159,8 @@ export function GlassContainer({
             backgroundColor: fallbackBackgroundColor,
             borderColor: theme.isDark
               ? "rgba(255, 255, 255, 0.12)"
-              : "rgba(0, 0, 0, 0.06)",
+              : "rgba(0, 0, 0, 0.08)",
+            ...(theme.isDark ? null : styles.lightFallbackShadow),
           },
         ]}
         collapsable={false}
@@ -180,5 +181,8 @@ const styles = StyleSheet.create({
   },
   fallbackShell: {
     borderWidth: StyleSheet.hairlineWidth,
+  },
+  lightFallbackShadow: {
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)",
   },
 });

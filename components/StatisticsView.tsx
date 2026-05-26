@@ -297,23 +297,7 @@ export function StatisticsView() {
   }, [isLoadingMore, isLoadingStats, hasMore, page]);
 
   // Gradient colors for fade overlay
-  const fadeGradientColors = useMemo(() => {
-    if (theme.isDark) {
-      return [
-        'rgba(0, 0, 0, 0)',
-        'rgba(0, 0, 0, 0.3)',
-        'rgba(0, 0, 0, 0.7)',
-        theme.background,
-      ] as const;
-    } else {
-      return [
-        'rgba(255, 255, 255, 0)',
-        'rgba(255, 255, 255, 0.3)',
-        'rgba(255, 255, 255, 0.7)',
-        theme.background,
-      ] as const;
-    }
-  }, [theme.isDark, theme.background]);
+  const fadeGradientColors = theme.fadeGradient;
 
   return (
     <SafeAreaView
@@ -471,7 +455,7 @@ export function StatisticsView() {
                   viewMode === "day"
                     ? theme.isDark
                       ? "rgba(255, 255, 255, 0.15)"
-                      : "rgba(255, 255, 255, 0.9)"
+                      : theme.surface
                     : "transparent",
               },
             ]}
@@ -498,7 +482,7 @@ export function StatisticsView() {
                   viewMode === "month"
                     ? theme.isDark
                       ? "rgba(255, 255, 255, 0.15)"
-                      : "rgba(255, 255, 255, 0.9)"
+                      : theme.surface
                     : "transparent",
               },
             ]}

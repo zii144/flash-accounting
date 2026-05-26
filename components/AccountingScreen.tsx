@@ -190,23 +190,7 @@ export function AccountingScreen() {
     return `${sign}$${formatCurrency(Math.abs(ledgerNetTotal), 2)}`;
   }, [ledgerNetTotal]);
 
-  const fadeGradientColors = useMemo(() => {
-    if (theme.isDark) {
-      return [
-        "rgba(0, 0, 0, 0)",
-        "rgba(0, 0, 0, 0.3)",
-        "rgba(0, 0, 0, 0.7)",
-        theme.background,
-      ] as const;
-    }
-
-    return [
-      "rgba(255, 255, 255, 0)",
-      "rgba(255, 255, 255, 0.3)",
-      "rgba(255, 255, 255, 0.7)",
-      theme.background,
-    ] as const;
-  }, [theme.background, theme.isDark]);
+  const fadeGradientColors = theme.fadeGradient;
 
   const handleLoadMore = useCallback(() => {
     if (!isLoadingMore && hasMore) {
