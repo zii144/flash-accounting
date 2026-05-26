@@ -1,7 +1,8 @@
 import { GlassContainer } from "@/components/GlassContainer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Ionicons } from "@expo/vector-icons";
+import { SymbolIcon } from "@/components/symbol-icon";
+import type { AppIconName } from "@/utils/app-icons";
 import React, { useEffect, useState } from "react";
 import {
     StyleSheet,
@@ -23,7 +24,7 @@ export interface UpcomingFeaturesBannerProps {
   /** Description or message text */
   message: string;
   /** Custom icon name */
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: AppIconName;
   /** Position of the banner */
   position?: "top" | "bottom";
   /** Auto-dismiss after milliseconds (0 = no auto-dismiss) */
@@ -43,7 +44,7 @@ export interface UpcomingFeaturesBannerProps {
 export function UpcomingFeaturesBanner({
   title,
   message,
-  icon = "sparkles-outline",
+  icon = "sparkles",
   position = "top",
   autoDismissMs = 0,
   style,
@@ -91,7 +92,7 @@ export function UpcomingFeaturesBanner({
       <GlassContainer intensity="medium" style={styles.glassWrapper}>
         <View style={styles.content}>
           <View style={styles.iconContainer}>
-            <Ionicons name={icon} size={24} color={theme.text} />
+            <SymbolIcon name={icon} size={24} color={theme.text} />
           </View>
 
           <View style={styles.textContainer}>

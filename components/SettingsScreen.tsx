@@ -11,7 +11,7 @@ import { LOCALE_MAP } from "@/utils/formatting";
 import { getLanguageOptions } from "@/utils/language-options";
 import { logger } from "@/utils/logger";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { SymbolIcon } from "@/components/symbol-icon";
 import { File, Paths } from "expo-file-system";
 import * as Haptics from "expo-haptics";
 import * as Sharing from "expo-sharing";
@@ -420,7 +420,7 @@ export function SettingsScreen() {
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <GlassContainer intensity="medium" style={styles.headerGlass}>
-            <Ionicons name="chevron-back" size={20} color={theme.text} />
+            <SymbolIcon name="chevron-back" size={20} color={theme.text} />
           </GlassContainer>
         </TouchableOpacity>
         <Text style={[styles.title, { color: theme.text }]}>{t("settings")}</Text>
@@ -451,7 +451,7 @@ export function SettingsScreen() {
                   ]}
                 >
                   <View style={styles.settingLeft}>
-                    <Ionicons name="person-circle-outline" size={22} color={theme.text} />
+                    <SymbolIcon name="person-circle" size={22} color={theme.text} />
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.settingText, { color: theme.text }]}>
                         {isSignedIn ? t("authStatusSignedIn") : t("authStatusSignedOut")}
@@ -479,12 +479,12 @@ export function SettingsScreen() {
                     disabled={isAuthBusy || !isAppleAuthAvailable}
                   >
                     <View style={styles.settingLeft}>
-                      <Ionicons name="logo-apple" size={22} color={theme.text} />
+                      <SymbolIcon name="apple-logo" size={22} color={theme.text} />
                       <Text style={[styles.settingText, { color: theme.text }]}>
                         {t("authContinueApple")}
                       </Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+                    <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
                   </TouchableOpacity>
                 ) : (
                   <TouchableOpacity
@@ -496,12 +496,12 @@ export function SettingsScreen() {
                     disabled={isAuthBusy}
                   >
                     <View style={styles.settingLeft}>
-                      <Ionicons name="log-out-outline" size={22} color={theme.text} />
+                      <SymbolIcon name="logout" size={22} color={theme.text} />
                       <Text style={[styles.settingText, { color: theme.text }]}>
                         {t("authSignOut")}
                       </Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+                    <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
                   </TouchableOpacity>
                 )}
               </>
@@ -516,7 +516,7 @@ export function SettingsScreen() {
                   ]}
                 >
                   <View style={styles.settingLeft}>
-                    <Ionicons name="cloud-outline" size={22} color={theme.text} />
+                    <SymbolIcon name="cloud" size={22} color={theme.text} />
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.settingText, { color: theme.text }]}>
                         {t("cloudSyncTitle")}
@@ -544,7 +544,7 @@ export function SettingsScreen() {
                       disabled={isPurchaseBusy || !isPurchaseConfigured}
                     >
                       <View style={styles.settingLeft}>
-                        <Ionicons name="cart-outline" size={22} color={theme.text} />
+                        <SymbolIcon name="cart" size={22} color={theme.text} />
                         <View style={{ flex: 1 }}>
                           <Text style={[styles.settingText, { color: theme.text }]}>
                             {t("cloudSyncMonthlyCta")}
@@ -554,7 +554,7 @@ export function SettingsScreen() {
                           </Text>
                         </View>
                       </View>
-                      <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+                      <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -566,7 +566,7 @@ export function SettingsScreen() {
                       disabled={isPurchaseBusy || !isPurchaseConfigured}
                     >
                       <View style={styles.settingLeft}>
-                        <Ionicons name="sparkles-outline" size={22} color={theme.text} />
+                        <SymbolIcon name="sparkles" size={22} color={theme.text} />
                         <View style={{ flex: 1 }}>
                           <Text style={[styles.settingText, { color: theme.text }]}>
                             {t("cloudSyncAnnualCta")}
@@ -576,7 +576,7 @@ export function SettingsScreen() {
                           </Text>
                         </View>
                       </View>
-                      <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+                      <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -588,12 +588,12 @@ export function SettingsScreen() {
                       disabled={isPurchaseBusy || !isPurchaseConfigured}
                     >
                       <View style={styles.settingLeft}>
-                        <Ionicons name="refresh-outline" size={22} color={theme.text} />
+                        <SymbolIcon name="refresh" size={22} color={theme.text} />
                         <Text style={[styles.settingText, { color: theme.text }]}>
                           {t("cloudSyncRestoreCta")}
                         </Text>
                       </View>
-                      <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+                      <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
                     </TouchableOpacity>
                   </>
                 )}
@@ -608,7 +608,7 @@ export function SettingsScreen() {
                     disabled={isSyncBusy}
                   >
                     <View style={styles.settingLeft}>
-                      <Ionicons name="cloud-upload-outline" size={22} color={theme.text} />
+                      <SymbolIcon name="cloud-upload" size={22} color={theme.text} />
                       <View style={{ flex: 1 }}>
                         <Text style={[styles.settingText, { color: theme.text }]}>
                           {syncPrimaryTitle}
@@ -618,8 +618,8 @@ export function SettingsScreen() {
                         </Text>
                       </View>
                     </View>
-                    <Ionicons
-                      name={isSyncBusy ? "hourglass-outline" : "chevron-forward"}
+                    <SymbolIcon
+                      name={isSyncBusy ? "hourglass" : "chevron-forward"}
                       size={18}
                       color={theme.textSecondary}
                     />
@@ -636,7 +636,7 @@ export function SettingsScreen() {
                     disabled={isSyncBusy}
                   >
                     <View style={styles.settingLeft}>
-                      <Ionicons name="cloud-download-outline" size={22} color={theme.text} />
+                      <SymbolIcon name="cloud-download" size={22} color={theme.text} />
                       <View style={{ flex: 1 }}>
                         <Text style={[styles.settingText, { color: theme.text }]}>
                           {t("cloudSyncPullCta")}
@@ -646,8 +646,8 @@ export function SettingsScreen() {
                         </Text>
                       </View>
                     </View>
-                    <Ionicons
-                      name={isSyncBusy ? "hourglass-outline" : "chevron-forward"}
+                    <SymbolIcon
+                      name={isSyncBusy ? "hourglass" : "chevron-forward"}
                       size={18}
                       color={theme.textSecondary}
                     />
@@ -659,7 +659,7 @@ export function SettingsScreen() {
             {!cloudEnabled && (
               <View style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
                 <View style={styles.settingLeft}>
-                  <Ionicons name="server-outline" size={22} color={theme.text} />
+                  <SymbolIcon name="server" size={22} color={theme.text} />
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.settingText, { color: theme.text }]}>
                       {t("localLimitTitle")}
@@ -688,12 +688,12 @@ export function SettingsScreen() {
                 }}
               >
                 <View style={styles.settingLeft}>
-                  <Ionicons name="bug-outline" size={22} color={theme.textSecondary} />
+                  <SymbolIcon name="bug" size={22} color={theme.textSecondary} />
                   <Text style={[styles.settingText, { color: theme.textSecondary }]}>
                     {isPro ? "Dev: Disable Pro" : "Dev: Enable Pro"}
                   </Text>
                 </View>
-                <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+                <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
               </TouchableOpacity>
             )}
           </GlassContainer>
@@ -705,19 +705,19 @@ export function SettingsScreen() {
               disabled={isExporting}
             >
               <View style={styles.settingLeft}>
-                <Ionicons name="download-outline" size={22} color={theme.text} />
+                <SymbolIcon name="download" size={22} color={theme.text} />
                 <Text style={[styles.settingText, { color: theme.text }]}>{t("exportCSV")}</Text>
               </View>
               {isExporting ? (
-                <Ionicons name="hourglass-outline" size={20} color={theme.textSecondary} />
+                <SymbolIcon name="hourglass" size={20} color={theme.textSecondary} />
               ) : (
-                <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+                <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
               )}
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.settingItem} onPress={handleLanguagePress}>
               <View style={styles.settingLeft}>
-                <Ionicons name="language-outline" size={22} color={theme.text} />
+                <SymbolIcon name="language" size={22} color={theme.text} />
                 <Text style={[styles.settingText, { color: theme.text }]}>
                   {t("selectLanguage")}
                 </Text>
@@ -726,7 +726,7 @@ export function SettingsScreen() {
                 <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
                   {currentLanguageLabel}
                 </Text>
-                <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+                <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
               </View>
             </TouchableOpacity>
           </GlassContainer>
@@ -734,12 +734,12 @@ export function SettingsScreen() {
           <GlassContainer intensity="medium" style={styles.sectionCard}>
             <TouchableOpacity style={styles.settingItem} onPress={handleClearHistory}>
               <View style={styles.settingLeft}>
-                <Ionicons name="trash-outline" size={22} color="#FF3B30" />
+                <SymbolIcon name="trash" size={22} color="#FF3B30" />
                 <Text style={[styles.settingText, { color: "#FF3B30" }]}>
                   {t("clearHistory")}
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={18} color="#FF3B30" />
+              <SymbolIcon name="chevron-forward" size={18} color="#FF3B30" />
             </TouchableOpacity>
           </GlassContainer>
         </View>

@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { SymbolIcon } from "@/components/symbol-icon";
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { logger } from "@/utils/logger";
@@ -107,7 +107,7 @@ function ErrorFallback({ onReset, error }: ErrorFallbackProps) {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={[styles.content, { backgroundColor: theme.inputBackground }]}>
-        <Ionicons name="alert-circle" size={64} color={theme.textSecondary} />
+        <SymbolIcon name="alert-circle" size={64} color={theme.textSecondary} />
         <Text style={[styles.title, { color: theme.text }]}>
           {t("errorOccurred")}
         </Text>

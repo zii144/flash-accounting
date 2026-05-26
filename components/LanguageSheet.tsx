@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { getLanguageOptions } from "@/utils/language-options";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { SymbolIcon } from "@/components/symbol-icon";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -80,13 +80,9 @@ export function LanguageSheet() {
                   ) : null}
                 </View>
                 {isSelected ? (
-                  <Ionicons name="checkmark-circle" size={22} color={theme.text} />
+                  <SymbolIcon name="checkmark-circle" size={22} color={theme.text} />
                 ) : (
-                  <Ionicons
-                    name="ellipse-outline"
-                    size={20}
-                    color={theme.textSecondary}
-                  />
+                  <SymbolIcon name="circle" size={20} color={theme.textSecondary} />
                 )}
               </TouchableOpacity>
             );

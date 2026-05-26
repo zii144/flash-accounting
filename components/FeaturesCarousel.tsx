@@ -1,12 +1,12 @@
 import { UpcomingFeaturesBanner } from "@/components/UpcomingFeaturesBanner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Ionicons } from "@expo/vector-icons";
+import type { AppIconName } from "@/utils/app-icons";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useRef } from "react";
 import {
-  Dimensions,
   StyleSheet,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -21,12 +21,10 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-
 export interface FeatureItem {
   titleKey: string;
   messageKey: string;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: AppIconName;
 }
 
 export interface FeaturesCarouselProps {
@@ -50,6 +48,7 @@ export function FeaturesCarousel({
   autoDismissMs = 0,
 }: FeaturesCarouselProps) {
   const { theme } = useTheme();
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const scrollX = useSharedValue(0);
   const scrollViewRef = useRef<Animated.ScrollView>(null);
 
@@ -103,7 +102,7 @@ export function FeaturesCarousel({
           onScroll={scrollHandler}
           scrollEventThrottle={16}
           decelerationRate="fast"
-          snapToInterval={SCREEN_WIDTH}
+          snapToInterval={screenWidth}
           snapToAlignment="center"
           contentContainerStyle={styles.scrollContent}
         >
@@ -113,6 +112,8 @@ export function FeaturesCarousel({
               item={item}
               index={index}
               scrollX={scrollX}
+              screenWidth={screenWidth}
+              screenHeight={screenHeight}
               isLast={index === items.length - 1}
               onDismiss={() => handleItemDismiss(index)}
               onDontShowAgain={handleClose}
@@ -127,6 +128,7 @@ export function FeaturesCarousel({
               key={index}
               index={index}
               scrollX={scrollX}
+              screenWidth={screenWidth}
               theme={theme}
             />
           ))}
@@ -140,6 +142,8 @@ interface CarouselItemProps {
   item: FeatureItem;
   index: number;
   scrollX: SharedValue<number>;
+  screenWidth: number;
+  screenHeight: number;
   isLast: boolean;
   onDismiss: () => void;
   onDontShowAgain: () => void;
@@ -149,15 +153,17 @@ function CarouselItem({
   item,
   index,
   scrollX,
+  screenWidth,
+  screenHeight,
   isLast,
   onDismiss,
   onDontShowAgain,
 }: CarouselItemProps) {
   const { t } = useLanguage();
   const inputRange = [
-    (index - 1) * SCREEN_WIDTH,
-    index * SCREEN_WIDTH,
-    (index + 1) * SCREEN_WIDTH,
+    (index - 1) * screenWidth,
+    index * screenWidth,
+    (index + 1) * screenWidth,
   ];
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -182,8 +188,14 @@ function CarouselItem({
   });
 
   return (
-    <Animated.View style={[styles.itemContainer, animatedStyle]}>
-      <View style={styles.bannerWrapper}>
+    <Animated.View
+      style={[
+        styles.itemContainer,
+        { width: screenWidth, height: screenHeight },
+        animatedStyle,
+      ]}
+    >
+      <View style={[styles.bannerWrapper, { maxWidth: screenWidth - 40 }]}>
         <UpcomingFeaturesBanner
           title={t(item.titleKey)}
           message={t(item.messageKey)}
@@ -202,14 +214,15 @@ function CarouselItem({
 interface PaginationDotProps {
   index: number;
   scrollX: SharedValue<number>;
+  screenWidth: number;
   theme: any;
 }
 
-function PaginationDot({ index, scrollX, theme }: PaginationDotProps) {
+function PaginationDot({ index, scrollX, screenWidth, theme }: PaginationDotProps) {
   const inputRange = [
-    (index - 1) * SCREEN_WIDTH,
-    index * SCREEN_WIDTH,
-    (index + 1) * SCREEN_WIDTH,
+    (index - 1) * screenWidth,
+    index * screenWidth,
+    (index + 1) * screenWidth,
   ];
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -249,22 +262,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     zIndex: 9999,
   },
   scrollContent: {
     alignItems: "center",
   },
   itemContainer: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
   },
   bannerWrapper: {
     width: "100%",
-    maxWidth: SCREEN_WIDTH - 40,
   },
   banner: {
     position: "relative",

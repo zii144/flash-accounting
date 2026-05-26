@@ -14,9 +14,9 @@ import { createConsumptionRecord } from "@/utils/consumption-record";
 import { FREE_LOCAL_RECORD_LIMIT } from "@/utils/constants";
 import { formatCurrency } from "@/utils/formatting";
 import { logger } from "@/utils/logger";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router/react-navigation";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { SymbolIcon } from "@/components/symbol-icon";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -285,7 +285,7 @@ export function AccountingScreen() {
           <Text style={[styles.title, { color: theme.text }]}>{t("flashAccounting")}</Text>
           <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>
             <GlassContainer intensity="medium" style={styles.settingsGlass}>
-              <Ionicons name="settings-outline" size={20} color={theme.text} />
+              <SymbolIcon name="settings" size={20} color={theme.text} />
             </GlassContainer>
           </TouchableOpacity>
         </View>

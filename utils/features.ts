@@ -8,7 +8,7 @@
  * HOW TO ADD A NEW FEATURE:
  * 1. Add a new entry to FEATURES array below with:
  *    - id: unique identifier (kebab-case, e.g., "dark-mode-support")
- *    - icon: Ionicons icon name
+ *    - icon: App icon name (see utils/app-icons.ts)
  * 
  * 2. Add translation keys to LanguageContext.tsx for ALL languages:
  *    - "features.{id}.title": "Your Title"
@@ -29,13 +29,13 @@
  * Simply reorder the items in the FEATURES array - order matters!
  */
 
-import { Ionicons } from "@expo/vector-icons";
+import type { AppIconName } from "@/utils/app-icons";
 
 export interface FeatureConfig {
   /** Unique identifier for the feature (used for translation keys) */
   id: string;
-  /** Icon name from Ionicons */
-  icon: keyof typeof Ionicons.glyphMap;
+  /** Native icon name */
+  icon: AppIconName;
 }
 
 /**
@@ -45,15 +45,15 @@ export interface FeatureConfig {
 export const FEATURES: FeatureConfig[] = [
   {
     id: "cloud-backup-sync",
-    icon: "cloud-outline",
+    icon: "cloud",
   },
   {
     id: "receipt-scan-ocr",
-    icon: "scan-outline",
+    icon: "scan",
   },
   {
     id: "export-pdf-spreadsheet",
-    icon: "document-outline",
+    icon: "document",
   },
 ];
 

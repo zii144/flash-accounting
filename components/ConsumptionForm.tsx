@@ -13,7 +13,7 @@ import {
   validateConsumption,
   validateDescription,
 } from "@/utils/validation";
-import { Ionicons } from "@expo/vector-icons";
+import { SymbolIcon } from "@/components/symbol-icon";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -384,7 +384,7 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
                   onPress={handleMicPress}
                   activeOpacity={0.7}
                 >
-                  <Ionicons
+                  <SymbolIcon
                     name={isListening ? "mic" : "mic-outline"}
                     size={20}
                     color={isListening ? theme.background : theme.text}
@@ -445,8 +445,8 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
                 activeOpacity={0.85}
               >
                 {!isSubmitDisabled && (
-                  <Ionicons
-                    name="remove-circle-outline"
+                  <SymbolIcon
+                    name="remove-circle"
                     size={18}
                     color={theme.text}
                     style={styles.submitIcon}
@@ -487,8 +487,8 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
                 activeOpacity={0.85}
               >
                 {!isSubmitDisabled && (
-                  <Ionicons
-                    name="add-circle-outline"
+                  <SymbolIcon
+                    name="add-circle"
                     size={18}
                     color={theme.text}
                     style={styles.submitIcon}

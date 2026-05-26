@@ -5,7 +5,7 @@ import { Consumption } from "@/types/consumption";
 import { buildConsumptionsCsv } from "@/utils/export";
 import { LOCALE_MAP } from "@/utils/formatting";
 import { logger } from "@/utils/logger";
-import { Ionicons } from "@expo/vector-icons";
+import { SymbolIcon } from "@/components/symbol-icon";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import React, { useCallback, useMemo, useState } from "react";
@@ -161,7 +161,7 @@ export function SettingsModal({
                 style={styles.closeButton}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Ionicons name="close" size={24} color={theme.text} />
+                <SymbolIcon name="close" size={24} color={theme.text} />
               </TouchableOpacity>
             </View>
 
@@ -173,21 +173,13 @@ export function SettingsModal({
                 disabled={isExporting}
               >
                 <View style={styles.settingLeft}>
-                  <Ionicons
-                    name="download-outline"
-                    size={22}
-                    color={theme.text}
-                  />
+                  <SymbolIcon name="download" size={22} color={theme.text} />
                   <Text style={[styles.settingText, { color: theme.text }]}>
                     {t("exportCSV")}
                   </Text>
                 </View>
                 {isExporting && (
-                  <Ionicons
-                    name="hourglass-outline"
-                    size={20}
-                    color={theme.textSecondary}
-                  />
+                  <SymbolIcon name="hourglass" size={20} color={theme.textSecondary} />
                 )}
               </TouchableOpacity>
 
@@ -196,11 +188,7 @@ export function SettingsModal({
                 style={[styles.settingSection, { borderBottomColor: theme.border }]}
               >
                 <View style={styles.settingLeft}>
-                  <Ionicons
-                    name="language-outline"
-                    size={22}
-                    color={theme.text}
-                  />
+                  <SymbolIcon name="language" size={22} color={theme.text} />
                   <Text style={[styles.settingText, { color: theme.text }]}>
                     {t("selectLanguage")}
                   </Text>
@@ -247,11 +235,7 @@ export function SettingsModal({
                 onPress={handleClearHistory}
               >
                 <View style={styles.settingLeft}>
-                  <Ionicons
-                    name="trash-outline"
-                    size={22}
-                    color="#FF3B30"
-                  />
+                  <SymbolIcon name="trash" size={22} color="#FF3B30" />
                   <Text style={[styles.settingText, { color: "#FF3B30" }]}>
                     {t("clearHistory")}
                   </Text>
@@ -272,7 +256,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {

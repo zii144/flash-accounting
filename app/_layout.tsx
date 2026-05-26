@@ -6,7 +6,6 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ConsumptionStorageProvider } from "@/hooks/useConsumptionStorage";
 import { initializeMonitoring } from "@/utils/monitoring";
 import { Stack } from "expo-router";
-import { Platform } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 initializeMonitoring();
@@ -27,12 +26,13 @@ export default function RootLayout() {
                     }}
                   >
                     <Stack.Screen name="(tabs)" />
+                    <Stack.Screen name="settings" options={{ headerShown: false }} />
                     <Stack.Screen
                       name="select-language"
                       options={{
-                        presentation: Platform.OS === "ios" ? "formSheet" : "card",
+                        presentation: process.env.EXPO_OS === "ios" ? "formSheet" : "card",
                         contentStyle: { backgroundColor: "transparent" },
-                        sheetGrabberVisible: Platform.OS === "ios",
+                        sheetGrabberVisible: process.env.EXPO_OS === "ios",
                         headerShown: false,
                       }}
                     />

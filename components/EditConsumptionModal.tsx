@@ -4,7 +4,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { Consumption, ConsumptionType } from "@/types/consumption";
 import { formatAmountInput, LOCALE_MAP, parseAmountInput } from "@/utils/formatting";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { Ionicons } from "@expo/vector-icons";
+import { SymbolIcon } from "@/components/symbol-icon";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useEffect, useState } from "react";
@@ -204,7 +204,7 @@ export function EditConsumptionModal({
               style={styles.closeButton}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Ionicons name="close" size={24} color={theme.text} />
+              <SymbolIcon name="close" size={24} color={theme.text} />
             </TouchableOpacity>
           </View>
 
@@ -258,7 +258,7 @@ export function EditConsumptionModal({
                     activeOpacity={0.7}
                   >
                     <GlassContainer intensity="light" style={styles.dateContainer}>
-                      <Ionicons
+                      <SymbolIcon
                         name="calendar-outline"
                         size={20}
                         color={theme.textSecondary}
@@ -272,7 +272,7 @@ export function EditConsumptionModal({
                           year: "numeric",
                         })}
                       </Text>
-                      <Ionicons
+                      <SymbolIcon
                         name="chevron-forward"
                         size={18}
                         color={theme.textSecondary}
@@ -303,7 +303,7 @@ export function EditConsumptionModal({
                 </>
               ) : (
                 <GlassContainer intensity="light" style={styles.dateContainer}>
-                  <Ionicons
+                  <SymbolIcon
                     name="calendar-outline"
                     size={20}
                     color={theme.textSecondary}
@@ -340,7 +340,7 @@ export function EditConsumptionModal({
                   ]}
                   onPress={() => setType("expense")}
                 >
-                  <Ionicons
+                  <SymbolIcon
                     name="arrow-down-outline"
                     size={16}
                     color={type === "expense" ? theme.background : theme.text}
@@ -370,7 +370,7 @@ export function EditConsumptionModal({
                   ]}
                   onPress={() => setType("income")}
                 >
-                  <Ionicons
+                  <SymbolIcon
                     name="arrow-up-outline"
                     size={16}
                     color={type === "income" ? theme.background : theme.text}
@@ -403,7 +403,7 @@ export function EditConsumptionModal({
                 ]}
                 onPress={handleDelete}
               >
-                <Ionicons name="trash-outline" size={18} color="#FF3B30" />
+                <SymbolIcon name="trash" size={18} color="#FF3B30" />
                 <Text style={styles.deleteButtonText}>
                   {t("delete")}
                 </Text>
@@ -437,10 +437,10 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   blurBackdrop: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   modalContent: {
     borderTopLeftRadius: 24,

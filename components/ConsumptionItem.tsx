@@ -3,7 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Consumption } from "@/types/consumption";
 import { formatCurrency, formatDate, formatTime } from "@/utils/formatting";
-import { Ionicons } from "@expo/vector-icons";
+import { SymbolIcon } from "@/components/symbol-icon";
 import React, { memo, useCallback } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
@@ -100,7 +100,7 @@ function ConsumptionItemComponent({
                       },
                     ]}
                   >
-                    <Ionicons
+                    <SymbolIcon
                       name={
                         consumption.type === "income"
                           ? "arrow-up-outline"
@@ -142,7 +142,7 @@ function ConsumptionItemComponent({
                 style={[styles.actionButton, { backgroundColor: theme.border }]}
                 activeOpacity={0.7}
               >
-                <Ionicons name="pencil-outline" size={16} color={theme.text} />
+                <SymbolIcon name="pencil" size={16} color={theme.text} />
               </TouchableOpacity>
             </View>
           </GlassContainer>

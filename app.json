@@ -17,6 +17,7 @@
       "bundleIdentifier": "com.zii.flash.accounting"
     },
     "android": {
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -55,7 +56,8 @@
       "expo-sharing",
       "@sentry/react-native",
       "expo-sqlite",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true,

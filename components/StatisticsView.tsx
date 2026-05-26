@@ -5,8 +5,9 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStats } from "@/hooks/useConsumptionStats";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
+import type { AppIconName } from "@/utils/app-icons";
 import { logger } from "@/utils/logger";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router/react-navigation";
 import {
   SORT_OPTIONS,
   TIME_FILTERS,
@@ -21,17 +22,17 @@ import {
   formatTime,
 } from "@/utils/formatting";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { SymbolIcon } from "@/components/symbol-icon";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Dimensions,
   FlatList,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from "react-native";
 import Animated, { FadeIn, Layout } from "react-native-reanimated";
@@ -44,7 +45,21 @@ interface GroupedConsumption {
   total: number;
 }
 
+function getSortIconName(sortOption: SortOption): AppIconName {
+  switch (sortOption) {
+    case "date-desc":
+      return "calendar-outline";
+    case "date-asc":
+      return "calendar";
+    case "amount-desc":
+      return "trending-down-outline";
+    default:
+      return "trending-up-outline";
+  }
+}
+
 export function StatisticsView() {
+  const { width: screenWidth } = useWindowDimensions();
   const { theme } = useTheme();
   const { resolvedLanguage, t } = useLanguage();
   const { updateConsumption, deleteConsumption } = useConsumptionStorage();
@@ -57,13 +72,10 @@ export function StatisticsView() {
   
   // Calculate card width so expense and income take up most of the initial viewport
   const cardWidth = useMemo(() => {
-    const screenWidth = Dimensions.get("window").width;
-    // Each card should be approximately (screenWidth - padding - gap) / 2.2
-    // This ensures expense and income are fully visible, with a hint of total card
-    const padding = 32; // 16px on each side
+    const padding = 32;
     const gap = 8;
     return Math.floor((screenWidth - padding - gap * 2) / 2.2);
-  }, []);
+  }, [screenWidth]);
   
   // Stats state
   const [stats, setStats] = useState({ 
@@ -316,7 +328,7 @@ export function StatisticsView() {
           onPress={handleSettingsPress}
         >
           <GlassContainer intensity="medium" style={styles.settingsGlass}>
-            <Ionicons name="settings-outline" size={20} color={theme.text} />
+            <SymbolIcon name="settings" size={20} color={theme.text} />
           </GlassContainer>
         </TouchableOpacity>
       </View>
@@ -349,7 +361,7 @@ export function StatisticsView() {
           <View style={[styles.statCardWrapper, { width: cardWidth }]}>
             <GlassContainer intensity="light" style={styles.statCard}>
               <View style={styles.statCardHeader}>
-                <Ionicons
+                <SymbolIcon
                   name="trending-up-outline"
                   size={16}
                   color={theme.textSecondary}
@@ -384,7 +396,7 @@ export function StatisticsView() {
           <View style={[styles.statCardWrapper, { width: cardWidth }]}>
             <GlassContainer intensity="light" style={styles.statCard}>
               <View style={styles.statCardHeader}>
-                <Ionicons
+                <SymbolIcon
                   name="trending-down-outline"
                   size={16}
                   color={theme.textSecondary}
@@ -553,16 +565,8 @@ export function StatisticsView() {
               style={styles.sortButton}
               onPress={handleSortToggle}
             >
-              <Ionicons
-                name={
-                  sortOption === "date-desc"
-                    ? "calendar-outline"
-                    : sortOption === "date-asc"
-                    ? "calendar"
-                    : sortOption === "amount-desc"
-                    ? "trending-down-outline"
-                    : "trending-up-outline"
-                }
+              <SymbolIcon
+                name={getSortIconName(sortOption)}
                 size={20}
                 color={theme.text}
               />
@@ -641,7 +645,7 @@ export function StatisticsView() {
                           },
                         ]}
                       >
-                        <Ionicons
+                        <SymbolIcon
                           name={
                             consumption.type === "income"
                               ? "arrow-up"
@@ -678,7 +682,7 @@ export function StatisticsView() {
                       style={[styles.editButton, { backgroundColor: theme.border }]}
                       activeOpacity={0.7}
                     >
-                      <Ionicons name="pencil-outline" size={14} color={theme.text} />
+                      <SymbolIcon name="pencil" size={14} color={theme.text} />
                     </TouchableOpacity>
                   </View>
                 </View>

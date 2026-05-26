@@ -1,62 +1,31 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Ionicons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
-import { StyleSheet } from "react-native";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
 
 export default function TabsLayout() {
   const { theme } = useTheme();
   const { t } = useLanguage();
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        sceneStyle: { backgroundColor: "transparent" },
-        tabBarHideOnKeyboard: true,
-        tabBarActiveTintColor: theme.text,
-        tabBarInactiveTintColor: theme.textSecondary,
-        tabBarLabelStyle: styles.label,
-        tabBarStyle: {
-          backgroundColor: theme.background,
-          borderTopColor: theme.border,
-          borderTopWidth: StyleSheet.hairlineWidth,
-        },
-      }}
+    <NativeTabs
+      minimizeBehavior="onScrollDown"
+      tintColor={theme.text}
+      labelStyle={{ color: theme.textSecondary }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: t("accounting"),
-          tabBarIcon: ({ color, focused, size }) => (
-            <Ionicons
-              name={focused ? "cash" : "cash-outline"}
-              color={color}
-              size={size}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="statistics"
-        options={{
-          title: t("statistics"),
-          tabBarIcon: ({ color, focused, size }) => (
-            <Ionicons
-              name={focused ? "stats-chart" : "stats-chart-outline"}
-              color={color}
-              size={size}
-            />
-          ),
-        }}
-      />
-    </Tabs>
+      <NativeTabs.Trigger name="index" disableTransparentOnScrollEdge>
+        <NativeTabs.Trigger.Label>{t("accounting")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "dollarsign.circle", selected: "dollarsign.circle.fill" }}
+          md="payments"
+        />
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="statistics" disableTransparentOnScrollEdge>
+        <NativeTabs.Trigger.Label>{t("statistics")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "chart.bar", selected: "chart.bar.fill" }}
+          md="bar_chart"
+        />
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }
-
-const styles = StyleSheet.create({
-  label: {
-    fontSize: 11,
-    fontWeight: "600",
-  },
-});
