@@ -8,6 +8,7 @@ import { getAppErrorCode } from "@/utils/app-error";
 import { FREE_LOCAL_RECORD_LIMIT } from "@/utils/constants";
 import { buildConsumptionsCsv } from "@/utils/export";
 import { LOCALE_MAP } from "@/utils/formatting";
+import type { AppIconName } from "@/utils/app-icons";
 import { getLanguageOptions } from "@/utils/language-options";
 import { logger } from "@/utils/logger";
 import { router } from "expo-router";
@@ -17,6 +18,7 @@ import * as Sharing from "expo-sharing";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
+  Modal,
   Platform,
   ScrollView,
   StyleSheet,
@@ -29,6 +31,15 @@ import { OAuthProvider } from "firebase/auth";
 
 type AppleAuthenticationModule = typeof import("expo-apple-authentication");
 type CryptoModule = typeof import("expo-crypto");
+type StoragePlanId = "basic" | "plus" | "pro";
+type StoragePlanCard = {
+  id: StoragePlanId;
+  icon: AppIconName;
+  title: string;
+  price: string;
+  description: string;
+  features: string[];
+};
 
 let appleAuthenticationModulePromise: Promise<AppleAuthenticationModule | null> | null = null;
 let cryptoModulePromise: Promise<CryptoModule | null> | null = null;
@@ -102,6 +113,7 @@ export function SettingsScreen() {
   const [isExporting, setIsExporting] = useState(false);
   const [isAuthBusy, setIsAuthBusy] = useState(false);
   const [isAppleAuthAvailable, setIsAppleAuthAvailable] = useState(false);
+  const [isStoragePlanSheetVisible, setIsStoragePlanSheetVisible] = useState(false);
   const languages = useMemo(() => getLanguageOptions(t), [t]);
   const currentLanguageLabel =
     languages.find((option) => option.code === language)?.name ?? t("device");
@@ -115,6 +127,56 @@ export function SettingsScreen() {
   const syncPrimaryDetail = syncSnapshot.hasPendingLocalChanges
     ? t("cloudSyncRetryDetail")
     : t("cloudSyncSyncDetail");
+  // TODO(storage-plans): Replace this with a typed plan source once Plus ships:
+  // Basic: no Plus local-unlimited entitlement and no Pro cloud entitlement.
+  // Plus: local-unlimited one-time purchase active, but no cloud entitlement.
+  // Pro: cloud_sync_pro entitlement active from RevenueCat (current isPro path).
+  const currentStoragePlanId: StoragePlanId = isPro ? "pro" : "basic";
+  const currentStoragePlanLabel =
+    currentStoragePlanId === "pro" ? t("storagePlanCurrentPro") : t("storagePlanCurrentBasic");
+  const storagePlanCards = useMemo<StoragePlanCard[]>(
+    () => [
+      {
+        id: "basic",
+        icon: "server",
+        title: t("storagePlanBasicTitle"),
+        price: t("storagePlanBasicPrice"),
+        description: t("storagePlanBasicDescription"),
+        features: [
+          t("storagePlanBasicFeatureLimit"),
+          t("storagePlanBasicFeatureExport"),
+          t("storagePlanBasicFeatureNoLogin"),
+        ],
+      },
+      {
+        id: "plus",
+        icon: "checkmark-circle",
+        title: t("storagePlanPlusTitle"),
+        price: t("storagePlanPlusPrice"),
+        description: t("storagePlanPlusDescription"),
+        features: [
+          t("storagePlanPlusFeatureUnlimited"),
+          t("storagePlanPlusFeaturePrivate"),
+          t("storagePlanPlusFeatureBiometric"),
+        ],
+      },
+      {
+        id: "pro",
+        icon: "cloud",
+        title: t("storagePlanProTitle"),
+        price: t("storagePlanProPrice")
+          .replace("{monthly}", monthlyPrice ?? recommendedMonthlyPrice)
+          .replace("{annual}", annualPrice ?? recommendedAnnualPrice),
+        description: t("storagePlanProDescription"),
+        features: [
+          t("storagePlanProFeatureSync"),
+          t("storagePlanProFeatureRestore"),
+          t("storagePlanProFeatureShared"),
+        ],
+      },
+    ],
+    [annualPrice, monthlyPrice, recommendedAnnualPrice, recommendedMonthlyPrice, t]
+  );
 
   useEffect(() => {
     if (Platform.OS !== "ios" || !isFirebaseReady) {
@@ -670,6 +732,30 @@ export function SettingsScreen() {
               </View>
             )}
 
+            <TouchableOpacity
+              style={[
+                styles.settingItem,
+                { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+              ]}
+              onPress={() => setIsStoragePlanSheetVisible(true)}
+            >
+              <View style={styles.settingLeft}>
+                <SymbolIcon name="cart" size={22} color={theme.text} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.settingText, { color: theme.text }]}>
+                    {t("storageUpgradeTitle")}
+                  </Text>
+                  <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                    {currentStoragePlanLabel}
+                  </Text>
+                  <Text style={[styles.settingMeta, { color: theme.textSecondary }]}>
+                    {t("storageUpgradeSubtitle")}
+                  </Text>
+                </View>
+              </View>
+              <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+            </TouchableOpacity>
+
             {__DEV__ && (
               <TouchableOpacity
                 style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
@@ -740,6 +826,155 @@ export function SettingsScreen() {
           </GlassContainer>
         </View>
       </ScrollView>
+
+      <Modal
+        animationType="slide"
+        presentationStyle="pageSheet"
+        visible={isStoragePlanSheetVisible}
+        onRequestClose={() => setIsStoragePlanSheetVisible(false)}
+      >
+        <SafeAreaView style={[styles.planSheet, { backgroundColor: theme.background }]}>
+          <View style={styles.planSheetHeader}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.planSheetEyebrow, { color: theme.textSecondary }]}>
+                {t("storageUpgradeEyebrow")}
+              </Text>
+              <Text style={[styles.planSheetTitle, { color: theme.text }]}>
+                {t("storageUpgradeTitle")}
+              </Text>
+              <Text style={[styles.planSheetSubtitle, { color: theme.textSecondary }]}>
+                {t("storageUpgradeIntro")}
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => setIsStoragePlanSheetVisible(false)}
+              style={[styles.planSheetClose, { backgroundColor: theme.surface }]}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <SymbolIcon name="close" size={18} color={theme.text} />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            contentInsetAdjustmentBehavior="automatic"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.planSheetContent}
+          >
+            {storagePlanCards.map((plan) => {
+              const isCurrentPlan = plan.id === currentStoragePlanId;
+              return (
+                <GlassContainer
+                  key={plan.id}
+                  intensity="medium"
+                  style={[
+                    styles.planCard,
+                    {
+                      borderColor: isCurrentPlan ? theme.foreground : theme.border,
+                      backgroundColor: theme.isDark
+                        ? "rgba(28, 28, 30, 0.72)"
+                        : "rgba(255, 255, 255, 0.78)",
+                    },
+                  ]}
+                >
+                  <View style={styles.planCardHeader}>
+                    <View style={styles.planTitleRow}>
+                      <SymbolIcon name={plan.icon} size={22} color={theme.text} />
+                      <Text style={[styles.planTitle, { color: theme.text }]}>{plan.title}</Text>
+                    </View>
+                    {isCurrentPlan ? (
+                      <View style={[styles.currentBadge, { backgroundColor: theme.foreground }]}>
+                        <Text style={[styles.currentBadgeText, { color: theme.background }]}>
+                          {t("storagePlanCurrentBadge")}
+                        </Text>
+                      </View>
+                    ) : null}
+                  </View>
+
+                  <Text style={[styles.planPrice, { color: theme.text }]}>{plan.price}</Text>
+                  <Text style={[styles.planDescription, { color: theme.textSecondary }]}>
+                    {plan.description}
+                  </Text>
+
+                  <View style={styles.planFeatureList}>
+                    {plan.features.map((feature) => (
+                      <View key={feature} style={styles.planFeatureRow}>
+                        <SymbolIcon name="checkmark-circle" size={17} color={theme.textSecondary} />
+                        <Text style={[styles.planFeatureText, { color: theme.textSecondary }]}>
+                          {feature}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </GlassContainer>
+              );
+            })}
+
+            <GlassContainer intensity="medium" style={styles.planActionsCard}>
+              <Text style={[styles.planActionsTitle, { color: theme.text }]}>
+                {t("storageUpgradeActionsTitle")}
+              </Text>
+              <Text style={[styles.planActionsSubtitle, { color: theme.textSecondary }]}>
+                {t("storageUpgradeActionsSubtitle")}
+              </Text>
+
+              <TouchableOpacity
+                style={[styles.planActionButton, { backgroundColor: theme.foreground }]}
+                onPress={() => void handlePurchasePro("annual")}
+                disabled={isPurchaseBusy || !isPurchaseConfigured}
+              >
+                <Text style={[styles.planActionButtonText, { color: theme.background }]}>
+                  {t("storageUpgradeProAnnualCta").replace(
+                    "{price}",
+                    annualPrice ?? recommendedAnnualPrice
+                  )}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.planSecondaryButton,
+                  { borderColor: theme.border },
+                  (!isPurchaseConfigured || isPurchaseBusy) && { opacity: 0.56 },
+                ]}
+                onPress={() => void handlePurchasePro("monthly")}
+                disabled={isPurchaseBusy || !isPurchaseConfigured}
+              >
+                <Text style={[styles.planSecondaryButtonText, { color: theme.text }]}>
+                  {t("storageUpgradeProMonthlyCta").replace(
+                    "{price}",
+                    monthlyPrice ?? recommendedMonthlyPrice
+                  )}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.planSecondaryButton, { borderColor: theme.border, opacity: 0.56 }]}
+                disabled
+              >
+                <Text style={[styles.planSecondaryButtonText, { color: theme.textSecondary }]}>
+                  {t("storageUpgradePlusComingSoon")}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.planRestoreButton}
+                onPress={handleRestorePro}
+                disabled={isPurchaseBusy || !isPurchaseConfigured}
+              >
+                <Text style={[styles.planRestoreText, { color: theme.textSecondary }]}>
+                  {t("cloudSyncRestoreCta")}
+                </Text>
+              </TouchableOpacity>
+
+              {!isPurchaseConfigured ? (
+                <Text style={[styles.planFootnote, { color: theme.textSecondary }]}>
+                  {t("iapNotReadyMessage")}
+                </Text>
+              ) : null}
+            </GlassContainer>
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -834,5 +1069,158 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 12,
     lineHeight: 17,
+  },
+  planSheet: {
+    flex: 1,
+  },
+  planSheetHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 16,
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 12,
+  },
+  planSheetEyebrow: {
+    fontSize: 13,
+    fontWeight: "700",
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
+  },
+  planSheetTitle: {
+    marginTop: 6,
+    fontSize: 30,
+    fontWeight: "800",
+    letterSpacing: -0.8,
+  },
+  planSheetSubtitle: {
+    marginTop: 8,
+    fontSize: 15,
+    fontWeight: "500",
+    lineHeight: 21,
+  },
+  planSheetClose: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  planSheetContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+    gap: 14,
+  },
+  planCard: {
+    borderWidth: 1,
+    borderRadius: 24,
+    padding: 18,
+    overflow: "hidden",
+  },
+  planCardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  planTitleRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  planTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    letterSpacing: -0.2,
+  },
+  currentBadge: {
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  currentBadgeText: {
+    fontSize: 12,
+    fontWeight: "800",
+  },
+  planPrice: {
+    marginTop: 14,
+    fontSize: 22,
+    fontWeight: "800",
+    letterSpacing: -0.4,
+  },
+  planDescription: {
+    marginTop: 6,
+    fontSize: 14,
+    fontWeight: "500",
+    lineHeight: 20,
+  },
+  planFeatureList: {
+    gap: 9,
+    marginTop: 14,
+  },
+  planFeatureRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+  },
+  planFeatureText: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "600",
+    lineHeight: 18,
+  },
+  planActionsCard: {
+    borderRadius: 24,
+    padding: 18,
+    gap: 10,
+    overflow: "hidden",
+  },
+  planActionsTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    letterSpacing: -0.2,
+  },
+  planActionsSubtitle: {
+    marginBottom: 4,
+    fontSize: 13,
+    fontWeight: "500",
+    lineHeight: 18,
+  },
+  planActionButton: {
+    minHeight: 48,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+  },
+  planActionButtonText: {
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  planSecondaryButton: {
+    minHeight: 46,
+    borderWidth: 1,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+  },
+  planSecondaryButtonText: {
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  planRestoreButton: {
+    alignItems: "center",
+    paddingVertical: 8,
+  },
+  planRestoreText: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  planFootnote: {
+    fontSize: 12,
+    lineHeight: 17,
+    textAlign: "center",
   },
 });
