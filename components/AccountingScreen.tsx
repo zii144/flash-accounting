@@ -239,8 +239,10 @@ export function AccountingScreen() {
   }, []);
 
   const renderItem: ListRenderItem<Consumption> = useCallback(
-    ({ item }) => <ConsumptionItem consumption={item} onEdit={handleEdit} />,
-    [handleEdit]
+    ({ item }) => (
+      <ConsumptionItem consumption={item} onEdit={handleEdit} onDelete={handleDelete} />
+    ),
+    [handleDelete, handleEdit]
   );
 
   const ListEmptyComponent = useMemo(
