@@ -144,20 +144,18 @@ export function SettingsScreen() {
         description: t("storagePlanBasicDescription"),
         features: [
           t("storagePlanBasicFeatureLimit"),
-          t("storagePlanBasicFeatureExport"),
           t("storagePlanBasicFeatureNoLogin"),
         ],
       },
       {
         id: "plus",
-        icon: "checkmark-circle",
+        icon: "local-drive",
         title: t("storagePlanPlusTitle"),
         price: t("storagePlanPlusPrice"),
         description: t("storagePlanPlusDescription"),
         features: [
           t("storagePlanPlusFeatureUnlimited"),
           t("storagePlanPlusFeaturePrivate"),
-          t("storagePlanPlusFeatureBiometric"),
         ],
       },
       {
@@ -165,13 +163,14 @@ export function SettingsScreen() {
         icon: "cloud",
         title: t("storagePlanProTitle"),
         price: t("storagePlanProPrice")
-          .replace("{monthly}", monthlyPrice ?? recommendedMonthlyPrice)
-          .replace("{annual}", annualPrice ?? recommendedAnnualPrice),
+          .replace("{monthly}", monthlyPrice ?? t("storagePlanProMonthlyFallback"))
+          .replace("{annual}", annualPrice ?? t("storagePlanProAnnualFallback")),
         description: t("storagePlanProDescription"),
         features: [
           t("storagePlanProFeatureSync"),
           t("storagePlanProFeatureRestore"),
           t("storagePlanProFeatureShared"),
+          t("storagePlanProFeatureTravel"),
         ],
       },
     ],
@@ -913,9 +912,6 @@ export function SettingsScreen() {
               <Text style={[styles.planActionsTitle, { color: theme.text }]}>
                 {t("storageUpgradeActionsTitle")}
               </Text>
-              <Text style={[styles.planActionsSubtitle, { color: theme.textSecondary }]}>
-                {t("storageUpgradeActionsSubtitle")}
-              </Text>
 
               <TouchableOpacity
                 style={[styles.planActionButton, { backgroundColor: theme.foreground }]}
@@ -925,7 +921,7 @@ export function SettingsScreen() {
                 <Text style={[styles.planActionButtonText, { color: theme.background }]}>
                   {t("storageUpgradeProAnnualCta").replace(
                     "{price}",
-                    annualPrice ?? recommendedAnnualPrice
+                    annualPrice ?? t("storagePlanProAnnualFallback")
                   )}
                 </Text>
               </TouchableOpacity>
@@ -942,7 +938,7 @@ export function SettingsScreen() {
                 <Text style={[styles.planSecondaryButtonText, { color: theme.text }]}>
                   {t("storageUpgradeProMonthlyCta").replace(
                     "{price}",
-                    monthlyPrice ?? recommendedMonthlyPrice
+                    monthlyPrice ?? t("storagePlanProMonthlyFallback")
                   )}
                 </Text>
               </TouchableOpacity>

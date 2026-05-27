@@ -25,6 +25,7 @@ export type AppIconName =
   | "document"
   | "download"
   | "hourglass"
+  | "local-drive"
   | "language"
   | "logout"
   | "mic"
@@ -113,6 +114,10 @@ export const APP_ICONS: Record<AppIconName, IconDefinition> = {
   server: {
     sf: "externaldrive",
     android: require("@expo/material-symbols/dns.xml"),
+  },
+  "local-drive": {
+    sf: "internaldrive",
+    android: require("@expo/material-symbols/save.xml"),
   },
   bug: {
     sf: "ladybug",

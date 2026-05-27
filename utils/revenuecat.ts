@@ -30,8 +30,8 @@ export function getRevenueCatConfig(): RevenueCatConfig | null {
   return {
     apiKey,
     entitlementId: readEnv("EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID") ?? "cloud_sync_pro",
-    recommendedMonthlyPrice: "USD $5.99 / month",
-    recommendedAnnualPrice: "USD $59 / year",
+    recommendedMonthlyPrice: "USD $5.99/month",
+    recommendedAnnualPrice: "USD $59/year",
   };
 }
 
