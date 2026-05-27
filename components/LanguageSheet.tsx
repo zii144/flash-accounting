@@ -24,12 +24,10 @@ export function LanguageSheet() {
     languageOptions.find((option) => option.code === pendingLanguage)?.name ?? t("device");
 
   const handleClose = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.back();
   }, []);
 
   const handleSelect = useCallback((nextLanguage: Language) => {
-    Haptics.selectionAsync();
     setPendingLanguage(nextLanguage);
   }, []);
 

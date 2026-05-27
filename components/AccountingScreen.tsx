@@ -61,7 +61,6 @@ export function AccountingScreen() {
     isPurchaseConfigured && (isSignedIn || (Platform.OS === "ios" && isFirebaseReady));
 
   const handleSettingsPress = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push("/settings");
   }, []);
 
@@ -292,7 +291,7 @@ export function AccountingScreen() {
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
-          removeClippedSubviews
+          removeClippedSubviews={false}
           maxToRenderPerBatch={10}
           updateCellsBatchingPeriod={50}
           initialNumToRender={10}

@@ -1,5 +1,4 @@
 import { GlassContainer } from "@/components/GlassContainer";
-import * as Haptics from "expo-haptics";
 import React from "react";
 import {
   Pressable,
@@ -7,13 +6,6 @@ import {
   type StyleProp,
   type ViewStyle,
 } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 type GlassIconButtonProps = {
   onPress?: () => void;
@@ -30,46 +22,33 @@ export function GlassIconButton({
   style,
   accessibilityLabel,
 }: GlassIconButtonProps) {
-  const scale = useSharedValue(1);
   const radius = size / 2;
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
   return (
-    <Animated.View style={[animatedStyle, style]}>
-      <GlassContainer
-        interactive
-        intensity="medium"
-        style={{
+    <GlassContainer
+      interactive
+      intensity="medium"
+      style={[
+        {
           width: size,
           height: size,
           borderRadius: radius,
           borderCurve: "continuous",
+        },
+        style,
+      ]}
+    >
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        onPress={() => {
+          onPress?.();
         }}
+        style={({ pressed }) => [styles.pressable, pressed && styles.pressed]}
       >
-        <AnimatedPressable
-          accessibilityRole="button"
-          accessibilityLabel={accessibilityLabel}
-          onPress={() => {
-            if (process.env.EXPO_OS === "ios") {
-              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            }
-            onPress?.();
-          }}
-          onPressIn={() => {
-            scale.value = withSpring(0.92, { damping: 18, stiffness: 320 });
-          }}
-          onPressOut={() => {
-            scale.value = withSpring(1, { damping: 16, stiffness: 260 });
-          }}
-          style={styles.pressable}
-        >
-          {children}
-        </AnimatedPressable>
-      </GlassContainer>
-    </Animated.View>
+        {children}
+      </Pressable>
+    </GlassContainer>
   );
 }
 
@@ -78,5 +57,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+  },
+  pressed: {
+    opacity: 0.72,
   },
 });

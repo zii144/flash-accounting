@@ -5,16 +5,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Consumption } from "@/types/consumption";
 import { formatCurrency, formatDate, formatTime } from "@/utils/formatting";
-import React, { memo, useCallback } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import Animated, {
-  FadeInDown,
-  FadeOutUp,
-  Layout,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
+import { memo, useCallback } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 
 interface ConsumptionItemProps {
   consumption: Consumption;
@@ -27,11 +20,6 @@ function ConsumptionItemComponent({
 }: ConsumptionItemProps) {
   const { theme } = useTheme();
   const { resolvedLanguage, t } = useLanguage();
-  const scale = useSharedValue(1);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
 
   const handleEdit = useCallback(() => {
     onEdit(consumption);
@@ -54,79 +42,71 @@ function ConsumptionItemComponent({
     <Animated.View
       entering={FadeInDown.springify().damping(35).stiffness(80)}
       exiting={FadeOutUp.duration(200)}
-      layout={Layout.springify().damping(40).stiffness(60)}
       style={styles.outerContainer}
     >
-      <Animated.View style={animatedStyle}>
-        <Pressable
-          onPressIn={() => {
-            scale.value = withSpring(0.985, { damping: 22, stiffness: 280 });
-          }}
-          onPressOut={() => {
-            scale.value = withSpring(1, { damping: 20, stiffness: 240 });
-          }}
-          style={styles.wrapper}
-        >
-          <GlassContainer intensity="medium" style={styles.container}>
-            <View style={styles.content}>
-              <View style={styles.mainInfo}>
-                <View style={styles.amountRow}>
-                  <Text
-                    selectable
-                    style={[styles.amount, { color: theme.text, fontVariant: ["tabular-nums"] }]}
-                  >
-                    {consumption.type === "income" ? "+" : "-"}
-                    ${formatCurrency(consumption.amount, 2)}
-                  </Text>
-                  <GlassContainer intensity="clear" style={styles.typeBadge}>
-                    <View style={styles.typeBadgeContent}>
-                      <SymbolIcon
-                        name={
-                          consumption.type === "income"
-                            ? "arrow-up-outline"
-                            : "arrow-down-outline"
-                        }
-                        size={12}
-                        color={theme.textSecondary}
-                      />
-                      <Text
-                        style={[styles.typeText, { color: theme.textSecondary }]}
-                      >
-                        {consumption.type === "income" ? t("income") : t("expense")}
-                      </Text>
-                    </View>
-                  </GlassContainer>
-                </View>
-                <Text
-                  selectable
-                  style={[styles.description, { color: theme.textSecondary }]}
-                >
-                  {displayDescription}
-                </Text>
-              </View>
-              <View style={styles.meta}>
-                <Text style={[styles.date, { color: theme.textSecondary }]}>
-                  {displayDate}
-                </Text>
-                <Text
-                  selectable
-                  style={[styles.time, { color: theme.textSecondary, fontVariant: ["tabular-nums"] }]}
-                >
-                  {displayTime}
+      <GlassContainer intensity="medium" style={styles.container}>
+        <View style={styles.content}>
+          <View style={styles.mainInfo}>
+            <View style={styles.amountRow}>
+              <Text
+                selectable
+                style={[styles.amount, { color: theme.text, fontVariant: ["tabular-nums"] }]}
+              >
+                {consumption.type === "income" ? "+" : "-"}
+                ${formatCurrency(consumption.amount, 2)}
+              </Text>
+              <View
+                style={[
+                  styles.typeBadge,
+                  {
+                    backgroundColor: theme.isDark
+                      ? "rgba(255, 255, 255, 0.1)"
+                      : "rgba(120, 120, 128, 0.12)",
+                  },
+                ]}
+              >
+                <SymbolIcon
+                  name={
+                    consumption.type === "income"
+                      ? "arrow-up-outline"
+                      : "arrow-down-outline"
+                  }
+                  size={12}
+                  color={theme.textSecondary}
+                />
+                <Text style={[styles.typeText, { color: theme.textSecondary }]}>
+                  {consumption.type === "income" ? t("income") : t("expense")}
                 </Text>
               </View>
             </View>
-            <GlassIconButton
-              size={34}
-              onPress={handleEdit}
-              accessibilityLabel={t("editConsumption") || "Edit"}
-              style={styles.editButton}
+            <Text
+              selectable
+              style={[styles.description, { color: theme.textSecondary }]}
             >
-              <SymbolIcon name="pencil" size={16} color={theme.text} />
-            </GlassIconButton>
-          </GlassContainer>
-        </Pressable>
-      </Animated.View>
+              {displayDescription}
+            </Text>
+          </View>
+          <View style={styles.meta}>
+            <Text style={[styles.date, { color: theme.textSecondary }]}>
+              {displayDate}
+            </Text>
+            <Text
+              selectable
+              style={[styles.time, { color: theme.textSecondary, fontVariant: ["tabular-nums"] }]}
+            >
+              {displayTime}
+            </Text>
+          </View>
+        </View>
+        <GlassIconButton
+          size={34}
+          onPress={handleEdit}
+          accessibilityLabel={t("editConsumption") || "Edit"}
+          style={styles.editButton}
+        >
+          <SymbolIcon name="pencil" size={16} color={theme.text} />
+        </GlassIconButton>
+      </GlassContainer>
     </Animated.View>
   );
 }
@@ -135,9 +115,6 @@ const styles = StyleSheet.create({
   outerContainer: {
     marginHorizontal: 16,
     marginVertical: 6,
-  },
-  wrapper: {
-    width: "100%",
   },
   container: {
     flexDirection: "row",
@@ -168,16 +145,13 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   typeBadge: {
-    borderRadius: 999,
-    borderCurve: "continuous",
-    overflow: "hidden",
-  },
-  typeBadgeContent: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
     paddingHorizontal: 10,
     paddingVertical: 4,
+    borderRadius: 999,
+    borderCurve: "continuous",
   },
   typeText: {
     fontSize: 11,

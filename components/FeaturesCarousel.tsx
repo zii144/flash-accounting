@@ -2,7 +2,6 @@ import { UpcomingFeaturesBanner } from "@/components/UpcomingFeaturesBanner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import type { AppIconName } from "@/utils/app-icons";
-import * as Haptics from "expo-haptics";
 import React, { useCallback, useRef } from "react";
 import {
   StyleSheet,
@@ -68,7 +67,6 @@ export function FeaturesCarousel({
   );
 
   const handleClose = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     onDismiss?.();
   }, [onDismiss]);
 

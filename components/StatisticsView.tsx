@@ -22,7 +22,6 @@ import {
     formatTime,
 } from "@/utils/formatting";
 import { logger } from "@/utils/logger";
-import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useFocusEffect } from "expo-router/react-navigation";
@@ -106,7 +105,6 @@ export function StatisticsView() {
   }, [statsHook]);
 
   const handleSettingsPress = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push("/settings");
   }, []);
 
@@ -324,7 +322,7 @@ export function StatisticsView() {
           showsVerticalScrollIndicator={false}
           data={displayData}
           keyExtractor={(item) => item.date}
-          removeClippedSubviews
+          removeClippedSubviews={false}
           maxToRenderPerBatch={10}
           updateCellsBatchingPeriod={50}
           initialNumToRender={10}

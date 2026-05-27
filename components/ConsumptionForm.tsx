@@ -6,7 +6,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { ConsumptionDraft, ConsumptionType } from "@/types/consumption";
-import { TYPING_FEEDBACK_DELAY } from "@/utils/constants";
 import { formatAmountInput, parseAmountInput } from "@/utils/formatting";
 import {
   sanitizeAmount,
@@ -18,7 +17,7 @@ import {
 } from "@/utils/validation";
 import { GlassContainer as GlassEffectGroup } from "expo-glass-effect";
 import * as Haptics from "expo-haptics";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     Alert,
     Keyboard,
@@ -55,7 +54,6 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   const [baseDescription, setBaseDescription] = useState("");
   const [amountError, setAmountError] = useState<string | null>(null);
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Handle amount input change
   const handleAmountChange = (text: string) => {
@@ -93,17 +91,8 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
     } else {
       setAmountError(null);
     }
-
-    // Play typing sound
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-    typingTimeoutRef.current = setTimeout(() => {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }, TYPING_FEEDBACK_DELAY);
   };
 
-  // Debounced typing sound
   const handleTyping = useCallback(
     (text: string, callback: (text: string) => void) => {
       // Sanitize description (no trim during typing to allow spaces)
@@ -124,28 +113,9 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
       } else {
         setDescriptionError(null);
       }
-
-      // Clear existing timeout
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-
-      // Play haptic feedback after a short delay (debounced)
-      typingTimeoutRef.current = setTimeout(() => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      }, TYPING_FEEDBACK_DELAY);
     },
     [t]
   );
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Update description in real-time while listening
   useEffect(() => {
@@ -173,12 +143,10 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   const handleMicPress = useCallback(async () => {
     if (isListening) {
       await stopListening();
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } else {
       // Save current description as base before starting
       setBaseDescription(description);
       await startListening();
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
   }, [isListening, description, stopListening, startListening]);
 
@@ -232,9 +200,6 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
 
     // Dismiss keyboard
     Keyboard.dismiss();
-
-    // Haptic feedback
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     // Stop listening if active
     if (isListening) {

@@ -13,7 +13,6 @@ import { logger } from "@/utils/logger";
 import { router } from "expo-router";
 import { SymbolIcon } from "@/components/symbol-icon";
 import { File, Paths } from "expo-file-system";
-import * as Haptics from "expo-haptics";
 import * as Sharing from "expo-sharing";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -146,12 +145,10 @@ export function SettingsScreen() {
   }, [isFirebaseReady]);
 
   const handleBack = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.back();
   }, []);
 
   const handleLanguagePress = useCallback(() => {
-    Haptics.selectionAsync();
     router.push("/select-language");
   }, []);
 
@@ -221,7 +218,6 @@ export function SettingsScreen() {
       return;
     }
     try {
-      Haptics.selectionAsync();
       setIsAuthBusy(true);
 
       const [appleAuthentication, crypto] = await Promise.all([
