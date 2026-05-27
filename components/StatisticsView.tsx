@@ -7,18 +7,15 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStats } from "@/hooks/useConsumptionStats";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { Consumption } from "@/types/consumption";
-import type { AppIconName } from "@/utils/app-icons";
 import {
     SORT_OPTIONS,
     TIME_FILTERS,
     type SortOption,
     type TimeFilter,
-    type ViewMode,
 } from "@/utils/constants";
 import {
     formatCurrency,
     formatGroupedDate,
-    formatMonthLabel,
     formatTime,
 } from "@/utils/formatting";
 import { logger } from "@/utils/logger";
@@ -45,16 +42,16 @@ interface GroupedConsumption {
   total: number;
 }
 
-function getSortIconName(sortOption: SortOption): AppIconName {
+function getSortLabel(sortOption: SortOption, t: (key: string) => string): string {
   switch (sortOption) {
     case "date-desc":
-      return "calendar-outline";
+      return t("newest");
     case "date-asc":
-      return "calendar";
+      return t("oldest");
     case "amount-desc":
-      return "trending-down-outline";
+      return t("highest");
     default:
-      return "trending-up-outline";
+      return t("lowest");
   }
 }
 
@@ -66,7 +63,6 @@ export function StatisticsView() {
   const statsHook = useConsumptionStats();
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
-  const [viewMode, setViewMode] = useState<ViewMode>("day");
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingConsumption, setEditingConsumption] = useState<Consumption | null>(null);
   
@@ -108,19 +104,12 @@ export function StatisticsView() {
     router.push("/settings");
   }, []);
 
-  const handleViewModeChange = useCallback((mode: ViewMode) => {
-    setViewMode(mode);
-  }, []);
-
   const handleTimeFilterChange = useCallback((filter: TimeFilter) => {
     setTimeFilter(filter);
   }, []);
 
-  const handleSortToggle = useCallback(() => {
-    setSortOption((prev) => {
-      const currentIndex = SORT_OPTIONS.indexOf(prev);
-      return SORT_OPTIONS[(currentIndex + 1) % SORT_OPTIONS.length];
-    });
+  const handleSortChange = useCallback((option: SortOption) => {
+    setSortOption(option);
   }, []);
 
   const handleEdit = useCallback((consumption: Consumption) => {
@@ -204,41 +193,22 @@ export function StatisticsView() {
         }
 
         // Load grouped data with pagination
-        let result;
-        if (viewMode === "day") {
-          result = await hook.getGroupedByDay(
-            timeFilter,
-            sortConfig.sortBy,
-            sortConfig.sortOrder,
-            pageNum,
-            STATS_PAGE_SIZE
-          );
-        } else {
-          result = await hook.getGroupedByMonth(
-            timeFilter,
-            sortConfig.sortBy,
-            sortConfig.sortOrder,
-            pageNum,
-            STATS_PAGE_SIZE
-          );
-        }
+        const result = await hook.getGroupedByDay(
+          timeFilter,
+          sortConfig.sortBy,
+          sortConfig.sortOrder,
+          pageNum,
+          STATS_PAGE_SIZE
+        );
 
         if (!cancelled) {
           const formatted = result.data.map((group) => {
-            if (viewMode === "day") {
-              const dateLabel = formatGroupedDate(
-                group.date,
-                resolvedLanguage,
-                t("today_label"),
-                t("yesterday")
-              );
-              return {
-                ...group,
-                dateLabel,
-              };
-            }
-
-            const dateLabel = formatMonthLabel(group.date, resolvedLanguage);
+            const dateLabel = formatGroupedDate(
+              group.date,
+              resolvedLanguage,
+              t("today_label"),
+              t("yesterday")
+            );
             return {
               ...group,
               dateLabel,
@@ -256,7 +226,6 @@ export function StatisticsView() {
         }
       } catch (error) {
         logger.error('Failed to load stats', error, {
-          viewMode,
           timeFilter,
           sortBy: sortConfig.sortBy,
           sortOrder: sortConfig.sortOrder,
@@ -278,7 +247,7 @@ export function StatisticsView() {
     return () => {
       cancelled = true;
     };
-  }, [timeFilter, viewMode, sortConfig.sortBy, sortConfig.sortOrder, resolvedLanguage, t]);
+  }, [timeFilter, sortConfig.sortBy, sortConfig.sortOrder, resolvedLanguage, t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -442,65 +411,6 @@ export function StatisticsView() {
           </View>
         </ScrollView>
 
-        {/* View Mode Toggle */}
-        <GlassContainer intensity="medium" style={styles.toggleContainer}>
-          <TouchableOpacity
-            style={[
-              styles.toggleButton,
-              viewMode === "day" && styles.toggleButtonActive,
-              {
-                backgroundColor:
-                  viewMode === "day"
-                    ? theme.isDark
-                      ? "rgba(255, 255, 255, 0.15)"
-                      : theme.surface
-                    : "transparent",
-              },
-            ]}
-            onPress={() => handleViewModeChange("day")}
-          >
-            <Text
-              style={[
-                styles.toggleText,
-                {
-                  color: viewMode === "day" ? theme.text : theme.textSecondary,
-                  fontWeight: viewMode === "day" ? "700" : "500",
-                },
-              ]}
-            >
-              {t("byDay")}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.toggleButton,
-              viewMode === "month" && styles.toggleButtonActive,
-              {
-                backgroundColor:
-                  viewMode === "month"
-                    ? theme.isDark
-                      ? "rgba(255, 255, 255, 0.15)"
-                      : theme.surface
-                    : "transparent",
-              },
-            ]}
-            onPress={() => handleViewModeChange("month")}
-          >
-            <Text
-              style={[
-                styles.toggleText,
-                {
-                  color:
-                    viewMode === "month" ? theme.text : theme.textSecondary,
-                  fontWeight: viewMode === "month" ? "700" : "500",
-                },
-              ]}
-            >
-              {t("byMonth")}
-            </Text>
-          </TouchableOpacity>
-        </GlassContainer>
-
         {/* Filters */}
         <View style={styles.filtersContainer}>
           <GlassContainer intensity="light" style={styles.filterRow}>
@@ -543,25 +453,36 @@ export function StatisticsView() {
             <Text style={[styles.filterLabel, { color: theme.textSecondary }]}>
               {t("sort")}:
             </Text>
-            <TouchableOpacity
-              style={styles.sortButton}
-              onPress={handleSortToggle}
-            >
-              <SymbolIcon
-                name={getSortIconName(sortOption)}
-                size={20}
-                color={theme.text}
-              />
-              <Text style={[styles.sortButtonText, { color: theme.text }]}>
-                {sortOption === "date-desc"
-                  ? t("newest")
-                  : sortOption === "date-asc"
-                  ? t("oldest")
-                  : sortOption === "amount-desc"
-                  ? t("highest")
-                  : t("lowest")}
-              </Text>
-            </TouchableOpacity>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View style={styles.filterButtons}>
+                {SORT_OPTIONS.map((option) => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[
+                      styles.filterButton,
+                      sortOption === option && {
+                        backgroundColor: theme.foreground,
+                      },
+                    ]}
+                    onPress={() => handleSortChange(option)}
+                  >
+                    <Text
+                      style={[
+                        styles.filterButtonText,
+                        {
+                          color:
+                            sortOption === option
+                              ? theme.background
+                              : theme.text,
+                        },
+                      ]}
+                    >
+                      {getSortLabel(option, t)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
           </GlassContainer>
         </View>
           </>
@@ -781,30 +702,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     marginTop: 2,
   },
-  toggleContainer: {
-    flexDirection: "row",
-    borderRadius: 16,
-    padding: 4,
-    marginBottom: 16,
-    gap: 4,
-  },
-  toggleButton: {
-    flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  toggleButtonActive: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  toggleText: {
-    fontSize: 14,
-  },
   filtersContainer: {
     gap: 12,
     marginBottom: 20,
@@ -833,18 +730,6 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
   },
   filterButtonText: {
-    fontSize: 13,
-    fontWeight: "500",
-  },
-  sortButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-  },
-  sortButtonText: {
     fontSize: 13,
     fontWeight: "500",
   },
