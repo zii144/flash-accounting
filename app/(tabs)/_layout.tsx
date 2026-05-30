@@ -26,6 +26,13 @@ export default function TabsLayout() {
           md="bar_chart"
         />
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="diagram" disableTransparentOnScrollEdge>
+        <NativeTabs.Trigger.Label>{t("diagram")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "chart.pie", selected: "chart.pie.fill" }}
+          md="donut_large"
+        />
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }

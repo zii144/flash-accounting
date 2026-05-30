@@ -95,6 +95,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
   en: {
     accounting: "Accounting",
     statistics: "Statistics",
+    diagram: "Diagram",
     total: "Total",
     count: "Count",
     flashAccounting: "Black White Accounting",
@@ -247,6 +248,21 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     income: "Income",
     addExpense: "Add Expense",
     addIncome: "Add Income",
+    smartLogExpense: "Smart Log Expense",
+    smartLogIncome: "Smart Log Income",
+    suggestedNames: "Suggested names",
+    moneyFlowQuestion: "Where is the money going?",
+    timeQuestion: "How am I doing over time?",
+    pie: "Pie",
+    treemap: "Treemap",
+    bar: "Bars",
+    line: "Line",
+    spendingPie: "Spending Pie",
+    spendingTreemap: "Spending Treemap",
+    periodCompare: "Period Compare",
+    spendingTrend: "Spending Trend",
+    topFlow: "Top Flow",
+    dailyAverage: "Daily Average",
     errorOccurred: "Something went wrong",
     errorMessage: "We encountered an unexpected error. Please try again or restart the app.",
     tryAgain: "Try Again",
@@ -271,6 +287,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
   zh: {
     accounting: "記帳",
     statistics: "統計",
+    diagram: "圖表",
     total: "總計",
     count: "數量",
     flashAccounting: "黑白記帳",
@@ -419,6 +436,21 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     income: "收入",
     addExpense: "新增支出",
     addIncome: "新增收入",
+    smartLogExpense: "智慧記錄支出",
+    smartLogIncome: "智慧記錄收入",
+    suggestedNames: "建議名稱",
+    moneyFlowQuestion: "錢花到哪裡了？",
+    timeQuestion: "這段時間表現如何？",
+    pie: "圓餅",
+    treemap: "矩形圖",
+    bar: "長條",
+    line: "折線",
+    spendingPie: "支出圓餅圖",
+    spendingTreemap: "支出矩形圖",
+    periodCompare: "期間比較",
+    spendingTrend: "支出趨勢",
+    topFlow: "主要流向",
+    dailyAverage: "每日平均",
     errorOccurred: "發生錯誤",
     errorMessage: "我們遇到了意外錯誤。請重試或重新啟動應用程式。",
     tryAgain: "重試",
@@ -1191,7 +1223,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const t = useMemo(
     () =>
       (key: string): string => {
-        return translations[resolvedLanguage]?.[key] || key;
+        return translations[resolvedLanguage]?.[key] || translations.en[key] || key;
       },
     [resolvedLanguage]
   );
