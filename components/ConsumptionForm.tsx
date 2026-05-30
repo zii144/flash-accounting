@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { Consumption, ConsumptionDraft, ConsumptionType } from "@/types/consumption";
+import { normalizeIosDictationText } from "@/utils/dictation-text";
 import { formatAmountInput, parseAmountInput } from "@/utils/formatting";
 import {
   sanitizeAmount,
@@ -16,7 +17,7 @@ import {
   validateConsumption,
   validateDescription,
 } from "@/utils/validation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     Alert,
     Keyboard,
@@ -56,6 +57,11 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
   const [baseDescription, setBaseDescription] = useState("");
   const [amountError, setAmountError] = useState<string | null>(null);
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
+  const descriptionRef = useRef(description);
+
+  useEffect(() => {
+    descriptionRef.current = description;
+  }, [description]);
 
   // Handle amount input change
   const handleAmountChange = (text: string) => {
@@ -126,24 +132,17 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
     if (isListening) {
       if (transcript) {
         // While listening, show base description + current transcript
-        frame = requestAnimationFrame(() =>
-          setDescription(
-            baseDescription
-              ? `${baseDescription} ${transcript}`.trim()
-              : transcript
-          )
-        );
+        frame = requestAnimationFrame(() => {
+          const next = baseDescription
+            ? `${baseDescription} ${transcript}`.trim()
+            : transcript;
+          descriptionRef.current = next;
+          setDescription(next);
+        });
       } else {
         // When starting but no transcript yet, show base description
         frame = requestAnimationFrame(() => setDescription(baseDescription));
       }
-    } else if (!isListening && transcript) {
-      // When stopping, finalize with the last transcript
-      frame = requestAnimationFrame(() =>
-        setDescription(
-          baseDescription ? `${baseDescription} ${transcript}`.trim() : transcript
-        )
-      );
     }
 
     return () => {
@@ -157,12 +156,30 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
   const handleMicPress = useCallback(async () => {
     if (isListening) {
       await stopListening();
+      const finalized = baseDescription
+        ? `${baseDescription} ${transcript}`.trim()
+        : transcript;
+      if (finalized) {
+        const normalized = sanitizeDescriptionLive(finalized);
+        descriptionRef.current = normalized;
+        setDescription(normalized);
+      }
     } else {
       // Save current description as base before starting
-      setBaseDescription(description);
+      setBaseDescription(descriptionRef.current);
       await startListening();
     }
-  }, [isListening, description, stopListening, startListening]);
+  }, [baseDescription, isListening, stopListening, startListening, transcript]);
+
+  const handleDescriptionChange = useCallback(
+    (text: string) => {
+      const normalized = normalizeIosDictationText(text, descriptionRef.current);
+      const sanitized = sanitizeDescriptionLive(normalized);
+      descriptionRef.current = sanitized;
+      handleTyping(sanitized, setDescription);
+    },
+    [handleTyping],
+  );
 
   const isSubmitDisabled = !amount || parseFloat(parseAmountInput(amount)) <= 0;
   const suggestions = useMemo(
@@ -256,6 +273,7 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
   );
 
   const handleSuggestionPress = useCallback((label: string) => {
+    descriptionRef.current = label;
     setDescription(label);
     setDescriptionError(null);
   }, []);
@@ -302,7 +320,7 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
                   placeholder={t("description")}
                   placeholderTextColor={theme.textSecondary}
                   value={description}
-                  onChangeText={(text) => handleTyping(text, setDescription)}
+                  onChangeText={handleDescriptionChange}
                   returnKeyType="done"
                   onSubmitEditing={() => {
                     const numericAmount = parseAmountInput(amount);
