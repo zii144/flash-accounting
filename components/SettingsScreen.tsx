@@ -90,15 +90,19 @@ export function SettingsScreen() {
   const {
     annualPrice,
     enableProDebug,
+    hasUnlimitedLocal,
     isBusy: isPurchaseBusy,
     isConfigured: isPurchaseConfigured,
+    isPlusPackageAvailable,
     isPro,
     monthlyPrice,
+    plusPrice,
+    purchasePlus,
     purchasePro,
-    recommendedAnnualPrice,
-    recommendedMonthlyPrice,
+    recommendedPlusPrice,
     restorePurchases,
     signOutResetProDebug,
+    storagePlanId,
   } = usePro();
   const cloudEnabled = Boolean(user?.uid && isPro);
   const {
@@ -127,13 +131,12 @@ export function SettingsScreen() {
   const syncPrimaryDetail = syncSnapshot.hasPendingLocalChanges
     ? t("cloudSyncRetryDetail")
     : t("cloudSyncSyncDetail");
-  // TODO(storage-plans): Replace this with a typed plan source once Plus ships:
-  // Basic: no Plus local-unlimited entitlement and no Pro cloud entitlement.
-  // Plus: local-unlimited one-time purchase active, but no cloud entitlement.
-  // Pro: cloud_sync_pro entitlement active from RevenueCat (current isPro path).
-  const currentStoragePlanId: StoragePlanId = isPro ? "pro" : "basic";
   const currentStoragePlanLabel =
-    currentStoragePlanId === "pro" ? t("storagePlanCurrentPro") : t("storagePlanCurrentBasic");
+    storagePlanId === "pro"
+      ? t("storagePlanCurrentPro")
+      : storagePlanId === "plus"
+        ? t("storagePlanCurrentPlus")
+        : t("storagePlanCurrentBasic");
   const storagePlanCards = useMemo<StoragePlanCard[]>(
     () => [
       {
@@ -151,7 +154,7 @@ export function SettingsScreen() {
         id: "plus",
         icon: "local-drive",
         title: t("storagePlanPlusTitle"),
-        price: t("storagePlanPlusPrice"),
+        price: plusPrice ?? t("storagePlanPlusPrice"),
         description: t("storagePlanPlusDescription"),
         features: [
           t("storagePlanPlusFeatureUnlimited"),
@@ -174,7 +177,27 @@ export function SettingsScreen() {
         ],
       },
     ],
-    [annualPrice, monthlyPrice, recommendedAnnualPrice, recommendedMonthlyPrice, t]
+    [annualPrice, monthlyPrice, plusPrice, t]
+  );
+
+  const handlePurchaseError = useCallback(
+    (error: unknown, context: string) => {
+      const errorCode = getAppErrorCode(error);
+      if (errorCode === "IAP_NOT_CONFIGURED") {
+        Alert.alert(t("iapNotReadyTitle"), t("iapNotReadyMessage"));
+        return;
+      }
+      if (errorCode === "PURCHASE_CANCELLED") {
+        return;
+      }
+      if (errorCode === "IAP_PACKAGE_UNAVAILABLE") {
+        Alert.alert(t("iapNotReadyTitle"), t("iapPackageUnavailableMessage"));
+        return;
+      }
+      logger.error("Purchase failed", error, { context });
+      Alert.alert(t("iapErrorTitle"), t("iapErrorMessage"));
+    },
+    [t]
   );
 
   useEffect(() => {
@@ -345,31 +368,25 @@ export function SettingsScreen() {
     try {
       await purchasePro(plan);
     } catch (error) {
-      const errorCode = getAppErrorCode(error);
-      if (errorCode === "IAP_NOT_CONFIGURED") {
-        Alert.alert(t("iapNotReadyTitle"), t("iapNotReadyMessage"));
-        return;
-      }
-      if (errorCode === "PURCHASE_CANCELLED") {
-        return;
-      }
-      logger.error("Purchase failed", error, { plan });
-      Alert.alert(t("iapErrorTitle"), t("iapErrorMessage"));
+      handlePurchaseError(error, plan);
     }
-  }, [purchasePro, t]);
+  }, [handlePurchaseError, purchasePro]);
+
+  const handlePurchasePlus = useCallback(async () => {
+    try {
+      await purchasePlus();
+    } catch (error) {
+      handlePurchaseError(error, "plus");
+    }
+  }, [handlePurchaseError, purchasePlus]);
 
   const handleRestorePro = useCallback(async () => {
     try {
       await restorePurchases();
     } catch (error) {
-      if (getAppErrorCode(error) === "IAP_NOT_CONFIGURED") {
-        Alert.alert(t("iapNotReadyTitle"), t("iapNotReadyMessage"));
-        return;
-      }
-      logger.error("Restore purchase failed", error);
-      Alert.alert(t("iapErrorTitle"), t("iapErrorMessage"));
+      handlePurchaseError(error, "restore");
     }
-  }, [restorePurchases, t]);
+  }, [handlePurchaseError, restorePurchases]);
 
   const handleSyncLocal = useCallback(() => {
     Alert.alert(t("cloudSyncTitle"), t("cloudSyncSyncConfirm"), [
@@ -607,7 +624,7 @@ export function SettingsScreen() {
                             {t("cloudSyncMonthlyCta")}
                           </Text>
                           <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                            {monthlyPrice ?? recommendedMonthlyPrice}
+                            {monthlyPrice ?? t("storagePlanProMonthlyFallback")}
                           </Text>
                         </View>
                       </View>
@@ -629,7 +646,7 @@ export function SettingsScreen() {
                             {t("cloudSyncAnnualCta")}
                           </Text>
                           <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                            {annualPrice ?? recommendedAnnualPrice}
+                            {annualPrice ?? t("storagePlanProAnnualFallback")}
                           </Text>
                         </View>
                       </View>
@@ -713,7 +730,7 @@ export function SettingsScreen() {
               </>
             )}
 
-            {!cloudEnabled && (
+            {!cloudEnabled && !hasUnlimitedLocal && (
               <View style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}>
                 <View style={styles.settingLeft}>
                   <SymbolIcon name="server" size={22} color={theme.text} />
@@ -860,7 +877,7 @@ export function SettingsScreen() {
             contentContainerStyle={styles.planSheetContent}
           >
             {storagePlanCards.map((plan) => {
-              const isCurrentPlan = plan.id === currentStoragePlanId;
+              const isCurrentPlan = plan.id === storagePlanId;
               return (
                 <GlassContainer
                   key={plan.id}
@@ -944,11 +961,23 @@ export function SettingsScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.planSecondaryButton, { borderColor: theme.border, opacity: 0.56 }]}
-                disabled
+                style={[
+                  styles.planSecondaryButton,
+                  { borderColor: theme.border },
+                  (!isPurchaseConfigured || isPurchaseBusy || !isPlusPackageAvailable) && {
+                    opacity: 0.56,
+                  },
+                ]}
+                onPress={() => void handlePurchasePlus()}
+                disabled={isPurchaseBusy || !isPurchaseConfigured || !isPlusPackageAvailable}
               >
-                <Text style={[styles.planSecondaryButtonText, { color: theme.textSecondary }]}>
-                  {t("storageUpgradePlusComingSoon")}
+                <Text style={[styles.planSecondaryButtonText, { color: theme.text }]}>
+                  {isPlusPackageAvailable
+                    ? t("storageUpgradePlusCta").replace(
+                        "{price}",
+                        plusPrice ?? recommendedPlusPrice
+                      )
+                    : t("storageUpgradePlusComingSoon")}
                 </Text>
               </TouchableOpacity>
 

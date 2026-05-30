@@ -41,6 +41,7 @@ export function AccountingScreen() {
   const { isFirebaseReady, isSignedIn } = useAuth();
   const { isConfigured: isPurchaseConfigured } = usePro();
   const {
+    consumptions,
     isLoading,
     saveConsumption,
     updateConsumption,
@@ -148,7 +149,7 @@ export function AccountingScreen() {
     return () => {
       cancelled = true;
     };
-  }, [getStats, isLoading, totalCount]);
+  }, [consumptions, getStats, isLoading, totalCount]);
 
   const handleSubmit = useCallback(
     async (data: ConsumptionDraft) => {

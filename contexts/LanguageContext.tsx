@@ -187,7 +187,9 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     cloudSyncPullDone: "Downloaded {count} cloud records to this device.",
     cloudSyncPullFailed: "Cloud download failed. Your current local data was kept.",
     iapNotReadyTitle: "Purchase not set up",
-    iapNotReadyMessage: "IAP is not wired yet. See docs to finish StoreKit/RevenueCat setup.",
+    iapNotReadyMessage:
+      "Purchases are not configured for this build. Add RevenueCat keys and rebuild the app.",
+    iapPackageUnavailableMessage: "This plan is not available in the current store offering.",
     iapErrorTitle: "Purchase failed",
     iapErrorMessage: "Please try again later.",
     localLimitTitle: "Local storage limit",
@@ -203,6 +205,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storageUpgradeIntro:
       "Choose the plan that fits how you keep records: free local use, unlimited local storage, or cloud sync for multiple devices and shared books.",
     storagePlanCurrentBasic: "Current plan: Basic",
+    storagePlanCurrentPlus: "Current plan: Plus",
     storagePlanCurrentPro: "Current plan: Pro",
     storagePlanCurrentBadge: "Current",
     storagePlanBasicTitle: "Basic Free",
@@ -227,6 +230,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storageUpgradeActionsTitle: "Upgrade when you are ready",
     storageUpgradeProAnnualCta: "Start Pro yearly · {price}",
     storageUpgradeProMonthlyCta: "Start Pro monthly · {price}",
+    storageUpgradePlusCta: "Get Plus · {price}",
     storageUpgradePlusComingSoon: "Plus one-time purchase coming soon",
     "features.cloud-backup-sync.title": "Cloud Backup & Sync",
     "features.cloud-backup-sync.message":
@@ -356,7 +360,8 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     cloudSyncPullDone: "已下載 {count} 筆雲端記錄到此裝置。",
     cloudSyncPullFailed: "下載雲端資料失敗，目前本機資料已保留。",
     iapNotReadyTitle: "尚未設定購買",
-    iapNotReadyMessage: "IAP 尚未串接完成，請參考文件完成 StoreKit/RevenueCat 設定。",
+    iapNotReadyMessage: "此版本尚未設定 RevenueCat 購買功能，請加入 API 金鑰並重新建置 App。",
+    iapPackageUnavailableMessage: "此方案尚未在目前商店 offering 中上架。",
     iapErrorTitle: "購買失敗",
     iapErrorMessage: "請稍後再試。",
     localLimitTitle: "本機儲存上限",
@@ -372,6 +377,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storageUpgradeIntro:
       "依照你的記帳方式選擇方案：免費本機使用、本機無限記錄，或支援多裝置與共用帳本的雲端同步。",
     storagePlanCurrentBasic: "目前方案：Basic",
+    storagePlanCurrentPlus: "目前方案：Plus",
     storagePlanCurrentPro: "目前方案：Pro",
     storagePlanCurrentBadge: "目前",
     storagePlanBasicTitle: "Basic 免費",
@@ -396,6 +402,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storageUpgradeActionsTitle: "準備好時再升級",
     storageUpgradeProAnnualCta: "啟用 Pro 年繳 · {price}",
     storageUpgradeProMonthlyCta: "啟用 Pro 月繳 · {price}",
+    storageUpgradePlusCta: "購買 Plus · {price}",
     storageUpgradePlusComingSoon: "Plus 一次性買斷即將推出",
     "features.cloud-backup-sync.title": "雲端備份與同步",
     "features.cloud-backup-sync.message":
@@ -529,7 +536,9 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     cloudSyncPullDone: "Downloaded {count} cloud records to this device.",
     cloudSyncPullFailed: "Cloud download failed. Your current local data was kept.",
     iapNotReadyTitle: "Purchase not set up",
-    iapNotReadyMessage: "IAP is not wired yet. See docs to finish StoreKit/RevenueCat setup.",
+    iapNotReadyMessage:
+      "Purchases are not configured for this build. Add RevenueCat keys and rebuild the app.",
+    iapPackageUnavailableMessage: "This plan is not available in the current store offering.",
     iapErrorTitle: "Purchase failed",
     iapErrorMessage: "Please try again later.",
     localLimitTitle: "Local storage limit",
@@ -545,6 +554,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storageUpgradeIntro:
       "Choose the plan that fits how you keep records: free local use, unlimited local storage, or cloud sync for multiple devices and shared books.",
     storagePlanCurrentBasic: "Current plan: Basic",
+    storagePlanCurrentPlus: "Current plan: Plus",
     storagePlanCurrentPro: "Current plan: Pro",
     storagePlanCurrentBadge: "Current",
     storagePlanBasicTitle: "Basic Free",
@@ -569,6 +579,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storageUpgradeActionsTitle: "Upgrade when you are ready",
     storageUpgradeProAnnualCta: "Start Pro yearly · {price}",
     storageUpgradeProMonthlyCta: "Start Pro monthly · {price}",
+    storageUpgradePlusCta: "Get Plus · {price}",
     storageUpgradePlusComingSoon: "Plus one-time purchase coming soon",
     "features.cloud-backup-sync.title": "Respaldo en la Nube y Sincronización",
     "features.cloud-backup-sync.message":
@@ -701,7 +712,9 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     cloudSyncPullDone: "Downloaded {count} cloud records to this device.",
     cloudSyncPullFailed: "Cloud download failed. Your current local data was kept.",
     iapNotReadyTitle: "Purchase not set up",
-    iapNotReadyMessage: "IAP is not wired yet. See docs to finish StoreKit/RevenueCat setup.",
+    iapNotReadyMessage:
+      "Purchases are not configured for this build. Add RevenueCat keys and rebuild the app.",
+    iapPackageUnavailableMessage: "This plan is not available in the current store offering.",
     iapErrorTitle: "Purchase failed",
     iapErrorMessage: "Please try again later.",
     localLimitTitle: "Local storage limit",
@@ -717,6 +730,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storageUpgradeIntro:
       "Choose the plan that fits how you keep records: free local use, unlimited local storage, or cloud sync for multiple devices and shared books.",
     storagePlanCurrentBasic: "Current plan: Basic",
+    storagePlanCurrentPlus: "Current plan: Plus",
     storagePlanCurrentPro: "Current plan: Pro",
     storagePlanCurrentBadge: "Current",
     storagePlanBasicTitle: "Basic Free",
@@ -741,6 +755,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storageUpgradeActionsTitle: "Upgrade when you are ready",
     storageUpgradeProAnnualCta: "Start Pro yearly · {price}",
     storageUpgradeProMonthlyCta: "Start Pro monthly · {price}",
+    storageUpgradePlusCta: "Get Plus · {price}",
     storageUpgradePlusComingSoon: "Plus one-time purchase coming soon",
     "features.cloud-backup-sync.title": "Sauvegarde Cloud et Synchronisation",
     "features.cloud-backup-sync.message":
@@ -874,7 +889,9 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     cloudSyncPullDone: "Downloaded {count} cloud records to this device.",
     cloudSyncPullFailed: "Cloud download failed. Your current local data was kept.",
     iapNotReadyTitle: "Purchase not set up",
-    iapNotReadyMessage: "IAP is not wired yet. See docs to finish StoreKit/RevenueCat setup.",
+    iapNotReadyMessage:
+      "Purchases are not configured for this build. Add RevenueCat keys and rebuild the app.",
+    iapPackageUnavailableMessage: "This plan is not available in the current store offering.",
     iapErrorTitle: "Purchase failed",
     iapErrorMessage: "Please try again later.",
     localLimitTitle: "Local storage limit",
@@ -890,6 +907,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storageUpgradeIntro:
       "Choose the plan that fits how you keep records: free local use, unlimited local storage, or cloud sync for multiple devices and shared books.",
     storagePlanCurrentBasic: "Current plan: Basic",
+    storagePlanCurrentPlus: "Current plan: Plus",
     storagePlanCurrentPro: "Current plan: Pro",
     storagePlanCurrentBadge: "Current",
     storagePlanBasicTitle: "Basic Free",
@@ -914,6 +932,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storageUpgradeActionsTitle: "Upgrade when you are ready",
     storageUpgradeProAnnualCta: "Start Pro yearly · {price}",
     storageUpgradeProMonthlyCta: "Start Pro monthly · {price}",
+    storageUpgradePlusCta: "Get Plus · {price}",
     storageUpgradePlusComingSoon: "Plus one-time purchase coming soon",
     "features.cloud-backup-sync.title": "Cloud-Backup & Synchronisation",
     "features.cloud-backup-sync.message":
@@ -1046,7 +1065,9 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     cloudSyncPullDone: "Downloaded {count} cloud records to this device.",
     cloudSyncPullFailed: "Cloud download failed. Your current local data was kept.",
     iapNotReadyTitle: "Purchase not set up",
-    iapNotReadyMessage: "IAP is not wired yet. See docs to finish StoreKit/RevenueCat setup.",
+    iapNotReadyMessage:
+      "Purchases are not configured for this build. Add RevenueCat keys and rebuild the app.",
+    iapPackageUnavailableMessage: "This plan is not available in the current store offering.",
     iapErrorTitle: "Purchase failed",
     iapErrorMessage: "Please try again later.",
     localLimitTitle: "Local storage limit",
@@ -1062,6 +1083,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storageUpgradeIntro:
       "Choose the plan that fits how you keep records: free local use, unlimited local storage, or cloud sync for multiple devices and shared books.",
     storagePlanCurrentBasic: "Current plan: Basic",
+    storagePlanCurrentPlus: "Current plan: Plus",
     storagePlanCurrentPro: "Current plan: Pro",
     storagePlanCurrentBadge: "Current",
     storagePlanBasicTitle: "Basic Free",
@@ -1086,6 +1108,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storageUpgradeActionsTitle: "Upgrade when you are ready",
     storageUpgradeProAnnualCta: "Start Pro yearly · {price}",
     storageUpgradeProMonthlyCta: "Start Pro monthly · {price}",
+    storageUpgradePlusCta: "Get Plus · {price}",
     storageUpgradePlusComingSoon: "Plus one-time purchase coming soon",
     "features.cloud-backup-sync.title": "クラウドバックアップと同期",
     "features.cloud-backup-sync.message":

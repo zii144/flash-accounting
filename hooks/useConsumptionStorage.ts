@@ -341,7 +341,7 @@ async function processPendingCloudSync(uid: string): Promise<{ processed: number
 
 function useConsumptionStorageController(): ConsumptionStorageValue {
   const { user } = useAuth();
-  const { isPro } = usePro();
+  const { isPro, hasUnlimitedLocal } = usePro();
   const cloudEnabled = Boolean(user?.uid && isPro);
 
   const [consumptions, setConsumptions] = useState<Consumption[]>([]);
@@ -572,7 +572,7 @@ function useConsumptionStorageController(): ConsumptionStorageValue {
           deletedAt: null,
         });
 
-        if (!cloudEnabled && totalCount >= FREE_LOCAL_RECORD_LIMIT) {
+        if (!hasUnlimitedLocal && !cloudEnabled && totalCount >= FREE_LOCAL_RECORD_LIMIT) {
           throw new AppError("LOCAL_LIMIT_REACHED");
         }
 
@@ -601,7 +601,7 @@ function useConsumptionStorageController(): ConsumptionStorageValue {
         );
       }
     },
-    [applyStoredSyncMetadata, attemptBackgroundSync, cloudEnabled, totalCount, user?.uid]
+    [applyStoredSyncMetadata, attemptBackgroundSync, cloudEnabled, hasUnlimitedLocal, totalCount, user?.uid]
   );
 
   const deleteConsumption = useCallback(
