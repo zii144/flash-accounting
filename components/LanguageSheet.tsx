@@ -16,7 +16,8 @@ export function LanguageSheet() {
   const languageOptions = useMemo(() => getLanguageOptions(t), [t]);
 
   useEffect(() => {
-    setPendingLanguage(language);
+    const frame = requestAnimationFrame(() => setPendingLanguage(language));
+    return () => cancelAnimationFrame(frame);
   }, [language]);
 
   const selectedLabel =

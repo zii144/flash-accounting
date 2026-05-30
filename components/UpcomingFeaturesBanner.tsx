@@ -58,7 +58,8 @@ export function UpcomingFeaturesBanner({
   const [isVisible, setIsVisible] = useState(visible);
 
   useEffect(() => {
-    setIsVisible(visible);
+    const frame = requestAnimationFrame(() => setIsVisible(visible));
+    return () => cancelAnimationFrame(frame);
   }, [visible]);
 
   useEffect(() => {

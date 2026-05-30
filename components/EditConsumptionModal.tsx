@@ -44,27 +44,35 @@ export function EditConsumptionModal({
   const [logDate, setLogDate] = useState<Date>(() => new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isGlassAvailable, setIsGlassAvailable] = useState(false);
-
-  // Check if glass effect is available
-  useEffect(() => {
+  const [isGlassAvailable] = useState(() => {
     if (Platform.OS === "ios") {
       try {
-        setIsGlassAvailable(isLiquidGlassAvailable());
+        return isLiquidGlassAvailable();
       } catch {
-        setIsGlassAvailable(false);
+        return false;
       }
     }
-  }, []);
+    return false;
+  });
 
   // Initialize form when consumption changes
   useEffect(() => {
+    let frame: number | null = null;
+
     if (consumption) {
-      setAmount(formatAmountInput(consumption.amount.toString()));
-      setDescription(consumption.description || "");
-      setType(consumption.type);
-      setLogDate(new Date(consumption.date));
+      frame = requestAnimationFrame(() => {
+        setAmount(formatAmountInput(consumption.amount.toString()));
+        setDescription(consumption.description || "");
+        setType(consumption.type);
+        setLogDate(new Date(consumption.date));
+      });
     }
+
+    return () => {
+      if (frame !== null) {
+        cancelAnimationFrame(frame);
+      }
+    };
   }, [consumption]);
 
   const handleAmountChange = useCallback((text: string) => {
