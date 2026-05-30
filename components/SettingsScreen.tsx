@@ -120,7 +120,7 @@ export function SettingsScreen() {
   const [isAuthBusy, setIsAuthBusy] = useState(false);
   const [isAppleAuthAvailable, setIsAppleAuthAvailable] = useState(false);
   const [isStoragePlanSheetVisible, setIsStoragePlanSheetVisible] = useState(false);
-  const languages = useMemo(() => getLanguageOptions(t), [t]);
+  const languages = useMemo(() => getLanguageOptions(t), [t, resolvedLanguage]);
   const currentLanguageLabel =
     languages.find((option) => option.code === language)?.name ?? t("device");
   const showAppleSignIn = isFirebaseReady && Platform.OS === "ios" && isAppleAuthAvailable;
@@ -179,7 +179,7 @@ export function SettingsScreen() {
         ],
       },
     ],
-    [annualPrice, monthlyPrice, plusPrice, t]
+    [annualPrice, monthlyPrice, plusPrice, t, resolvedLanguage]
   );
 
   const handlePurchaseError = useCallback(
@@ -272,7 +272,7 @@ export function SettingsScreen() {
         });
         Alert.alert(t("exportSuccess"));
       } else {
-        Alert.alert(t("exportError"), "Sharing is not available on this device");
+        Alert.alert(t("exportError"), t("exportSharingUnavailable"));
       }
     } catch (error) {
       logger.error("Export error", error);
@@ -299,8 +299,8 @@ export function SettingsScreen() {
           } catch (error) {
             logger.error("Clear error", error);
             const errorMessage =
-              error instanceof Error ? error.message : "Failed to clear history";
-            Alert.alert("Error", errorMessage);
+              error instanceof Error ? error.message : t("errorClearHistoryFailed");
+            Alert.alert(t("errorOccurred"), errorMessage);
           }
         },
       },
@@ -501,7 +501,11 @@ export function SettingsScreen() {
   }, [cloudEnabled, formatSyncDateTime, syncSnapshot.lastSyncedAt, syncSnapshot.status, t]);
 
   return (
-    <SafeAreaView edges={["top"]} style={[styles.container, { backgroundColor: theme.background }]}>
+    <SafeAreaView
+      key={resolvedLanguage}
+      edges={["top"]}
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <GlassContainer intensity="medium" style={styles.headerGlass}>
