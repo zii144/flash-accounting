@@ -1,5 +1,7 @@
+import type { ResolvedLanguage } from "@/utils/formatting";
 import type { Consumption } from "@/types/consumption";
 import type { TimeFilter } from "@/utils/constants";
+import { LOCALE_MAP } from "@/utils/formatting";
 
 export type CategoryDatum = {
   label: string;
@@ -24,12 +26,15 @@ export type DiagramSummary = {
   averageExpense: number;
 };
 
-function formatMonth(date: Date) {
-  return date.toLocaleDateString(undefined, { month: "short" });
+function formatMonth(date: Date, language: ResolvedLanguage) {
+  return date.toLocaleDateString(LOCALE_MAP[language] || "en-US", { month: "short" });
 }
 
-function formatDay(date: Date) {
-  return date.toLocaleDateString(undefined, { month: "numeric", day: "numeric" });
+function formatDay(date: Date, language: ResolvedLanguage) {
+  return date.toLocaleDateString(LOCALE_MAP[language] || "en-US", {
+    month: "numeric",
+    day: "numeric",
+  });
 }
 
 function getTrendKey(date: Date, timeFilter: TimeFilter) {
@@ -40,12 +45,12 @@ function getTrendKey(date: Date, timeFilter: TimeFilter) {
   return date.toISOString().slice(0, 10);
 }
 
-function getTrendLabel(date: Date, timeFilter: TimeFilter) {
+function getTrendLabel(date: Date, timeFilter: TimeFilter, language: ResolvedLanguage) {
   if (timeFilter === "all" || timeFilter === "year") {
-    return formatMonth(date);
+    return formatMonth(date, language);
   }
 
-  return formatDay(date);
+  return formatDay(date, language);
 }
 
 export function buildCategoryBreakdown(
@@ -75,7 +80,11 @@ export function buildCategoryBreakdown(
     .sort((a, b) => b.amount - a.amount);
 }
 
-export function buildTrendSeries(records: Consumption[], timeFilter: TimeFilter): TrendDatum[] {
+export function buildTrendSeries(
+  records: Consumption[],
+  timeFilter: TimeFilter,
+  language: ResolvedLanguage,
+): TrendDatum[] {
   const grouped = new Map<string, TrendDatum & { timestamp: number }>();
 
   for (const record of records) {
@@ -89,7 +98,7 @@ export function buildTrendSeries(records: Consumption[], timeFilter: TimeFilter)
       grouped.get(key) ??
       ({
         key,
-        label: getTrendLabel(date, timeFilter),
+        label: getTrendLabel(date, timeFilter, language),
         expense: 0,
         income: 0,
         net: 0,

@@ -2,10 +2,19 @@ import { SymbolIcon } from "@/components/symbol-icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Tabs } from "expo-router";
+import { useMemo } from "react";
 
 export default function TabsLayout() {
   const { theme } = useTheme();
-  const { t } = useLanguage();
+  const { t, resolvedLanguage } = useLanguage();
+  const tabLabels = useMemo(
+    () => ({
+      accounting: t("accounting"),
+      statistics: t("statistics"),
+      diagram: t("diagram"),
+    }),
+    [t, resolvedLanguage],
+  );
 
   return (
     <Tabs
@@ -26,7 +35,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: t("accounting"),
+          title: tabLabels.accounting,
           tabBarIcon: ({ color, size }) => (
             <SymbolIcon name="accounting" color={color} size={size} />
           ),
@@ -35,9 +44,18 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="statistics"
         options={{
-          title: t("statistics"),
+          title: tabLabels.statistics,
           tabBarIcon: ({ color, size }) => (
             <SymbolIcon name="statistics" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="diagram"
+        options={{
+          title: tabLabels.diagram,
+          tabBarIcon: ({ color, size }) => (
+            <SymbolIcon name="chart" color={color} size={size} />
           ),
         }}
       />

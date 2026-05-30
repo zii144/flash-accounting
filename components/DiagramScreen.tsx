@@ -146,7 +146,15 @@ function SegmentControl<T extends string>({
   );
 }
 
-function PieDiagram({ data, size }: { data: CategoryDatum[]; size: number }) {
+function PieDiagram({
+  data,
+  size,
+  centerLabel,
+}: {
+  data: CategoryDatum[];
+  size: number;
+  centerLabel: string;
+}) {
   const { theme } = useTheme();
   const palette = theme.isDark ? DARK_MONO_PALETTE : MONO_PALETTE;
   const center = size / 2;
@@ -200,7 +208,7 @@ function PieDiagram({ data, size }: { data: CategoryDatum[]; size: number }) {
         fontSize="11"
         fill={theme.textSecondary}
       >
-        groups
+        {centerLabel}
       </SvgText>
     </Svg>
   );
@@ -210,10 +218,12 @@ function TreemapDiagram({
   data,
   width,
   height,
+  emptyLabel,
 }: {
   data: CategoryDatum[];
   width: number;
   height: number;
+  emptyLabel: string;
 }) {
   const { theme } = useTheme();
   const palette = theme.isDark ? DARK_MONO_PALETTE : MONO_PALETTE;
@@ -266,7 +276,7 @@ function TreemapDiagram({
   if (total <= 0) {
     return (
       <View style={[styles.treemap, { height }]}>
-        <Text style={[styles.emptyDiagramText, { color: theme.textSecondary }]}>No data</Text>
+        <Text style={[styles.emptyDiagramText, { color: theme.textSecondary }]}>{emptyLabel}</Text>
       </View>
     );
   }
@@ -408,7 +418,7 @@ function LineDiagram({ data, width, height }: { data: TrendDatum[]; width: numbe
 export function DiagramScreen() {
   const { width } = useWindowDimensions();
   const { theme } = useTheme();
-  const { t } = useLanguage();
+  const { t, resolvedLanguage } = useLanguage();
   const { canonicalizeLabel, isReady } = useGlossary();
   const { getFilteredConsumptions } = useConsumptionStats();
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("month");
@@ -419,7 +429,10 @@ export function DiagramScreen() {
   const contentWidth = Math.max(280, width - 32);
   const pieSize = Math.min(260, contentWidth * 0.78);
   const trendHeight = Math.max(220, Math.min(300, contentWidth * 0.7));
-  const trendData = useMemo(() => buildTrendSeries(records, timeFilter), [records, timeFilter]);
+  const trendData = useMemo(
+    () => buildTrendSeries(records, timeFilter, resolvedLanguage),
+    [records, timeFilter, resolvedLanguage],
+  );
 
   const categoryData = isReady ? buildCategoryBreakdown(records, canonicalizeLabel) : [];
   const summary = isReady
@@ -467,6 +480,7 @@ export function DiagramScreen() {
 
   return (
     <SafeAreaView
+      key={resolvedLanguage}
       edges={["top"]}
       style={[styles.container, { backgroundColor: theme.background }]}
     >
@@ -553,12 +567,17 @@ export function DiagramScreen() {
 
             <View style={styles.diagramStage}>
               {mode === "pie" ? (
-                <PieDiagram data={categoryData} size={pieSize} />
+                <PieDiagram
+                  data={categoryData}
+                  size={pieSize}
+                  centerLabel={t("groups")}
+                />
               ) : mode === "treemap" ? (
                 <TreemapDiagram
                   data={categoryData}
                   width={contentWidth - 36}
                   height={Math.max(260, Math.min(420, width * 0.88))}
+                  emptyLabel={t("noData")}
                 />
               ) : mode === "bar" ? (
                 <BarDiagram data={trendData} width={contentWidth - 36} height={trendHeight} />
