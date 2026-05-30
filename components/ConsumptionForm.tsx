@@ -16,7 +16,6 @@ import {
   validateConsumption,
   validateDescription,
 } from "@/utils/validation";
-import { GlassContainer as GlassEffectGroup } from "expo-glass-effect";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
     Alert,
@@ -267,9 +266,9 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
       style={styles.container}
     >
       <Animated.View style={[listeningStyle, styles.animatedWrapper]}>
-        <GlassEffectGroup spacing={10} style={styles.formGroup}>
-          <GlassContainer intensity="heavy" style={styles.form}>
-            <GlassContainer intensity="clear" style={styles.amountContainer}>
+        <View style={styles.formGroup}>
+          <GlassContainer intensity="medium" style={styles.form}>
+            <View style={styles.amountContainer}>
               <TextInput
                 style={[
                   styles.amountInput,
@@ -288,9 +287,11 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
                   {amountError}
                 </Text>
               ) : null}
-            </GlassContainer>
+            </View>
 
-            <GlassContainer intensity="clear" style={styles.descriptionContainer}>
+            <View style={[styles.fieldDivider, { backgroundColor: theme.border }]} />
+
+            <View style={styles.descriptionContainer}>
               <View style={styles.descriptionContent}>
                 <TextInput
                   style={[
@@ -356,7 +357,7 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
                   {descriptionError}
                 </Text>
               ) : null}
-            </GlassContainer>
+            </View>
           </GlassContainer>
 
           {suggestions.length > 0 ? (
@@ -454,7 +455,7 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
               </Text>
             </GlassButton>
           </View>
-        </GlassEffectGroup>
+        </View>
       </Animated.View>
     </KeyboardAvoidingView>
   );
@@ -471,17 +472,20 @@ const styles = StyleSheet.create({
   },
   formGroup: {
     width: "100%",
+    gap: 10,
   },
   form: {
     borderRadius: 24,
     borderCurve: "continuous",
-    padding: 16,
-    gap: 12,
+    overflow: "hidden",
+    paddingVertical: 4,
   },
   amountContainer: {
-    borderRadius: 18,
-    borderCurve: "continuous",
     overflow: "hidden",
+  },
+  fieldDivider: {
+    height: StyleSheet.hairlineWidth,
+    marginHorizontal: 16,
   },
   amountInput: {
     fontSize: 24,
@@ -494,8 +498,6 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   descriptionContainer: {
-    borderRadius: 18,
-    borderCurve: "continuous",
     overflow: "hidden",
   },
   descriptionContent: {
