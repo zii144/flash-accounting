@@ -16,7 +16,6 @@ import {
   validateDescription,
 } from "@/utils/validation";
 import { GlassContainer as GlassEffectGroup } from "expo-glass-effect";
-import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useState } from "react";
 import {
     Alert,
@@ -188,13 +187,11 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
       }
 
       Alert.alert(t("errorOccurred") || "Error", errorMessage);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
     }
 
     if (isNaN(amountNum) || amountNum <= 0) {
       Alert.alert(t("errorOccurred") || "Error", t("errorInvalidAmount"));
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
     }
 
@@ -477,8 +474,8 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     flexDirection: "row",
-    gap: 10,
-    marginTop: 10,
+    gap: 12,
+    marginTop: 16,
   },
   buttonSlot: {
     flex: 1,

@@ -15,7 +15,6 @@ import { FREE_LOCAL_RECORD_LIMIT } from "@/utils/constants";
 import { createConsumptionRecord } from "@/utils/consumption-record";
 import { formatCurrency } from "@/utils/formatting";
 import { logger } from "@/utils/logger";
-import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useFocusEffect } from "expo-router/react-navigation";
@@ -170,7 +169,6 @@ export function AccountingScreen() {
               );
 
           Alert.alert(t("localLimitReachedTitle"), limitMessage, [{ text: t("confirm") || "OK" }]);
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
           return;
         }
 
@@ -179,7 +177,6 @@ export function AccountingScreen() {
         Alert.alert(t("errorOccurred") || "Error", errorMessage, [
           { text: t("tryAgain") || "OK" },
         ]);
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
     },
     [canUnlockCloudStorage, saveConsumption, t]
@@ -213,7 +210,6 @@ export function AccountingScreen() {
         Alert.alert(t("errorOccurred") || "Error", errorMessage, [
           { text: t("tryAgain") || "OK" },
         ]);
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
     },
     [deleteConsumption, page, t]

@@ -6,7 +6,6 @@ import { formatAmountInput, LOCALE_MAP, parseAmountInput } from "@/utils/formatt
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { SymbolIcon } from "@/components/symbol-icon";
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
-import * as Haptics from "expo-haptics";
 import React, { useCallback, useEffect, useState } from "react";
 import {
     Alert,
@@ -98,7 +97,6 @@ export function EditConsumptionModal({
 
     if (isNaN(amountNum) || amountNum <= 0) {
       Alert.alert(t("errorOccurred") || "Error", t("errorInvalidAmount"));
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       return;
     }
 
@@ -111,13 +109,11 @@ export function EditConsumptionModal({
         type,
         date: logDate.toISOString(),
       });
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       onClose();
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : t("errorSaveFailed");
       Alert.alert(t("errorOccurred") || "Error", errorMessage);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setIsSaving(false);
     }
@@ -143,7 +139,6 @@ export function EditConsumptionModal({
           text: t("delete") || "Delete",
           style: "destructive",
           onPress: () => {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             onDelete(consumption.id);
             onClose();
           },

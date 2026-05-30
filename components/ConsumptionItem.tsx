@@ -5,7 +5,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Consumption } from "@/types/consumption";
 import { formatCurrency, formatDate, formatTime } from "@/utils/formatting";
-import * as Haptics from "expo-haptics";
 import { memo, useCallback, useRef } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import Swipeable, {
@@ -101,7 +100,6 @@ function ConsumptionItemComponent({
         style: "destructive",
         onPress: () => {
           swipeableRef.current?.close();
-          void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           onDelete(consumption.id);
         },
       },

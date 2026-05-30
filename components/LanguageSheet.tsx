@@ -5,7 +5,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { getLanguageOptions } from "@/utils/language-options";
 import { router } from "expo-router";
 import { SymbolIcon } from "@/components/symbol-icon";
-import * as Haptics from "expo-haptics";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -33,7 +32,6 @@ export function LanguageSheet() {
 
   const handleApply = useCallback(async () => {
     await setLanguage(pendingLanguage);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     router.back();
   }, [pendingLanguage, setLanguage]);
 
