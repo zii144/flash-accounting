@@ -5,8 +5,9 @@ import { SymbolIcon } from "@/components/symbol-icon";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
-import { ConsumptionDraft, ConsumptionType } from "@/types/consumption";
+import { Consumption, ConsumptionDraft, ConsumptionType } from "@/types/consumption";
 import { formatAmountInput, parseAmountInput } from "@/utils/formatting";
+import { getConsumptionSuggestions } from "@/utils/smart-consumption";
 import {
   sanitizeAmount,
   sanitizeDescription,
@@ -16,12 +17,13 @@ import {
   validateDescription,
 } from "@/utils/validation";
 import { GlassContainer as GlassEffectGroup } from "expo-glass-effect";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
     Alert,
     Keyboard,
     KeyboardAvoidingView,
     Platform,
+    Pressable,
     StyleSheet,
     Text,
     TextInput,
@@ -35,9 +37,10 @@ import Animated, {
 
 interface ConsumptionFormProps {
   onSubmit: (consumption: ConsumptionDraft) => void;
+  history?: Consumption[];
 }
 
-export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
+export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps) {
   const { theme } = useTheme();
   const { t } = useLanguage();
   const [amount, setAmount] = useState("");
@@ -118,24 +121,36 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
 
   // Update description in real-time while listening
   useEffect(() => {
+    let frame: number | null = null;
+
     if (isListening) {
       if (transcript) {
         // While listening, show base description + current transcript
-        setDescription(
-          baseDescription
-            ? `${baseDescription} ${transcript}`.trim()
-            : transcript
+        frame = requestAnimationFrame(() =>
+          setDescription(
+            baseDescription
+              ? `${baseDescription} ${transcript}`.trim()
+              : transcript
+          )
         );
       } else {
         // When starting but no transcript yet, show base description
-        setDescription(baseDescription);
+        frame = requestAnimationFrame(() => setDescription(baseDescription));
       }
     } else if (!isListening && transcript) {
       // When stopping, finalize with the last transcript
-      setDescription(
-        baseDescription ? `${baseDescription} ${transcript}`.trim() : transcript
+      frame = requestAnimationFrame(() =>
+        setDescription(
+          baseDescription ? `${baseDescription} ${transcript}`.trim() : transcript
+        )
       );
     }
+
+    return () => {
+      if (frame !== null) {
+        cancelAnimationFrame(frame);
+      }
+    };
   }, [transcript, isListening, baseDescription]);
 
   // Save base description when starting to listen
@@ -150,19 +165,24 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
   }, [isListening, description, stopListening, startListening]);
 
   const isSubmitDisabled = !amount || parseFloat(parseAmountInput(amount)) <= 0;
+  const suggestions = useMemo(
+    () => getConsumptionSuggestions(description, history),
+    [description, history],
+  );
 
   // Animation for listening state — scale only; never opacity on glass parents
   const listeningScale = useSharedValue(1);
 
-  const handleSubmit = useCallback((type: ConsumptionType) => {
+  const handleSubmit = useCallback((type: ConsumptionType, descriptionOverride?: string) => {
     // Parse the formatted amount (remove commas)
     const numericAmount = parseAmountInput(amount);
     const amountNum = parseFloat(numericAmount);
+    const submittedDescription = sanitizeDescription(descriptionOverride ?? description);
     
     // Validate before submitting
     const validation = validateConsumption({
       amount: amountNum,
-      description: sanitizeDescription(description),
+      description: submittedDescription,
       type,
     });
 
@@ -205,7 +225,7 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
 
     onSubmit({
       amount: amountNum,
-      description: sanitizeDescription(description) || "",
+      description: submittedDescription || "",
       type,
     });
 
@@ -234,6 +254,11 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
     },
     [handleSubmit],
   );
+
+  const handleSuggestionPress = useCallback((label: string) => {
+    setDescription(label);
+    setDescriptionError(null);
+  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -332,6 +357,48 @@ export function ConsumptionForm({ onSubmit }: ConsumptionFormProps) {
               ) : null}
             </GlassContainer>
           </GlassContainer>
+
+          {suggestions.length > 0 ? (
+            <View style={styles.suggestionArea}>
+              <Text style={[styles.suggestionLabel, { color: theme.textSecondary }]}>
+                {t("suggestedNames")}
+              </Text>
+              <View style={styles.suggestionChips}>
+                {suggestions.map((suggestion) => (
+                  <Pressable
+                    key={suggestion.label}
+                    onPress={() => handleSuggestionPress(suggestion.label)}
+                    style={({ pressed }) => [
+                      styles.suggestionChip,
+                      {
+                        borderColor: theme.border,
+                        backgroundColor:
+                          description === suggestion.label
+                            ? theme.foreground
+                            : "transparent",
+                        opacity: pressed ? 0.72 : 1,
+                      },
+                    ]}
+                  >
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        styles.suggestionText,
+                        {
+                          color:
+                            description === suggestion.label
+                              ? theme.background
+                              : theme.text,
+                        },
+                      ]}
+                    >
+                      {suggestion.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          ) : null}
 
           <View style={styles.buttonsContainer}>
             <GlassButton
@@ -486,6 +553,30 @@ const styles = StyleSheet.create({
   submitText: {
     fontSize: 15,
     letterSpacing: 0.2,
+  },
+  suggestionArea: {
+    gap: 8,
+  },
+  suggestionLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    paddingHorizontal: 2,
+  },
+  suggestionChips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  suggestionChip: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    maxWidth: "100%",
+  },
+  suggestionText: {
+    fontSize: 13,
+    fontWeight: "600",
   },
   inputError: {
     borderWidth: 1,

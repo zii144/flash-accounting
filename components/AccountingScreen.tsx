@@ -280,7 +280,7 @@ export function AccountingScreen() {
         </Text>
       </View>
 
-      <ConsumptionForm onSubmit={handleSubmit} />
+      <ConsumptionForm onSubmit={handleSubmit} history={consumptions} />
 
       <View style={styles.listWrapper}>
         <FlatList
