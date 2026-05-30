@@ -5,6 +5,7 @@
 export const STORAGE_KEYS = {
   CONSUMPTIONS: "@flash_accounting_consumptions",
   LANGUAGE: "@flash_accounting_language",
+  GLOSSARY: "@flash_accounting_glossary",
   PRO_ENTITLEMENT: "@flash_accounting_pro_entitlement",
 } as const;
 

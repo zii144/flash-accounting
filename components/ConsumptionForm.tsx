@@ -2,12 +2,12 @@ import { GlassContainer } from "@/components/GlassContainer";
 import { GlassButton } from "@/components/glass-button";
 import { GlassIconButton } from "@/components/glass-icon-button";
 import { SymbolIcon } from "@/components/symbol-icon";
+import { useGlossary } from "@/contexts/GlossaryContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { Consumption, ConsumptionDraft, ConsumptionType } from "@/types/consumption";
 import { formatAmountInput, parseAmountInput } from "@/utils/formatting";
-import { getConsumptionSuggestions } from "@/utils/smart-consumption";
 import {
   sanitizeAmount,
   sanitizeDescription,
@@ -43,6 +43,7 @@ interface ConsumptionFormProps {
 export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps) {
   const { theme } = useTheme();
   const { t } = useLanguage();
+  const { getSuggestions } = useGlossary();
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const {
@@ -166,8 +167,8 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
 
   const isSubmitDisabled = !amount || parseFloat(parseAmountInput(amount)) <= 0;
   const suggestions = useMemo(
-    () => getConsumptionSuggestions(description, history),
-    [description, history],
+    () => getSuggestions(description, history),
+    [description, getSuggestions, history],
   );
 
   // Animation for listening state — scale only; never opacity on glass parents
@@ -556,6 +557,7 @@ const styles = StyleSheet.create({
   },
   suggestionArea: {
     gap: 8,
+    marginTop: 10,
   },
   suggestionLabel: {
     fontSize: 12,

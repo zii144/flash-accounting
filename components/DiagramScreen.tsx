@@ -1,6 +1,7 @@
 import { GlassContainer } from "@/components/GlassContainer";
 import { GlassIconButton } from "@/components/glass-icon-button";
 import { SymbolIcon } from "@/components/symbol-icon";
+import { useGlossary } from "@/contexts/GlossaryContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useConsumptionStats } from "@/hooks/useConsumptionStats";
@@ -408,6 +409,7 @@ export function DiagramScreen() {
   const { width } = useWindowDimensions();
   const { theme } = useTheme();
   const { t } = useLanguage();
+  const { canonicalizeLabel, isReady } = useGlossary();
   const { getFilteredConsumptions } = useConsumptionStats();
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("month");
   const [mode, setMode] = useState<DiagramMode>("pie");
@@ -417,9 +419,18 @@ export function DiagramScreen() {
   const contentWidth = Math.max(280, width - 32);
   const pieSize = Math.min(260, contentWidth * 0.78);
   const trendHeight = Math.max(220, Math.min(300, contentWidth * 0.7));
-  const categoryData = useMemo(() => buildCategoryBreakdown(records), [records]);
   const trendData = useMemo(() => buildTrendSeries(records, timeFilter), [records, timeFilter]);
-  const summary = useMemo(() => buildDiagramSummary(records), [records]);
+
+  const categoryData = isReady ? buildCategoryBreakdown(records, canonicalizeLabel) : [];
+  const summary = isReady
+    ? buildDiagramSummary(records, canonicalizeLabel)
+    : {
+          expenseTotal: 0,
+          incomeTotal: 0,
+          netTotal: 0,
+          topCategory: null,
+          averageExpense: 0,
+        };
 
   const loadRecords = useCallback(async () => {
     setIsLoading(true);

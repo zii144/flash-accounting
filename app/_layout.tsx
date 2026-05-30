@@ -1,5 +1,6 @@
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { GlossaryProvider } from "@/contexts/GlossaryContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ProProvider } from "@/contexts/ProContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -18,9 +19,10 @@ export default function RootLayout() {
         <SafeAreaProvider>
           <ThemeProvider>
             <LanguageProvider>
-              <AuthProvider>
-                <ProProvider>
-                  <ConsumptionStorageProvider>
+              <GlossaryProvider>
+                <AuthProvider>
+                  <ProProvider>
+                    <ConsumptionStorageProvider>
                     <Stack
                       screenOptions={{
                         headerShown: false,
@@ -38,10 +40,20 @@ export default function RootLayout() {
                           headerShown: false,
                         }}
                       />
+                      <Stack.Screen
+                        name="glossary"
+                        options={{
+                          presentation: process.env.EXPO_OS === "ios" ? "formSheet" : "card",
+                          contentStyle: { backgroundColor: "transparent" },
+                          sheetGrabberVisible: process.env.EXPO_OS === "ios",
+                          headerShown: false,
+                        }}
+                      />
                     </Stack>
-                  </ConsumptionStorageProvider>
-                </ProProvider>
-              </AuthProvider>
+                    </ConsumptionStorageProvider>
+                  </ProProvider>
+                </AuthProvider>
+              </GlossaryProvider>
             </LanguageProvider>
           </ThemeProvider>
         </SafeAreaProvider>

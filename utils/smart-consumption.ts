@@ -1,4 +1,5 @@
 import type { Consumption, ConsumptionType } from "@/types/consumption";
+import { BUILTIN_GLOSSARY_DEFINITIONS } from "@/utils/glossary-defaults";
 
 export type ConsumptionSuggestion = {
   label: string;
@@ -7,79 +8,21 @@ export type ConsumptionSuggestion = {
   inferredType: ConsumptionType;
 };
 
-type SemanticPattern = {
+export type SemanticPattern = {
   label: string;
   type: ConsumptionType;
   terms: string[];
   activeHours?: [number, number];
 };
 
-const SEMANTIC_PATTERNS: SemanticPattern[] = [
-  {
-    label: "Dinner",
-    type: "expense",
-    terms: ["dinner", "dine", "dining", "supper", "fine dine", "restaurant", "hangout dine", "night dine", "nite dine"],
-    activeHours: [18, 21],
-  },
-  {
-    label: "Lunch",
-    type: "expense",
-    terms: ["lunch", "noon meal", "meal", "bento"],
-    activeHours: [11, 14],
-  },
-  {
-    label: "Breakfast",
-    type: "expense",
-    terms: ["breakfast", "brunch", "morning meal"],
-    activeHours: [6, 11],
-  },
-  {
-    label: "Coffee",
-    type: "expense",
-    terms: ["coffee", "latte", "americano", "cafe", "tea", "drink"],
-    activeHours: [7, 18],
-  },
-  {
-    label: "Groceries",
-    type: "expense",
-    terms: ["grocery", "groceries", "supermarket", "market", "food shopping"],
-  },
-  {
-    label: "Transport",
-    type: "expense",
-    terms: ["uber", "taxi", "bus", "metro", "train", "parking", "gas", "transport", "mrt"],
-  },
-  {
-    label: "Shopping",
-    type: "expense",
-    terms: ["shopping", "clothes", "clothing", "shoes", "store", "mall"],
-  },
-  {
-    label: "Subscription",
-    type: "expense",
-    terms: ["subscription", "netflix", "spotify", "icloud", "saas", "membership"],
-  },
-  {
-    label: "Rent",
-    type: "expense",
-    terms: ["rent", "mortgage", "housing"],
-  },
-  {
-    label: "Salary",
-    type: "income",
-    terms: ["salary", "paycheck", "payroll", "wage", "income"],
-  },
-  {
-    label: "Freelance",
-    type: "income",
-    terms: ["freelance", "client paid", "invoice paid", "project paid"],
-  },
-  {
-    label: "Refund",
-    type: "income",
-    terms: ["refund", "reimburse", "cashback", "rebate"],
-  },
-];
+const DEFAULT_SEMANTIC_PATTERNS: SemanticPattern[] = BUILTIN_GLOSSARY_DEFINITIONS.map(
+  (definition) => ({
+    label: definition.key.charAt(0).toUpperCase() + definition.key.slice(1),
+    type: definition.type,
+    terms: definition.terms,
+    activeHours: definition.activeHours,
+  }),
+);
 
 const EXPENSE_WORDS = [
   "buy",
@@ -140,16 +83,37 @@ function isHourInRange(hour: number, range?: [number, number]) {
   return hour >= start && hour <= end;
 }
 
-export function canonicalizeConsumptionLabel(description: string) {
+function findPatternMatch(normalized: string, patterns: SemanticPattern[]) {
+  let best: { pattern: SemanticPattern; termLength: number } | null = null;
+
+  for (const pattern of patterns) {
+    for (const term of pattern.terms) {
+      const normalizedTerm = normalizeText(term);
+      if (!normalizedTerm || !normalized.includes(normalizedTerm)) {
+        continue;
+      }
+
+      if (!best || normalizedTerm.length > best.termLength) {
+        best = { pattern, termLength: normalizedTerm.length };
+      }
+    }
+  }
+
+  return best?.pattern;
+}
+
+export function canonicalizeConsumptionLabel(
+  description: string,
+  patterns: SemanticPattern[] = DEFAULT_SEMANTIC_PATTERNS,
+  unlabeledLabel = "Unlabeled",
+) {
   const normalized = normalizeText(description);
 
   if (!normalized) {
-    return "Unlabeled";
+    return unlabeledLabel;
   }
 
-  const exactPattern = SEMANTIC_PATTERNS.find((pattern) =>
-    pattern.terms.some((term) => normalized.includes(normalizeText(term)))
-  );
+  const exactPattern = findPatternMatch(normalized, patterns);
 
   if (exactPattern) {
     return exactPattern.label;
@@ -161,6 +125,7 @@ export function canonicalizeConsumptionLabel(description: string) {
 export function inferConsumptionType(
   input: string,
   history: Consumption[] = [],
+  patterns: SemanticPattern[] = DEFAULT_SEMANTIC_PATTERNS,
 ): ConsumptionType {
   const normalized = normalizeText(input);
 
@@ -176,9 +141,14 @@ export function inferConsumptionType(
     return "expense";
   }
 
-  const canonical = canonicalizeConsumptionLabel(input);
+  const matchedPattern = findPatternMatch(normalized, patterns);
+  if (matchedPattern) {
+    return matchedPattern.type;
+  }
+
+  const canonical = canonicalizeConsumptionLabel(input, patterns);
   const matchingHistory = history.filter(
-    (item) => canonicalizeConsumptionLabel(item.description) === canonical
+    (item) => canonicalizeConsumptionLabel(item.description, patterns) === canonical,
   );
 
   if (matchingHistory.length > 0) {
@@ -193,6 +163,7 @@ export function getConsumptionSuggestions(
   input: string,
   history: Consumption[] = [],
   now: Date = new Date(),
+  patterns: SemanticPattern[] = DEFAULT_SEMANTIC_PATTERNS,
 ): ConsumptionSuggestion[] {
   const normalizedInput = normalizeText(input);
 
@@ -203,11 +174,15 @@ export function getConsumptionSuggestions(
   const currentHour = now.getHours();
   const suggestions = new Map<string, ConsumptionSuggestion>();
 
-  for (const pattern of SEMANTIC_PATTERNS) {
+  for (const pattern of patterns) {
     const normalizedLabel = normalizeText(pattern.label);
     const matchesPrefix = normalizedLabel.startsWith(normalizedInput);
-    const matchesTerm = pattern.terms.some((term) => normalizeText(term).includes(normalizedInput));
-    const matchesInput = pattern.terms.some((term) => normalizedInput.includes(normalizeText(term)));
+    const matchesTerm = pattern.terms.some((term) =>
+      normalizeText(term).includes(normalizedInput),
+    );
+    const matchesInput = pattern.terms.some((term) =>
+      normalizedInput.includes(normalizeText(term)),
+    );
 
     if (!matchesPrefix && !matchesTerm && !matchesInput) {
       continue;
@@ -225,7 +200,7 @@ export function getConsumptionSuggestions(
 
   const historicalMatches = history
     .map((item) => {
-      const label = canonicalizeConsumptionLabel(item.description);
+      const label = canonicalizeConsumptionLabel(item.description, patterns);
       const normalizedLabel = normalizeText(label);
       const date = new Date(item.date);
       const distance = Number.isNaN(date.getTime()) ? 12 : hourDistance(currentHour, date.getHours());
@@ -257,7 +232,7 @@ export function getConsumptionSuggestions(
     suggestions.set(match.label, next);
   }
 
-  const inferredType = inferConsumptionType(input, history);
+  const inferredType = inferConsumptionType(input, history, patterns);
 
   return Array.from(suggestions.values())
     .map((suggestion) => ({
@@ -272,6 +247,7 @@ export function getSmartDraftEnhancement(
   description: string,
   history: Consumption[] = [],
   now: Date = new Date(),
+  patterns: SemanticPattern[] = DEFAULT_SEMANTIC_PATTERNS,
 ) {
   if (!normalizeText(description)) {
     return {
@@ -281,14 +257,17 @@ export function getSmartDraftEnhancement(
     };
   }
 
-  const suggestions = getConsumptionSuggestions(description, history, now);
+  const suggestions = getConsumptionSuggestions(description, history, now, patterns);
   const topSuggestion = suggestions[0];
   const shouldApplySuggestion = Boolean(topSuggestion && topSuggestion.confidence >= 0.72);
 
   return {
     description:
-      shouldApplySuggestion && topSuggestion ? topSuggestion.label : canonicalizeConsumptionLabel(description),
-    type: topSuggestion?.inferredType ?? inferConsumptionType(description, history),
+      shouldApplySuggestion && topSuggestion
+        ? topSuggestion.label
+        : canonicalizeConsumptionLabel(description, patterns),
+    type: topSuggestion?.inferredType ?? inferConsumptionType(description, history, patterns),
     suggestions,
   };
 }
+

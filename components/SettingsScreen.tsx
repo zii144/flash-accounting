@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePro } from "@/contexts/ProContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useGlossary } from "@/contexts/GlossaryContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { getAppErrorCode } from "@/utils/app-error";
 import { FREE_LOCAL_RECORD_LIMIT } from "@/utils/constants";
@@ -86,6 +87,7 @@ function randomNonce(length: number = 32): string {
 export function SettingsScreen() {
   const { theme } = useTheme();
   const { language, resolvedLanguage, t } = useLanguage();
+  const { activeEntryCount } = useGlossary();
   const { user, isSignedIn, isFirebaseReady, signInWithCredential, signOut } = useAuth();
   const {
     annualPrice,
@@ -235,6 +237,15 @@ export function SettingsScreen() {
   const handleLanguagePress = useCallback(() => {
     router.push("/select-language");
   }, []);
+
+  const handleGlossaryPress = useCallback(() => {
+    router.push("/glossary");
+  }, []);
+
+  const glossarySummary = useMemo(
+    () => t("smartGlossaryEntrySummary").replace("{count}", String(activeEntryCount)),
+    [activeEntryCount, t],
+  );
 
   const exportToCSV = useCallback(async () => {
     setIsExporting(true);
@@ -813,7 +824,33 @@ export function SettingsScreen() {
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.settingItem} onPress={handleLanguagePress}>
+            <TouchableOpacity
+              style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
+              onPress={handleGlossaryPress}
+            >
+              <View style={styles.settingLeft}>
+                <SymbolIcon name="sparkles" size={22} color={theme.text} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.settingText, { color: theme.text }]}>
+                    {t("smartGlossaryTitle")}
+                  </Text>
+                  <Text style={[styles.settingMeta, { color: theme.textSecondary }]}>
+                    {t("smartGlossarySubtitle")}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.settingRight}>
+                <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                  {glossarySummary}
+                </Text>
+                <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
+              onPress={handleLanguagePress}
+            >
               <View style={styles.settingLeft}>
                 <SymbolIcon name="language" size={22} color={theme.text} />
                 <Text style={[styles.settingText, { color: theme.text }]}>

@@ -1,5 +1,13 @@
 import { STORAGE_KEYS, SUPPORTED_LANGUAGES } from "@/utils/constants";
 import type { ResolvedLanguage } from "@/utils/formatting";
+import {
+  GLOSSARY_TRANSLATION_DE,
+  GLOSSARY_TRANSLATION_EN,
+  GLOSSARY_TRANSLATION_ES,
+  GLOSSARY_TRANSLATION_FR,
+  GLOSSARY_TRANSLATION_JA,
+  GLOSSARY_TRANSLATION_ZH,
+} from "@/utils/glossary-i18n";
 import { logger } from "@/utils/logger";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Localization from "expo-localization";
@@ -1180,6 +1188,15 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
   },
 };
 
+const GLOSSARY_TRANSLATIONS: Record<ResolvedLanguage, Record<string, string>> = {
+  en: GLOSSARY_TRANSLATION_EN,
+  zh: GLOSSARY_TRANSLATION_ZH,
+  es: GLOSSARY_TRANSLATION_ES,
+  fr: GLOSSARY_TRANSLATION_FR,
+  de: GLOSSARY_TRANSLATION_DE,
+  ja: GLOSSARY_TRANSLATION_JA,
+};
+
 const LanguageContext = createContext<LanguageContextType | undefined>(
   undefined
 );
@@ -1223,7 +1240,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const t = useMemo(
     () =>
       (key: string): string => {
-        return translations[resolvedLanguage]?.[key] || translations.en[key] || key;
+        return (
+          translations[resolvedLanguage]?.[key] ||
+          GLOSSARY_TRANSLATIONS[resolvedLanguage]?.[key] ||
+          translations.en[key] ||
+          GLOSSARY_TRANSLATIONS.en[key] ||
+          key
+        );
       },
     [resolvedLanguage]
   );

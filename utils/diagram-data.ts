@@ -1,6 +1,5 @@
 import type { Consumption } from "@/types/consumption";
 import type { TimeFilter } from "@/utils/constants";
-import { canonicalizeConsumptionLabel } from "@/utils/smart-consumption";
 
 export type CategoryDatum = {
   label: string;
@@ -49,13 +48,16 @@ function getTrendLabel(date: Date, timeFilter: TimeFilter) {
   return formatDay(date);
 }
 
-export function buildCategoryBreakdown(records: Consumption[]): CategoryDatum[] {
+export function buildCategoryBreakdown(
+  records: Consumption[],
+  canonicalizeLabel: (description: string) => string,
+): CategoryDatum[] {
   const expenses = records.filter((record) => record.type === "expense");
   const total = expenses.reduce((sum, record) => sum + record.amount, 0);
   const grouped = new Map<string, { amount: number; count: number }>();
 
   for (const record of expenses) {
-    const label = canonicalizeConsumptionLabel(record.description);
+    const label = canonicalizeLabel(record.description);
     const current = grouped.get(label) ?? { amount: 0, count: 0 };
     grouped.set(label, {
       amount: current.amount + record.amount,
@@ -110,8 +112,11 @@ export function buildTrendSeries(records: Consumption[], timeFilter: TimeFilter)
     .slice(-14);
 }
 
-export function buildDiagramSummary(records: Consumption[]): DiagramSummary {
-  const categories = buildCategoryBreakdown(records);
+export function buildDiagramSummary(
+  records: Consumption[],
+  canonicalizeLabel: (description: string) => string,
+): DiagramSummary {
+  const categories = buildCategoryBreakdown(records, canonicalizeLabel);
   const expenseTotal = records.reduce(
     (sum, record) => sum + (record.type === "expense" ? record.amount : 0),
     0,
