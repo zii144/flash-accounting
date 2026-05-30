@@ -2,13 +2,13 @@
   "expo": {
     "name": "flash-accounting",
     "slug": "flash-accounting",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "scheme": "flashaccounting",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/icons/AppIcon.icon",
-      "buildNumber": "6",
+      "buildNumber": "7",
       "supportsTablet": true,
       "infoPlist": {
         "NSSpeechRecognitionUsageDescription": "This app needs access to speech recognition to allow you to dictate expense descriptions.",
