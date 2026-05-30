@@ -19,7 +19,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 const DELETE_ACTION_MARGIN_LEFT = 12;
-const DELETE_ACTION_WIDTH = 80;
+const DELETE_ACTION_WIDTH = 88;
 const DELETE_ACTION_TOTAL_WIDTH = DELETE_ACTION_MARGIN_LEFT + DELETE_ACTION_WIDTH;
 
 interface ConsumptionItemProps {
@@ -66,7 +66,7 @@ function DeleteAction({ translation, label, onPress, isDark }: DeleteActionProps
             pressed && styles.deleteButtonPressed,
           ]}
         >
-          <SymbolIcon name="trash" size={17} color="#FFFFFF" />
+          <SymbolIcon name="trash" size={18} color="#FFFFFF" />
           <Text style={styles.deleteLabel}>{label}</Text>
         </Pressable>
       </GlassContainer>
@@ -288,28 +288,30 @@ const styles = StyleSheet.create({
   },
   deleteGlass: {
     flex: 1,
-    borderRadius: 20,
+    borderRadius: 24,
     borderCurve: "continuous",
   },
   deleteTint: {
-    borderRadius: 20,
+    borderRadius: 24,
     borderCurve: "continuous",
   },
   deletePressable: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 14,
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 16,
   },
   deleteButtonPressed: {
-    opacity: 0.82,
+    opacity: 0.9,
+    transform: [{ scale: 0.985 }],
   },
   deleteLabel: {
     color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "600",
+    fontSize: 13,
+    fontWeight: "700",
+    letterSpacing: 0.2,
   },
 });
 
