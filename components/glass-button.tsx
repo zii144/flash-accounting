@@ -38,8 +38,8 @@ export function GlassButton({
 
   return (
     <GlassContainer
-      intensity={disabled ? "light" : intensity}
-      interactive={!disabled}
+      intensity={intensity}
+      interactive
       style={[styles.glass, style]}
     >
       <Pressable
@@ -51,6 +51,7 @@ export function GlassButton({
         style={({ pressed }) => [
           styles.pressable,
           contentStyle,
+          disabled && styles.disabledContent,
           !disabled && pressed && styles.pressed,
         ]}
       >
@@ -66,9 +67,8 @@ const styles = StyleSheet.create({
     borderCurve: "continuous",
   },
   pressable: {
-    minHeight: 52,
+    height: 52,
     paddingHorizontal: 16,
-    paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
@@ -76,5 +76,8 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.82,
+  },
+  disabledContent: {
+    opacity: 0.45,
   },
 });

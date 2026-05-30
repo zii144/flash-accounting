@@ -425,13 +425,16 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
               style={styles.buttonSlot}
               onPress={() => handleButtonPress("expense")}
               disabled={isSubmitDisabled}
-              intensity={isSubmitDisabled ? "light" : "medium"}
               contentStyle={styles.submitButtonContent}
               accessibilityLabel={t("addExpense")}
             >
-              {!isSubmitDisabled ? (
-                <SymbolIcon name="remove-circle" size={18} color={theme.text} />
-              ) : null}
+              <View style={styles.submitIconSlot}>
+                <SymbolIcon
+                  name="remove-circle"
+                  size={18}
+                  color={isSubmitDisabled ? theme.textSecondary : theme.text}
+                />
+              </View>
               <Text
                 selectable={false}
                 allowFontScaling={false}
@@ -439,7 +442,6 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
                   styles.submitText,
                   {
                     color: isSubmitDisabled ? theme.textSecondary : theme.text,
-                    fontWeight: isSubmitDisabled ? "500" : "600",
                   },
                 ]}
               >
@@ -451,13 +453,16 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
               style={styles.buttonSlot}
               onPress={() => handleButtonPress("income")}
               disabled={isSubmitDisabled}
-              intensity={isSubmitDisabled ? "light" : "medium"}
               contentStyle={styles.submitButtonContent}
               accessibilityLabel={t("addIncome")}
             >
-              {!isSubmitDisabled ? (
-                <SymbolIcon name="add-circle" size={18} color={theme.text} />
-              ) : null}
+              <View style={styles.submitIconSlot}>
+                <SymbolIcon
+                  name="add-circle"
+                  size={18}
+                  color={isSubmitDisabled ? theme.textSecondary : theme.text}
+                />
+              </View>
               <Text
                 selectable={false}
                 allowFontScaling={false}
@@ -465,7 +470,6 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
                   styles.submitText,
                   {
                     color: isSubmitDisabled ? theme.textSecondary : theme.text,
-                    fontWeight: isSubmitDisabled ? "500" : "600",
                   },
                 ]}
               >
@@ -571,8 +575,15 @@ const styles = StyleSheet.create({
   submitButtonContent: {
     width: "100%",
   },
+  submitIconSlot: {
+    width: 18,
+    height: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   submitText: {
     fontSize: 15,
+    fontWeight: "600",
     letterSpacing: 0.2,
   },
   suggestionArea: {
