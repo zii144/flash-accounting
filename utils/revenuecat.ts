@@ -28,13 +28,26 @@ export function isRevenueCatSupportedPlatform(): boolean {
   return process.env.EXPO_OS === "ios" || process.env.EXPO_OS === "android";
 }
 
+function isRevenueCatDebugBuild(): boolean {
+  return (globalThis as typeof globalThis & { __DEV__?: boolean }).__DEV__ === true;
+}
+
+function getRevenueCatApiKey(): string | undefined {
+  const testApiKey = readEnv("EXPO_PUBLIC_REVENUECAT_API_KEY_TEST");
+
+  if (isRevenueCatDebugBuild() && testApiKey) {
+    return testApiKey;
+  }
+
+  return process.env.EXPO_OS === "ios"
+    ? readEnv("EXPO_PUBLIC_REVENUECAT_API_KEY_IOS")
+    : process.env.EXPO_OS === "android"
+      ? readEnv("EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID")
+      : undefined;
+}
+
 export function getRevenueCatConfig(): RevenueCatConfig | null {
-  const apiKey =
-    process.env.EXPO_OS === "ios"
-      ? readEnv("EXPO_PUBLIC_REVENUECAT_API_KEY_IOS")
-      : process.env.EXPO_OS === "android"
-        ? readEnv("EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID")
-        : undefined;
+  const apiKey = getRevenueCatApiKey();
 
   if (!apiKey) {
     return null;
@@ -103,19 +116,19 @@ export function getPurchasePackage(
     return null;
   }
 
+  const getPackageByType = (packageType: string) =>
+    offering.availablePackages.find((purchasePackage) => purchasePackage.packageType === packageType) ??
+    null;
+
   if (plan === "plus") {
-    return (
-      offering.lifetime ??
-      offering.availablePackages.find((purchasePackage) => purchasePackage.packageType === "LIFETIME") ??
-      null
-    );
+    return offering.lifetime ?? getPackageByType("LIFETIME");
   }
 
   if (plan === "annual") {
-    return offering.annual ?? offering.availablePackages[0] ?? null;
+    return offering.annual ?? getPackageByType("ANNUAL");
   }
 
-  return offering.monthly ?? offering.availablePackages[0] ?? null;
+  return offering.monthly ?? getPackageByType("MONTHLY");
 }
 
 export function mapRevenueCatError(error: unknown): AppError {

@@ -1,7 +1,7 @@
 # 黑白記帳 · 繁體中文行銷文案（台灣 / 香港）
 
 > 面向台灣、香港地區的 promotion message 與 digital marketing 內容。  
-> App 名稱：**黑白記帳**（Flash Accounting）
+> App 名稱：**黑白記帳**（Black White Accounting）
 
 ---
 

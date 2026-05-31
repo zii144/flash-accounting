@@ -4,6 +4,7 @@ import Purchases, {
   type CustomerInfo,
   type PurchasesOffering,
 } from "react-native-purchases";
+import RevenueCatUI, { PAYWALL_RESULT } from "react-native-purchases-ui";
 import { AppError } from "@/utils/app-error";
 import { logger } from "@/utils/logger";
 import {
@@ -168,6 +169,28 @@ export async function restoreRevenueCatPurchases(): Promise<CustomerInfo> {
 
   try {
     return await Purchases.restorePurchases();
+  } catch (error) {
+    throw mapRevenueCatError(error);
+  }
+}
+
+export async function presentRevenueCatPaywall(): Promise<PAYWALL_RESULT> {
+  const config = getRevenueCatConfig();
+  if (!config || !isRevenueCatSupportedPlatform()) {
+    throw new AppError("IAP_NOT_CONFIGURED");
+  }
+
+  await configureRevenueCat(configuredAppUserId ?? null);
+
+  try {
+    const offerings = await Purchases.getOfferings();
+    const offering = getCurrentOffering(offerings, config.offeringId);
+
+    if (!offering) {
+      throw new AppError("IAP_PACKAGE_UNAVAILABLE");
+    }
+
+    return await RevenueCatUI.presentPaywall({ offering });
   } catch (error) {
     throw mapRevenueCatError(error);
   }

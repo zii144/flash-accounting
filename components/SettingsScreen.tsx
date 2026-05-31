@@ -10,7 +10,6 @@ import { getAppErrorCode } from "@/utils/app-error";
 import { FREE_LOCAL_RECORD_LIMIT } from "@/utils/constants";
 import { buildConsumptionsCsv } from "@/utils/export";
 import { LOCALE_MAP } from "@/utils/formatting";
-import type { AppIconName } from "@/utils/app-icons";
 import { getLanguageOptions } from "@/utils/language-options";
 import { logger } from "@/utils/logger";
 import { seedDemoExpenses } from "@/utils/seed-data/seed-database";
@@ -19,9 +18,9 @@ import { SymbolIcon } from "@/components/symbol-icon";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { PAYWALL_RESULT } from "react-native-purchases-ui";
 import {
   Alert,
-  Modal,
   Platform,
   ScrollView,
   StyleSheet,
@@ -35,15 +34,6 @@ import { OAuthProvider } from "firebase/auth";
 
 type AppleAuthenticationModule = typeof import("expo-apple-authentication");
 type CryptoModule = typeof import("expo-crypto");
-type StoragePlanId = "basic" | "plus" | "pro";
-type StoragePlanCard = {
-  id: StoragePlanId;
-  icon: AppIconName;
-  title: string;
-  price: string;
-  description: string;
-  features: string[];
-};
 
 let appleAuthenticationModulePromise: Promise<AppleAuthenticationModule | null> | null = null;
 let cryptoModulePromise: Promise<CryptoModule | null> | null = null;
@@ -94,18 +84,12 @@ export function SettingsScreen() {
   const { activeEntryCount } = useGlossary();
   const { user, isSignedIn, isFirebaseReady, signInWithCredential, signOut } = useAuth();
   const {
-    annualPrice,
     enableProDebug,
     hasUnlimitedLocal,
     isBusy: isPurchaseBusy,
     isConfigured: isPurchaseConfigured,
-    isPlusPackageAvailable,
     isPro,
-    monthlyPrice,
-    plusPrice,
-    purchasePlus,
-    purchasePro,
-    recommendedPlusPrice,
+    presentPaywall,
     restorePurchases,
     signOutResetProDebug,
     storagePlanId,
@@ -124,8 +108,7 @@ export function SettingsScreen() {
   const [isExporting, setIsExporting] = useState(false);
   const [isAuthBusy, setIsAuthBusy] = useState(false);
   const [isAppleAuthAvailable, setIsAppleAuthAvailable] = useState(false);
-  const [isStoragePlanSheetVisible, setIsStoragePlanSheetVisible] = useState(false);
-  const languages = useMemo(() => getLanguageOptions(t), [t, resolvedLanguage]);
+  const languages = useMemo(() => getLanguageOptions(t), [t]);
   const currentLanguageLabel =
     languages.find((option) => option.code === language)?.name ?? t("device");
   const showAppleSignIn = isFirebaseReady && Platform.OS === "ios" && isAppleAuthAvailable;
@@ -144,48 +127,6 @@ export function SettingsScreen() {
       : storagePlanId === "plus"
         ? t("storagePlanCurrentPlus")
         : t("storagePlanCurrentBasic");
-  const storagePlanCards = useMemo<StoragePlanCard[]>(
-    () => [
-      {
-        id: "basic",
-        icon: "server",
-        title: t("storagePlanBasicTitle"),
-        price: t("storagePlanBasicPrice"),
-        description: t("storagePlanBasicDescription"),
-        features: [
-          t("storagePlanBasicFeatureLimit"),
-          t("storagePlanBasicFeatureNoLogin"),
-        ],
-      },
-      {
-        id: "plus",
-        icon: "local-drive",
-        title: t("storagePlanPlusTitle"),
-        price: plusPrice ?? t("storagePlanPlusPrice"),
-        description: t("storagePlanPlusDescription"),
-        features: [
-          t("storagePlanPlusFeatureUnlimited"),
-          t("storagePlanPlusFeaturePrivate"),
-        ],
-      },
-      {
-        id: "pro",
-        icon: "cloud",
-        title: t("storagePlanProTitle"),
-        price: t("storagePlanProPrice")
-          .replace("{monthly}", monthlyPrice ?? t("storagePlanProMonthlyFallback"))
-          .replace("{annual}", annualPrice ?? t("storagePlanProAnnualFallback")),
-        description: t("storagePlanProDescription"),
-        features: [
-          t("storagePlanProFeatureSync"),
-          t("storagePlanProFeatureRestore"),
-          t("storagePlanProFeatureShared"),
-          t("storagePlanProFeatureTravel"),
-        ],
-      },
-    ],
-    [annualPrice, monthlyPrice, plusPrice, t, resolvedLanguage]
-  );
 
   const handlePurchaseError = useCallback(
     (error: unknown, context: string) => {
@@ -380,21 +321,22 @@ export function SettingsScreen() {
     }
   }, [signOut, t]);
 
-  const handlePurchasePro = useCallback(async (plan: "monthly" | "annual") => {
+  const handleOpenPaywall = useCallback(async () => {
     try {
-      await purchasePro(plan);
-    } catch (error) {
-      handlePurchaseError(error, plan);
-    }
-  }, [handlePurchaseError, purchasePro]);
+      const result = await presentPaywall();
 
-  const handlePurchasePlus = useCallback(async () => {
-    try {
-      await purchasePlus();
+      if (result === PAYWALL_RESULT.ERROR) {
+        Alert.alert(t("iapErrorTitle"), t("iapErrorMessage"));
+        return;
+      }
+
+      if (result === PAYWALL_RESULT.NOT_PRESENTED) {
+        Alert.alert(t("iapNotReadyTitle"), t("iapPackageUnavailableMessage"));
+      }
     } catch (error) {
-      handlePurchaseError(error, "plus");
+      handlePurchaseError(error, "paywall");
     }
-  }, [handlePurchaseError, purchasePlus]);
+  }, [handlePurchaseError, presentPaywall, t]);
 
   const handleRestorePro = useCallback(async () => {
     try {
@@ -634,39 +576,20 @@ export function SettingsScreen() {
                         styles.settingItem,
                         { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
                       ]}
-                      onPress={() => void handlePurchasePro("monthly")}
+                      onPress={() => void handleOpenPaywall()}
                       disabled={isPurchaseBusy || !isPurchaseConfigured}
                     >
                       <View style={styles.settingLeft}>
                         <SymbolIcon name="cart" size={22} color={theme.text} />
                         <View style={{ flex: 1 }}>
                           <Text style={[styles.settingText, { color: theme.text }]}>
-                            {t("cloudSyncMonthlyCta")}
+                            {t("storageUpgradeTitle")}
                           </Text>
                           <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                            {monthlyPrice ?? t("storagePlanProMonthlyFallback")}
+                            {currentStoragePlanLabel}
                           </Text>
-                        </View>
-                      </View>
-                      <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[
-                        styles.settingItem,
-                        { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
-                      ]}
-                      onPress={() => void handlePurchasePro("annual")}
-                      disabled={isPurchaseBusy || !isPurchaseConfigured}
-                    >
-                      <View style={styles.settingLeft}>
-                        <SymbolIcon name="sparkles" size={22} color={theme.text} />
-                        <View style={{ flex: 1 }}>
-                          <Text style={[styles.settingText, { color: theme.text }]}>
-                            {t("cloudSyncAnnualCta")}
-                          </Text>
-                          <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                            {annualPrice ?? t("storagePlanProAnnualFallback")}
+                          <Text style={[styles.settingMeta, { color: theme.textSecondary }]}>
+                            {t("storageUpgradeSubtitle")}
                           </Text>
                         </View>
                       </View>
@@ -773,7 +696,7 @@ export function SettingsScreen() {
                 styles.settingItem,
                 { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
               ]}
-              onPress={() => setIsStoragePlanSheetVisible(true)}
+              onPress={() => void handleOpenPaywall()}
             >
               <View style={styles.settingLeft}>
                 <SymbolIcon name="cart" size={22} color={theme.text} />
@@ -965,164 +888,6 @@ export function SettingsScreen() {
           </GlassContainer>
         </View>
       </ScrollView>
-
-      <Modal
-        animationType="slide"
-        presentationStyle="pageSheet"
-        visible={isStoragePlanSheetVisible}
-        onRequestClose={() => setIsStoragePlanSheetVisible(false)}
-      >
-        <SafeAreaView style={[styles.planSheet, { backgroundColor: theme.background }]}>
-          <View style={styles.planSheetHeader}>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.planSheetEyebrow, { color: theme.textSecondary }]}>
-                {t("storageUpgradeEyebrow")}
-              </Text>
-              <Text style={[styles.planSheetTitle, { color: theme.text }]}>
-                {t("storageUpgradeTitle")}
-              </Text>
-              <Text style={[styles.planSheetSubtitle, { color: theme.textSecondary }]}>
-                {t("storageUpgradeIntro")}
-              </Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => setIsStoragePlanSheetVisible(false)}
-              style={[styles.planSheetClose, { backgroundColor: theme.surface }]}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <SymbolIcon name="close" size={18} color={theme.text} />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView
-            contentInsetAdjustmentBehavior="automatic"
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.planSheetContent}
-          >
-            {storagePlanCards.map((plan) => {
-              const isCurrentPlan = plan.id === storagePlanId;
-              return (
-                <GlassContainer
-                  key={plan.id}
-                  intensity="medium"
-                  style={[
-                    styles.planCard,
-                    {
-                      borderColor: isCurrentPlan ? theme.foreground : theme.border,
-                      backgroundColor: theme.isDark
-                        ? "rgba(28, 28, 30, 0.72)"
-                        : "rgba(255, 255, 255, 0.78)",
-                    },
-                  ]}
-                >
-                  <View style={styles.planCardHeader}>
-                    <View style={styles.planTitleRow}>
-                      <SymbolIcon name={plan.icon} size={22} color={theme.text} />
-                      <Text style={[styles.planTitle, { color: theme.text }]}>{plan.title}</Text>
-                    </View>
-                    {isCurrentPlan ? (
-                      <View style={[styles.currentBadge, { backgroundColor: theme.foreground }]}>
-                        <Text style={[styles.currentBadgeText, { color: theme.background }]}>
-                          {t("storagePlanCurrentBadge")}
-                        </Text>
-                      </View>
-                    ) : null}
-                  </View>
-
-                  <Text style={[styles.planPrice, { color: theme.text }]}>{plan.price}</Text>
-                  <Text style={[styles.planDescription, { color: theme.textSecondary }]}>
-                    {plan.description}
-                  </Text>
-
-                  <View style={styles.planFeatureList}>
-                    {plan.features.map((feature) => (
-                      <View key={feature} style={styles.planFeatureRow}>
-                        <SymbolIcon name="checkmark-circle" size={17} color={theme.textSecondary} />
-                        <Text style={[styles.planFeatureText, { color: theme.textSecondary }]}>
-                          {feature}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                </GlassContainer>
-              );
-            })}
-
-            <GlassContainer intensity="medium" style={styles.planActionsCard}>
-              <Text style={[styles.planActionsTitle, { color: theme.text }]}>
-                {t("storageUpgradeActionsTitle")}
-              </Text>
-
-              <TouchableOpacity
-                style={[styles.planActionButton, { backgroundColor: theme.foreground }]}
-                onPress={() => void handlePurchasePro("annual")}
-                disabled={isPurchaseBusy || !isPurchaseConfigured}
-              >
-                <Text style={[styles.planActionButtonText, { color: theme.background }]}>
-                  {t("storageUpgradeProAnnualCta").replace(
-                    "{price}",
-                    annualPrice ?? t("storagePlanProAnnualFallback")
-                  )}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.planSecondaryButton,
-                  { borderColor: theme.border },
-                  (!isPurchaseConfigured || isPurchaseBusy) && { opacity: 0.56 },
-                ]}
-                onPress={() => void handlePurchasePro("monthly")}
-                disabled={isPurchaseBusy || !isPurchaseConfigured}
-              >
-                <Text style={[styles.planSecondaryButtonText, { color: theme.text }]}>
-                  {t("storageUpgradeProMonthlyCta").replace(
-                    "{price}",
-                    monthlyPrice ?? t("storagePlanProMonthlyFallback")
-                  )}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.planSecondaryButton,
-                  { borderColor: theme.border },
-                  (!isPurchaseConfigured || isPurchaseBusy || !isPlusPackageAvailable) && {
-                    opacity: 0.56,
-                  },
-                ]}
-                onPress={() => void handlePurchasePlus()}
-                disabled={isPurchaseBusy || !isPurchaseConfigured || !isPlusPackageAvailable}
-              >
-                <Text style={[styles.planSecondaryButtonText, { color: theme.text }]}>
-                  {isPlusPackageAvailable
-                    ? t("storageUpgradePlusCta").replace(
-                        "{price}",
-                        plusPrice ?? recommendedPlusPrice
-                      )
-                    : t("storageUpgradePlusComingSoon")}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.planRestoreButton}
-                onPress={handleRestorePro}
-                disabled={isPurchaseBusy || !isPurchaseConfigured}
-              >
-                <Text style={[styles.planRestoreText, { color: theme.textSecondary }]}>
-                  {t("cloudSyncRestoreCta")}
-                </Text>
-              </TouchableOpacity>
-
-              {!isPurchaseConfigured ? (
-                <Text style={[styles.planFootnote, { color: theme.textSecondary }]}>
-                  {t("iapNotReadyMessage")}
-                </Text>
-              ) : null}
-            </GlassContainer>
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
     </SafeAreaView>
   );
 }

@@ -18,6 +18,7 @@
       "bundleIdentifier": "com.zii.flash.accounting"
     },
     "android": {
+      "package": "com.zii.flash.accounting",
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",

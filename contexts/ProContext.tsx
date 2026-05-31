@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { CustomerInfo, PurchasesOffering } from "react-native-purchases";
+import { PAYWALL_RESULT } from "react-native-purchases-ui";
 import { useAuth } from "@/contexts/AuthContext";
 import { logger } from "@/utils/logger";
 import {
@@ -14,6 +15,7 @@ import {
   addRevenueCatCustomerInfoListener,
   fetchRevenueCatState,
   purchaseRevenueCatPlan,
+  presentRevenueCatPaywall,
   restoreRevenueCatPurchases,
   syncRevenueCatCustomerProfile,
 } from "@/utils/revenuecat-service";
@@ -37,6 +39,7 @@ type ProContextValue = {
   recommendedPlusPrice: string;
   purchasePro: (plan: ProPlan) => Promise<void>;
   purchasePlus: () => Promise<void>;
+  presentPaywall: () => Promise<PAYWALL_RESULT>;
   restorePurchases: () => Promise<void>;
   refreshEntitlements: () => Promise<void>;
   enableProDebug: () => Promise<void>;
@@ -129,6 +132,23 @@ export function ProProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const presentPaywall = useCallback(async () => {
+    setIsBusy(true);
+    try {
+      const result = await presentRevenueCatPaywall();
+
+      if (result === PAYWALL_RESULT.PURCHASED || result === PAYWALL_RESULT.RESTORED) {
+        const nextState = await fetchRevenueCatState();
+        setCustomerInfo(nextState.customerInfo);
+        setOffering(nextState.offering);
+      }
+
+      return result;
+    } finally {
+      setIsBusy(false);
+    }
+  }, []);
+
   const refreshEntitlements = useCallback(async () => {
     await syncRevenueCatState();
   }, [syncRevenueCatState]);
@@ -161,6 +181,7 @@ export function ProProvider({ children }: { children: React.ReactNode }) {
       recommendedPlusPrice: config?.recommendedPlusPrice ?? "USD $14.99",
       purchasePro,
       purchasePlus,
+      presentPaywall,
       restorePurchases,
       refreshEntitlements,
       enableProDebug: async () => {
@@ -182,6 +203,7 @@ export function ProProvider({ children }: { children: React.ReactNode }) {
     isReady,
     offering,
     purchasePlus,
+    presentPaywall,
     purchasePro,
     refreshEntitlements,
     restorePurchases,

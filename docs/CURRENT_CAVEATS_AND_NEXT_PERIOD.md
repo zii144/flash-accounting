@@ -71,9 +71,11 @@ There is no native iOS / Android speech recognition implementation yet.
 ### 2.3 IAP / Pro caveats
 
 - RevenueCat entitlement handling is implemented, but it only becomes fully functional when the real platform API keys, products, offerings, and entitlement are configured.
+- Local payment development can now use RevenueCat Test Store through `EXPO_PUBLIC_REVENUECAT_API_KEY_TEST` in a dev client build.
 - The current code uses fallback recommended pricing labels:
-  - `USD $1.99 / month`
-  - `USD $14.99 / year`
+  - `USD $5.99 / month`
+  - `USD $59 / year`
+  - `USD $14.99` lifetime for Plus
 - Purchase and restore flows are present in code, but end-to-end validation still depends on App Store Connect / RevenueCat configuration and native device testing.
 - In local builds with no RevenueCat config, the UI degrades to an informational state instead of exposing broken purchase actions.
 
@@ -247,6 +249,7 @@ Recommended work:
 ### Days 7–8
 
 - Wire real RevenueCat / store products
+- Validate the flow in RevenueCat Test Store before Apple / Google sandbox testing
 - Validate purchase / restore / sign-in interactions
 
 ### Days 9–10

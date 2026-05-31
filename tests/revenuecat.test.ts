@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  getRevenueCatConfig,
   getPurchasePackage,
   hasActiveEntitlement,
   hasUnlimitedLocalAccess,
@@ -29,6 +30,50 @@ function createCustomerInfo(activeEntitlements: string[]) {
       all: active,
     },
   };
+}
+
+function runWithRevenueCatEnv(
+  env: Record<string, string | undefined>,
+  isDev: boolean | undefined,
+  callback: () => void
+) {
+  const previousEnv = new Map<string, string | undefined>();
+
+  for (const [key, value] of Object.entries(env)) {
+    previousEnv.set(key, process.env[key]);
+    if (value === undefined) {
+      delete process.env[key];
+    } else {
+      process.env[key] = value;
+    }
+  }
+
+  const runtime = globalThis as typeof globalThis & { __DEV__?: boolean };
+  const previousDev = runtime.__DEV__;
+
+  if (isDev === undefined) {
+    delete runtime.__DEV__;
+  } else {
+    runtime.__DEV__ = isDev;
+  }
+
+  try {
+    callback();
+  } finally {
+    for (const [key, value] of previousEnv.entries()) {
+      if (value === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
+    }
+
+    if (previousDev === undefined) {
+      delete runtime.__DEV__;
+    } else {
+      runtime.__DEV__ = previousDev;
+    }
+  }
 }
 
 test("resolveStoragePlan returns pro when cloud entitlement is active", () => {
@@ -85,6 +130,64 @@ test("getPurchasePackage resolves lifetime package for plus", () => {
   };
 
   assert.equal(getPurchasePackage(offering as never, "plus"), lifetimePackage);
+});
+
+test("getPurchasePackage does not fall back to the wrong package type for pro plans", () => {
+  const lifetimePackage = {
+    identifier: "plus_lifetime",
+    packageType: "LIFETIME",
+    product: { priceString: "USD $14.99" },
+  };
+
+  const offering = {
+    identifier: "default",
+    serverDescription: "default",
+    metadata: {},
+    availablePackages: [lifetimePackage],
+    lifetime: lifetimePackage,
+    annual: null,
+    monthly: null,
+    sixMonth: null,
+    threeMonth: null,
+    twoMonth: null,
+    weekly: null,
+  };
+
+  assert.equal(getPurchasePackage(offering as never, "monthly"), null);
+  assert.equal(getPurchasePackage(offering as never, "annual"), null);
+});
+
+test("getRevenueCatConfig prefers the test store key in debug builds", () => {
+  runWithRevenueCatEnv(
+    {
+      EXPO_OS: "ios",
+      EXPO_PUBLIC_REVENUECAT_API_KEY_TEST: "test_key",
+      EXPO_PUBLIC_REVENUECAT_API_KEY_IOS: "ios_key",
+      EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID: "android_key",
+    },
+    true,
+    () => {
+      const config = getRevenueCatConfig();
+      assert.ok(config);
+      assert.equal(config.apiKey, "test_key");
+    }
+  );
+});
+
+test("getRevenueCatConfig uses platform keys outside debug builds", () => {
+  runWithRevenueCatEnv(
+    {
+      EXPO_OS: "android",
+      EXPO_PUBLIC_REVENUECAT_API_KEY_TEST: "test_key",
+      EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID: "android_key",
+    },
+    false,
+    () => {
+      const config = getRevenueCatConfig();
+      assert.ok(config);
+      assert.equal(config.apiKey, "android_key");
+    }
+  );
 });
 
 test("hasActiveEntitlement returns false for missing customer info", () => {
