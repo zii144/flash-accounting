@@ -55,7 +55,7 @@ export function AccountingScreen() {
   const [ledgerNetTotal, setLedgerNetTotal] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const prevTotalCountRef = useRef<number>(0);
+  const loadGenerationRef = useRef(0);
   const loadPageRef = useRef<((pageNum: number, append?: boolean) => Promise<void>) | null>(null);
   const canUnlockCloudStorage =
     isPurchaseConfigured && (isSignedIn || (Platform.OS === "ios" && isFirebaseReady));
@@ -66,9 +66,13 @@ export function AccountingScreen() {
 
   const loadPage = useCallback(
     async (pageNum: number, append: boolean = false) => {
-      if (isLoadingMore) {
+      if (append && isLoadingMore) {
         return;
       }
+
+      const generation = append
+        ? loadGenerationRef.current
+        : ++loadGenerationRef.current;
 
       setIsLoadingMore(true);
       try {
@@ -79,6 +83,10 @@ export function AccountingScreen() {
           sortOrder: "DESC",
         });
 
+        if (generation !== loadGenerationRef.current) {
+          return;
+        }
+
         if (append) {
           setPaginatedData((prev) => [...prev, ...result.data]);
         } else {
@@ -88,9 +96,14 @@ export function AccountingScreen() {
         setHasMore(result.hasMore);
         setPage(pageNum);
       } catch (error) {
+        if (generation !== loadGenerationRef.current) {
+          return;
+        }
         logger.error("Failed to load page", error, { page: pageNum });
       } finally {
-        setIsLoadingMore(false);
+        if (generation === loadGenerationRef.current) {
+          setIsLoadingMore(false);
+        }
       }
     },
     [isLoadingMore, loadPaginated]
@@ -101,23 +114,12 @@ export function AccountingScreen() {
   }, [loadPage]);
 
   useEffect(() => {
-    if (!isLoading && loadPageRef.current) {
-      prevTotalCountRef.current = totalCount;
-      loadPageRef.current(1, false);
+    if (isLoading || !loadPageRef.current) {
+      return;
     }
-  }, [isLoading, totalCount]);
 
-  useEffect(() => {
-    if (
-      !isLoading &&
-      totalCount !== prevTotalCountRef.current &&
-      !isLoadingMore &&
-      loadPageRef.current
-    ) {
-      prevTotalCountRef.current = totalCount;
-      loadPageRef.current(1, false);
-    }
-  }, [isLoading, isLoadingMore, totalCount]);
+    loadPageRef.current(1, false);
+  }, [isLoading, totalCount]);
 
   useFocusEffect(
     useCallback(() => {
@@ -244,7 +246,7 @@ export function AccountingScreen() {
 
   const ListEmptyComponent = useMemo(
     () =>
-      !isLoading ? (
+      !isLoading && !isLoadingMore ? (
         <View style={styles.emptyContainer}>
           <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
             {t("noConsumptionsYet")}
@@ -254,7 +256,7 @@ export function AccountingScreen() {
           </Text>
         </View>
       ) : null,
-    [isLoading, t, theme.textSecondary]
+    [isLoading, isLoadingMore, t, theme.textSecondary]
   );
 
   return (

@@ -341,7 +341,7 @@ async function processPendingCloudSync(uid: string): Promise<{ processed: number
 
 function useConsumptionStorageController(): ConsumptionStorageValue {
   const { user } = useAuth();
-  const { isPro, hasUnlimitedLocal } = usePro();
+  const { isPro, hasUnlimitedLocal, isReady: isProReady } = usePro();
   const cloudEnabled = Boolean(user?.uid && isPro);
 
   const [consumptions, setConsumptions] = useState<Consumption[]>([]);
@@ -523,6 +523,10 @@ function useConsumptionStorageController(): ConsumptionStorageValue {
   );
 
   useEffect(() => {
+    if (!isProReady) {
+      return;
+    }
+
     const nextModeKey = cloudEnabled ? `cloud:${user?.uid ?? ""}` : "local";
     if (!isInitializedRef.current || initModeRef.current !== nextModeKey) {
       initModeRef.current = nextModeKey;
@@ -530,7 +534,7 @@ function useConsumptionStorageController(): ConsumptionStorageValue {
       setIsLoading(true);
       void initialize();
     }
-  }, [cloudEnabled, initialize, user?.uid]);
+  }, [cloudEnabled, initialize, isProReady, user?.uid]);
 
   useEffect(() => {
     void loadSyncSnapshot();
