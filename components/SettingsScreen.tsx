@@ -12,6 +12,7 @@ import { LOCALE_MAP } from "@/utils/formatting";
 import type { AppIconName } from "@/utils/app-icons";
 import { getLanguageOptions } from "@/utils/language-options";
 import { logger } from "@/utils/logger";
+import { seedDemoExpenses } from "@/utils/seed-data/seed-database";
 import { router } from "expo-router";
 import { SymbolIcon } from "@/components/symbol-icon";
 import { File, Paths } from "expo-file-system";
@@ -112,6 +113,7 @@ export function SettingsScreen() {
     getAllForExport,
     isSyncBusy,
     pullCloudToLocal,
+    refresh,
     syncLocalToCloud,
     syncSnapshot,
     totalCount,
@@ -804,6 +806,45 @@ export function SettingsScreen() {
                   <SymbolIcon name="bug" size={22} color={theme.textSecondary} />
                   <Text style={[styles.settingText, { color: theme.textSecondary }]}>
                     {isPro ? "Dev: Disable Pro" : "Dev: Enable Pro"}
+                  </Text>
+                </View>
+                <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+              </TouchableOpacity>
+            )}
+
+            {__DEV__ && (
+              <TouchableOpacity
+                style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
+                onPress={() => {
+                  Alert.alert(
+                    "Seed demo expenses",
+                    `Replace all records with ~150 demo expenses in ${resolvedLanguage.toUpperCase()}?`,
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: "Seed",
+                        style: "destructive",
+                        onPress: async () => {
+                          try {
+                            const batch = await seedDemoExpenses(resolvedLanguage, {
+                              replaceExisting: true,
+                            });
+                            await refresh();
+                            Alert.alert("Dev", `Seeded ${batch.records.length} demo records.`);
+                          } catch (error) {
+                            logger.error("Failed to seed demo expenses", error);
+                            Alert.alert("Dev", "Failed to seed demo expenses.");
+                          }
+                        },
+                      },
+                    ],
+                  );
+                }}
+              >
+                <View style={styles.settingLeft}>
+                  <SymbolIcon name="local-drive" size={22} color={theme.textSecondary} />
+                  <Text style={[styles.settingText, { color: theme.textSecondary }]}>
+                    Dev: Seed demo expenses
                   </Text>
                 </View>
                 <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />

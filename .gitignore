@@ -44,3 +44,6 @@ app-example
 
 # local capture artifacts
 captures/
+
+# generated seed output
+scripts/seed/output/*.json
