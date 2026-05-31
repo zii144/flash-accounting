@@ -1,5 +1,6 @@
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { DiagramAppearanceProvider } from "@/contexts/DiagramAppearanceContext";
 import { GlossaryProvider } from "@/contexts/GlossaryContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ProProvider } from "@/contexts/ProContext";
@@ -19,41 +20,43 @@ export default function RootLayout() {
         <SafeAreaProvider>
           <ThemeProvider>
             <LanguageProvider>
-              <GlossaryProvider>
-                <AuthProvider>
-                  <ProProvider>
-                    <ConsumptionStorageProvider>
-                    <Stack
-                      screenOptions={{
-                        headerShown: false,
-                        contentStyle: { backgroundColor: "transparent" },
-                      }}
-                    >
-                      <Stack.Screen name="(tabs)" />
-                      <Stack.Screen name="settings" options={{ headerShown: false }} />
-                      <Stack.Screen
-                        name="select-language"
-                        options={{
-                          presentation: process.env.EXPO_OS === "ios" ? "formSheet" : "card",
-                          contentStyle: { backgroundColor: "transparent" },
-                          sheetGrabberVisible: process.env.EXPO_OS === "ios",
+              <DiagramAppearanceProvider>
+                <GlossaryProvider>
+                  <AuthProvider>
+                    <ProProvider>
+                      <ConsumptionStorageProvider>
+                      <Stack
+                        screenOptions={{
                           headerShown: false,
-                        }}
-                      />
-                      <Stack.Screen
-                        name="glossary"
-                        options={{
-                          presentation: process.env.EXPO_OS === "ios" ? "formSheet" : "card",
                           contentStyle: { backgroundColor: "transparent" },
-                          sheetGrabberVisible: process.env.EXPO_OS === "ios",
-                          headerShown: false,
                         }}
-                      />
-                    </Stack>
-                    </ConsumptionStorageProvider>
-                  </ProProvider>
-                </AuthProvider>
-              </GlossaryProvider>
+                      >
+                        <Stack.Screen name="(tabs)" />
+                        <Stack.Screen name="settings" options={{ headerShown: false }} />
+                        <Stack.Screen
+                          name="select-language"
+                          options={{
+                            presentation: process.env.EXPO_OS === "ios" ? "formSheet" : "card",
+                            contentStyle: { backgroundColor: "transparent" },
+                            sheetGrabberVisible: process.env.EXPO_OS === "ios",
+                            headerShown: false,
+                          }}
+                        />
+                        <Stack.Screen
+                          name="glossary"
+                          options={{
+                            presentation: process.env.EXPO_OS === "ios" ? "formSheet" : "card",
+                            contentStyle: { backgroundColor: "transparent" },
+                            sheetGrabberVisible: process.env.EXPO_OS === "ios",
+                            headerShown: false,
+                          }}
+                        />
+                      </Stack>
+                      </ConsumptionStorageProvider>
+                    </ProProvider>
+                  </AuthProvider>
+                </GlossaryProvider>
+              </DiagramAppearanceProvider>
             </LanguageProvider>
           </ThemeProvider>
         </SafeAreaProvider>

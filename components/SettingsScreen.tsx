@@ -1,5 +1,6 @@
 import { GlassContainer } from "@/components/GlassContainer";
 import { useAuth } from "@/contexts/AuthContext";
+import { useDiagramAppearance } from "@/contexts/DiagramAppearanceContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePro } from "@/contexts/ProContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -24,6 +25,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
   View,
@@ -88,6 +90,7 @@ function randomNonce(length: number = 32): string {
 export function SettingsScreen() {
   const { theme } = useTheme();
   const { language, resolvedLanguage, t } = useLanguage();
+  const { isAccentPaletteEnabled, setAccentPaletteEnabled } = useDiagramAppearance();
   const { activeEntryCount } = useGlossary();
   const { user, isSignedIn, isFirebaseReady, signInWithCredential, signOut } = useAuth();
   const {
@@ -868,6 +871,44 @@ export function SettingsScreen() {
                 <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
               )}
             </TouchableOpacity>
+
+            <View
+              style={[
+                styles.settingItem,
+                { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+              ]}
+            >
+              <View style={styles.settingLeft}>
+                <SymbolIcon name="chart" size={22} color={theme.text} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.settingText, { color: theme.text }]}>
+                    {t("diagramPaletteTitle")}
+                  </Text>
+                  <Text style={[styles.settingMeta, { color: theme.textSecondary }]}>
+                    {t("diagramPaletteHint")}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.settingRight}>
+                <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                  {isAccentPaletteEnabled
+                    ? t("diagramPaletteAccent")
+                    : t("diagramPaletteMono")}
+                </Text>
+                <Switch
+                  value={isAccentPaletteEnabled}
+                  onValueChange={(value) => {
+                    void setAccentPaletteEnabled(value);
+                  }}
+                  trackColor={{
+                    false: theme.isDark ? "#3A3A3C" : "#D1D1D6",
+                    true: theme.foreground,
+                  }}
+                  thumbColor={theme.background}
+                  ios_backgroundColor={theme.isDark ? "#3A3A3C" : "#D1D1D6"}
+                />
+              </View>
+            </View>
 
             <TouchableOpacity
               style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}

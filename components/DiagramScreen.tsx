@@ -1,6 +1,7 @@
 import { GlassContainer } from "@/components/GlassContainer";
 import { GlassIconButton } from "@/components/glass-icon-button";
 import { SymbolIcon } from "@/components/symbol-icon";
+import { useDiagramAppearance } from "@/contexts/DiagramAppearanceContext";
 import { useGlossary } from "@/contexts/GlossaryContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -24,6 +25,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   useWindowDimensions,
   View,
@@ -33,8 +35,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle, G, Line, Path, Rect, Text as SvgText } from "react-native-svg";
 
 type DiagramMode = "pie" | "treemap" | "bar" | "line";
+const OVERVIEW_SELECTION = "__overview__";
 
-const MONO_PALETTE = [
+const LIGHT_MONO_PIE_PALETTE = [
   "#000000",
   "#2C2C2E",
   "#48484A",
@@ -43,9 +46,11 @@ const MONO_PALETTE = [
   "#AEAEB2",
   "#C7C7CC",
   "#D1D1D6",
+  "#E5E5EA",
+  "#F2F2F7",
 ];
 
-const DARK_MONO_PALETTE = [
+const DARK_MONO_PIE_PALETTE = [
   "#FFFFFF",
   "#E5E5EA",
   "#D1D1D6",
@@ -54,7 +59,55 @@ const DARK_MONO_PALETTE = [
   "#636366",
   "#48484A",
   "#3A3A3C",
+  "#2C2C2E",
+  "#1C1C1E",
 ];
+
+const LIGHT_ACCENT_PIE_PALETTE = [
+  "#0A84FF",
+  "#30D158",
+  "#FF9F0A",
+  "#FF453A",
+  "#5E5CE6",
+  "#64D2FF",
+  "#FFD60A",
+  "#BF5AF2",
+  "#34C759",
+  "#FF375F",
+  "#8E8E93",
+  "#AC8E68",
+];
+
+const DARK_ACCENT_PIE_PALETTE = [
+  "#64D2FF",
+  "#32D74B",
+  "#FFB340",
+  "#FF6961",
+  "#7D7AFF",
+  "#5DE6FF",
+  "#FFE066",
+  "#D28CFF",
+  "#5EE38A",
+  "#FF6482",
+  "#AEAEB2",
+  "#C7A97D",
+];
+
+function getPieColor(index: number, isDark: boolean, useAccentPalette: boolean) {
+  const palette = useAccentPalette
+    ? isDark
+      ? DARK_ACCENT_PIE_PALETTE
+      : LIGHT_ACCENT_PIE_PALETTE
+    : isDark
+      ? DARK_MONO_PIE_PALETTE
+      : LIGHT_MONO_PIE_PALETTE;
+  return palette[index % palette.length];
+}
+
+function formatPercentage(percentage: number) {
+  const value = percentage * 100;
+  return value > 0 && value < 10 ? `${value.toFixed(1)}%` : `${Math.round(value)}%`;
+}
 
 function polarToCartesian(center: number, radius: number, angleInDegrees: number) {
   const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180;
@@ -149,16 +202,25 @@ function SegmentControl<T extends string>({
 function PieDiagram({
   data,
   size,
-  centerLabel,
+  groupLabel,
+  itemLabel,
+  totalAmount,
+  selectedLabel,
+  onSelect,
+  useAccentPalette,
 }: {
   data: CategoryDatum[];
   size: number;
-  centerLabel: string;
+  groupLabel: string;
+  itemLabel: string;
+  totalAmount: number;
+  selectedLabel: string | null;
+  onSelect: (label: string) => void;
+  useAccentPalette: boolean;
 }) {
   const { theme } = useTheme();
-  const palette = theme.isDark ? DARK_MONO_PALETTE : MONO_PALETTE;
   const center = size / 2;
-  const radius = size / 2 - 6;
+  const radius = size / 2 - 12;
   const innerRadius = radius * 0.56;
   const segments = data.reduce<{ datum: CategoryDatum; start: number; end: number }[]>(
     (acc, datum) => {
@@ -177,40 +239,112 @@ function PieDiagram({
     );
   }
 
+  const selectedDatum = data.find((datum) => datum.label === selectedLabel) ?? null;
+  const selectedIndex = selectedDatum
+    ? data.findIndex((datum) => datum.label === selectedDatum.label)
+    : -1;
+  const centerColor =
+    selectedIndex >= 0
+      ? getPieColor(selectedIndex, theme.isDark, useAccentPalette)
+      : theme.text;
+  const centerSize = innerRadius * 2 - 18;
+
   return (
-    <Svg width={size} height={size}>
-      <G>
-        {segments.map((segment, index) => {
-          return (
-            <Path
-              key={segment.datum.label}
-              d={describeDonutArc(center, radius, innerRadius, segment.start, segment.end - 1.2)}
-              fill={palette[index % palette.length]}
-            />
-          );
-        })}
-      </G>
-      <Circle cx={center} cy={center} r={innerRadius - 2} fill={theme.background} />
-      <SvgText
-        x={center}
-        y={center - 2}
-        textAnchor="middle"
-        fontSize="18"
-        fontWeight="700"
-        fill={theme.text}
+    <View style={[styles.pieDiagramShell, { width: size, height: size }]}>
+      <Svg width={size} height={size}>
+        <G>
+          {segments.map((segment, index) => {
+            const isSelected = segment.datum.label === selectedLabel;
+            const interactiveProps =
+              process.env.EXPO_OS === "web"
+                ? {}
+                : { onPress: () => onSelect(segment.datum.label) };
+            return (
+              <Path
+                key={segment.datum.label}
+                d={describeDonutArc(
+                  center,
+                  isSelected ? radius + 6 : radius,
+                  innerRadius,
+                  segment.start,
+                  segment.end - 1.2,
+                )}
+                fill={getPieColor(index, theme.isDark, useAccentPalette)}
+                opacity={selectedLabel && !isSelected ? 0.45 : 1}
+                stroke={theme.background}
+                strokeWidth={isSelected ? 4 : 2}
+                {...interactiveProps}
+              />
+            );
+          })}
+        </G>
+        <Circle cx={center} cy={center} r={innerRadius - 2} fill={theme.background} />
+      </Svg>
+
+      <View
+        pointerEvents="none"
+        style={[
+          styles.pieCenterOverlay,
+          {
+            width: centerSize,
+            height: centerSize,
+            borderRadius: centerSize / 2,
+            backgroundColor: theme.background,
+            borderColor: theme.border,
+          },
+        ]}
       >
-        {data.length}
-      </SvgText>
-      <SvgText
-        x={center}
-        y={center + 17}
-        textAnchor="middle"
-        fontSize="11"
-        fill={theme.textSecondary}
-      >
-        {centerLabel}
-      </SvgText>
-    </Svg>
+        {selectedDatum ? (
+          <>
+            <View style={styles.pieCenterLabelRow}>
+              <View
+                style={[styles.pieCenterSwatch, { backgroundColor: centerColor }]}
+              />
+              <Text
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.7}
+                style={[styles.pieCenterLabel, { color: theme.text }]}
+              >
+                {selectedDatum.label}
+              </Text>
+            </View>
+            <Text
+              selectable
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.7}
+              style={[styles.pieCenterAmount, { color: theme.text }]}
+            >
+              ${formatCurrency(selectedDatum.amount, 0)}
+            </Text>
+            <Text
+              numberOfLines={2}
+              adjustsFontSizeToFit
+              minimumFontScale={0.8}
+              style={[styles.pieCenterMeta, { color: theme.textSecondary }]}
+            >
+              {formatPercentage(selectedDatum.percentage)} • {selectedDatum.count} {itemLabel}
+            </Text>
+          </>
+        ) : (
+          <>
+            <Text
+              selectable
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.72}
+              style={[styles.pieCenterAmount, { color: theme.text }]}
+            >
+              ${formatCurrency(totalAmount, 0)}
+            </Text>
+            <Text style={[styles.pieCenterMeta, { color: theme.textSecondary }]}>
+              {data.length} {groupLabel}
+            </Text>
+          </>
+        )}
+      </View>
+    </View>
   );
 }
 
@@ -219,15 +353,19 @@ function TreemapDiagram({
   width,
   height,
   emptyLabel,
+  useAccentPalette,
 }: {
   data: CategoryDatum[];
   width: number;
   height: number;
   emptyLabel: string;
+  useAccentPalette: boolean;
 }) {
   const { theme } = useTheme();
-  const palette = theme.isDark ? DARK_MONO_PALETTE : MONO_PALETTE;
   const visibleData = data.slice(0, 9);
+  const palette = visibleData.map((_, index) =>
+    getPieColor(index, theme.isDark, useAccentPalette),
+  );
   const total = visibleData.reduce((sum, datum) => sum + datum.amount, 0);
   const rects = visibleData.reduce<
     {
@@ -459,12 +597,14 @@ export function DiagramScreen() {
   const { width } = useWindowDimensions();
   const { theme } = useTheme();
   const { t, resolvedLanguage } = useLanguage();
+  const { isAccentPaletteEnabled, setAccentPaletteEnabled } = useDiagramAppearance();
   const { canonicalizeLabel, isReady } = useGlossary();
   const { getFilteredConsumptions } = useConsumptionStats();
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("month");
   const [mode, setMode] = useState<DiagramMode>("pie");
   const [records, setRecords] = useState<Consumption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedCategoryLabel, setSelectedCategoryLabel] = useState<string | null>(null);
 
   const contentWidth = Math.max(280, width - 32);
   const pieSize = Math.min(260, contentWidth * 0.78);
@@ -474,16 +614,43 @@ export function DiagramScreen() {
     [records, timeFilter, resolvedLanguage],
   );
 
-  const categoryData = isReady ? buildCategoryBreakdown(records, canonicalizeLabel) : [];
-  const summary = isReady
-    ? buildDiagramSummary(records, canonicalizeLabel)
-    : {
-          expenseTotal: 0,
-          incomeTotal: 0,
-          netTotal: 0,
-          topCategory: null,
-          averageExpense: 0,
-        };
+  const categoryData = useMemo(
+    () => (isReady ? buildCategoryBreakdown(records, canonicalizeLabel) : []),
+    [canonicalizeLabel, isReady, records],
+  );
+  const summary = useMemo(
+    () =>
+      isReady
+        ? buildDiagramSummary(records, canonicalizeLabel)
+        : {
+            expenseTotal: 0,
+            incomeTotal: 0,
+            netTotal: 0,
+            topCategory: null,
+            averageExpense: 0,
+          },
+    [canonicalizeLabel, isReady, records],
+  );
+
+  const effectiveSelectedCategoryLabel = useMemo(() => {
+    if (selectedCategoryLabel === OVERVIEW_SELECTION) {
+      return null;
+    }
+
+    if (
+      selectedCategoryLabel &&
+      categoryData.some((datum) => datum.label === selectedCategoryLabel)
+    ) {
+      return selectedCategoryLabel;
+    }
+
+    return categoryData[0]?.label ?? null;
+  }, [categoryData, selectedCategoryLabel]);
+
+  const selectedCategory = useMemo(
+    () => categoryData.find((datum) => datum.label === effectiveSelectedCategoryLabel) ?? null,
+    [categoryData, effectiveSelectedCategoryLabel],
+  );
 
   const loadRecords = useCallback(async () => {
     setIsLoading(true);
@@ -507,6 +674,12 @@ export function DiagramScreen() {
   const handleSettingsPress = useCallback(() => {
     router.push("/settings");
   }, []);
+
+  const handleCategorySelect = useCallback((label: string) => {
+    setSelectedCategoryLabel(
+      effectiveSelectedCategoryLabel === label ? OVERVIEW_SELECTION : label,
+    );
+  }, [effectiveSelectedCategoryLabel]);
 
   const modeOptions = useMemo(
     () => [
@@ -610,7 +783,12 @@ export function DiagramScreen() {
                 <PieDiagram
                   data={categoryData}
                   size={pieSize}
-                  centerLabel={t("groups")}
+                  groupLabel={t("groups")}
+                  itemLabel={t("items")}
+                  totalAmount={summary.expenseTotal}
+                  selectedLabel={effectiveSelectedCategoryLabel}
+                  onSelect={handleCategorySelect}
+                  useAccentPalette={isAccentPaletteEnabled}
                 />
               ) : mode === "treemap" ? (
                 <TreemapDiagram
@@ -618,6 +796,7 @@ export function DiagramScreen() {
                   width={contentWidth - 36}
                   height={Math.max(260, Math.min(420, width * 0.88))}
                   emptyLabel={t("noData")}
+                  useAccentPalette={isAccentPaletteEnabled}
                 />
               ) : mode === "bar" ? (
                 <BarDiagram data={trendData} width={contentWidth - 36} height={trendHeight} />
@@ -632,6 +811,33 @@ export function DiagramScreen() {
             </View>
           </GlassContainer>
         </Animated.View>
+
+        {(mode === "pie" || mode === "treemap") ? (
+          <GlassContainer intensity="light" style={styles.paletteToggleCard}>
+            <View style={styles.paletteToggleTextBlock}>
+              <Text style={[styles.paletteToggleTitle, { color: theme.text }]}>
+                {t("diagramPaletteTitle")}
+              </Text>
+              <Text style={[styles.paletteToggleSubtitle, { color: theme.textSecondary }]}>
+                {isAccentPaletteEnabled
+                  ? t("diagramPaletteAccent")
+                  : t("diagramPaletteMono")}
+              </Text>
+            </View>
+            <Switch
+              value={isAccentPaletteEnabled}
+              onValueChange={(value) => {
+                void setAccentPaletteEnabled(value);
+              }}
+              trackColor={{
+                false: theme.isDark ? "#3A3A3C" : "#D1D1D6",
+                true: theme.foreground,
+              }}
+              thumbColor={theme.background}
+              ios_backgroundColor={theme.isDark ? "#3A3A3C" : "#D1D1D6"}
+            />
+          </GlassContainer>
+        ) : null}
 
         <View style={styles.metricGrid}>
           <GlassContainer intensity="light" style={styles.metricCard}>
@@ -672,29 +878,47 @@ export function DiagramScreen() {
         </View>
 
         <GlassContainer intensity="light" style={styles.legendPanel}>
-          {categoryData.slice(0, 6).map((datum, index) => (
-            <View key={datum.label} style={styles.legendRow}>
-              <View
+          {categoryData.map((datum, index) => {
+            const swatchColor = getPieColor(index, theme.isDark, isAccentPaletteEnabled);
+            const isSelected = datum.label === selectedCategory?.label;
+            return (
+              <Pressable
+                key={datum.label}
+                onPress={() => handleCategorySelect(datum.label)}
                 style={[
-                  styles.legendSwatch,
+                  styles.legendRow,
                   {
-                    backgroundColor: (theme.isDark ? DARK_MONO_PALETTE : MONO_PALETTE)[
-                      index % MONO_PALETTE.length
-                    ],
+                    backgroundColor:
+                      isSelected
+                        ? theme.isDark
+                          ? "rgba(255, 255, 255, 0.08)"
+                          : "rgba(0, 0, 0, 0.05)"
+                        : "transparent",
+                    borderColor: isSelected ? swatchColor : "transparent",
                   },
                 ]}
-              />
-              <Text numberOfLines={1} style={[styles.legendLabel, { color: theme.text }]}>
-                {datum.label}
-              </Text>
-              <Text
-                selectable
-                style={[styles.legendValue, { color: theme.textSecondary }]}
               >
-                ${formatCurrency(datum.amount, 0)}
-              </Text>
-            </View>
-          ))}
+                <View
+                  style={[styles.legendSwatch, { backgroundColor: swatchColor }]}
+                />
+                <Text
+                  numberOfLines={1}
+                  style={[styles.legendLabel, { color: theme.text }]}
+                >
+                  {datum.label}
+                </Text>
+                <Text style={[styles.legendPercentage, { color: theme.textSecondary }]}>
+                  {formatPercentage(datum.percentage)}
+                </Text>
+                <Text
+                  selectable
+                  style={[styles.legendValue, { color: theme.textSecondary }]}
+                >
+                  ${formatCurrency(datum.amount, 0)}
+                </Text>
+              </Pressable>
+            );
+          })}
           {categoryData.length === 0 ? (
             <Text style={[styles.emptyLegend, { color: theme.textSecondary }]}>
               {t("noConsumptions")}
@@ -772,6 +996,29 @@ const styles = StyleSheet.create({
     padding: 18,
     gap: 16,
   },
+  paletteToggleCard: {
+    minHeight: 64,
+    borderRadius: 18,
+    borderCurve: "continuous",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  paletteToggleTextBlock: {
+    flex: 1,
+    gap: 2,
+  },
+  paletteToggleTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  paletteToggleSubtitle: {
+    fontSize: 12,
+    fontWeight: "500",
+  },
   chartHeader: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -803,6 +1050,48 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
+  },
+  pieDiagramShell: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pieCenterOverlay: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    gap: 4,
+  },
+  pieCenterLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    width: "100%",
+  },
+  pieCenterSwatch: {
+    width: 8,
+    height: 8,
+    borderRadius: 999,
+    flexShrink: 0,
+  },
+  pieCenterLabel: {
+    flexShrink: 1,
+    fontSize: 12,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  pieCenterAmount: {
+    fontSize: 22,
+    fontWeight: "800",
+    fontVariant: ["tabular-nums"],
+    textAlign: "center",
+  },
+  pieCenterMeta: {
+    fontSize: 11,
+    fontWeight: "600",
+    textAlign: "center",
   },
   emptyDiagramText: {
     fontSize: 16,
@@ -870,6 +1159,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    minHeight: 42,
+    borderRadius: 14,
+    borderCurve: "continuous",
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
   legendSwatch: {
     width: 12,
@@ -881,10 +1176,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
+  legendPercentage: {
+    width: 48,
+    fontSize: 12,
+    fontWeight: "700",
+    textAlign: "right",
+    fontVariant: ["tabular-nums"],
+  },
   legendValue: {
+    width: 84,
     fontSize: 13,
     fontWeight: "700",
     fontVariant: ["tabular-nums"],
+    textAlign: "right",
   },
   emptyLegend: {
     textAlign: "center",
