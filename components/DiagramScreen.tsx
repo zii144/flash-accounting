@@ -376,25 +376,65 @@ function BarDiagram({ data, width, height }: { data: TrendDatum[]; width: number
   );
 }
 
-function LineDiagram({ data, width, height }: { data: TrendDatum[]; width: number; height: number }) {
+function getTrendPointX(index: number, pointCount: number, width: number) {
+  const paddingLeft = 18;
+  const paddingRight = 10;
+  const plotWidth = width - paddingLeft - paddingRight;
+
+  if (pointCount <= 1) {
+    return paddingLeft + plotWidth / 2;
+  }
+
+  return paddingLeft + (index / (pointCount - 1)) * plotWidth;
+}
+
+function LineDiagram({
+  data,
+  width,
+  height,
+  emptyLabel,
+}: {
+  data: TrendDatum[];
+  width: number;
+  height: number;
+  emptyLabel: string;
+}) {
   const { theme } = useTheme();
-  const chartWidth = width - 28;
   const chartHeight = height - 34;
+  const axisY = chartHeight;
+
+  if (data.length === 0) {
+    return (
+      <View style={[styles.emptyTrendChart, { width, height }]}>
+        <Text style={[styles.emptyDiagramText, { color: theme.textSecondary }]}>{emptyLabel}</Text>
+      </View>
+    );
+  }
+
   const maxValue = Math.max(1, ...data.map((datum) => datum.expense));
-  const step = data.length > 1 ? chartWidth / (data.length - 1) : chartWidth;
   const points = data.map((datum, index) => ({
-    x: 14 + index * step,
-    y: chartHeight - (datum.expense / maxValue) * (chartHeight - 16),
+    x: getTrendPointX(index, data.length, width),
+    y: axisY - (datum.expense / maxValue) * (chartHeight - 16),
     datum,
   }));
-  const path = points
-    .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
-    .join(" ");
+  const path =
+    points.length > 1
+      ? points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ")
+      : null;
 
   return (
     <Svg width={width} height={height}>
-      <Line x1={14} y1={chartHeight} x2={width - 8} y2={chartHeight} stroke={theme.border} />
-      <Path d={path} fill="none" stroke={theme.text} strokeWidth={3} strokeLinecap="round" />
+      <Line x1={14} y1={axisY} x2={width - 8} y2={axisY} stroke={theme.border} />
+      {path ? (
+        <Path
+          d={path}
+          fill="none"
+          stroke={theme.text}
+          strokeWidth={3}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      ) : null}
       {points.map((point, index) => (
         <G key={point.datum.key}>
           <Circle cx={point.x} cy={point.y} r={4} fill={theme.background} stroke={theme.text} strokeWidth={2} />
@@ -582,7 +622,12 @@ export function DiagramScreen() {
               ) : mode === "bar" ? (
                 <BarDiagram data={trendData} width={contentWidth - 36} height={trendHeight} />
               ) : (
-                <LineDiagram data={trendData} width={contentWidth - 36} height={trendHeight} />
+                <LineDiagram
+                  data={trendData}
+                  width={contentWidth - 36}
+                  height={trendHeight}
+                  emptyLabel={t("noData")}
+                />
               )}
             </View>
           </GlassContainer>
@@ -762,6 +807,10 @@ const styles = StyleSheet.create({
   emptyDiagramText: {
     fontSize: 16,
     fontWeight: "700",
+  },
+  emptyTrendChart: {
+    alignItems: "center",
+    justifyContent: "center",
   },
   treemap: {
     width: "100%",

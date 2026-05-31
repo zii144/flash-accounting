@@ -1,6 +1,13 @@
 import type { ResolvedLanguage } from "@/utils/formatting";
 import type { Consumption } from "@/types/consumption";
 import type { TimeFilter } from "@/utils/constants";
+import {
+  compareCalendarKeys,
+  parseLocalDateKey,
+  parseLocalMonthKey,
+  toLocalDateKey,
+  toLocalMonthKey,
+} from "@/utils/date-utils";
 import { LOCALE_MAP } from "@/utils/formatting";
 
 export type CategoryDatum = {
@@ -39,18 +46,18 @@ function formatDay(date: Date, language: ResolvedLanguage) {
 
 function getTrendKey(date: Date, timeFilter: TimeFilter) {
   if (timeFilter === "all" || timeFilter === "year") {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    return toLocalMonthKey(date);
   }
 
-  return date.toISOString().slice(0, 10);
+  return toLocalDateKey(date);
 }
 
-function getTrendLabel(date: Date, timeFilter: TimeFilter, language: ResolvedLanguage) {
+function getTrendLabel(key: string, timeFilter: TimeFilter, language: ResolvedLanguage) {
   if (timeFilter === "all" || timeFilter === "year") {
-    return formatMonth(date, language);
+    return formatMonth(parseLocalMonthKey(key), language);
   }
 
-  return formatDay(date, language);
+  return formatDay(parseLocalDateKey(key), language);
 }
 
 export function buildCategoryBreakdown(
@@ -85,7 +92,7 @@ export function buildTrendSeries(
   timeFilter: TimeFilter,
   language: ResolvedLanguage,
 ): TrendDatum[] {
-  const grouped = new Map<string, TrendDatum & { timestamp: number }>();
+  const grouped = new Map<string, TrendDatum>();
 
   for (const record of records) {
     const date = new Date(record.date);
@@ -98,12 +105,11 @@ export function buildTrendSeries(
       grouped.get(key) ??
       ({
         key,
-        label: getTrendLabel(date, timeFilter, language),
+        label: getTrendLabel(key, timeFilter, language),
         expense: 0,
         income: 0,
         net: 0,
-        timestamp: date.getTime(),
-      } satisfies TrendDatum & { timestamp: number });
+      } satisfies TrendDatum);
 
     if (record.type === "income") {
       existing.income += record.amount;
@@ -116,8 +122,7 @@ export function buildTrendSeries(
   }
 
   return Array.from(grouped.values())
-    .sort((a, b) => a.timestamp - b.timestamp)
-    .map(({ timestamp: _timestamp, ...datum }) => datum)
+    .sort((a, b) => compareCalendarKeys(a.key, b.key))
     .slice(-14);
 }
 
