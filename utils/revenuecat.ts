@@ -105,7 +105,8 @@ export function getCurrentOffering(
   offerings: { current: PurchasesOffering | null; all: Record<string, PurchasesOffering> },
   offeringId: string
 ): PurchasesOffering | null {
-  return offerings.all[offeringId] ?? offerings.current;
+  // Prefer the offering marked "Current" in RevenueCat — that's where the active paywall is attached.
+  return offerings.current ?? offerings.all[offeringId] ?? null;
 }
 
 export function getPurchasePackage(

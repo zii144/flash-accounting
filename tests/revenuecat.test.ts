@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  getCurrentOffering,
   getRevenueCatConfig,
   getPurchasePackage,
   hasActiveEntitlement,
@@ -106,6 +107,31 @@ test("hasUnlimitedLocalAccess is true for plus and pro plans", () => {
     true
   );
   assert.equal(hasUnlimitedLocalAccess(createCustomerInfo([]) as never, ENTITLEMENTS), false);
+});
+
+test("getCurrentOffering prefers the RevenueCat dashboard current offering", () => {
+  const currentOffering = { identifier: "default" };
+  const offerings = {
+    current: currentOffering,
+    all: {
+      default: currentOffering,
+      legacy: { identifier: "legacy" },
+    },
+  };
+
+  assert.equal(getCurrentOffering(offerings as never, "legacy"), currentOffering);
+});
+
+test("getCurrentOffering falls back to configured offering id when current is unset", () => {
+  const fallbackOffering = { identifier: "staging" };
+  const offerings = {
+    current: null,
+    all: {
+      staging: fallbackOffering,
+    },
+  };
+
+  assert.equal(getCurrentOffering(offerings as never, "staging"), fallbackOffering);
 });
 
 test("getPurchasePackage resolves lifetime package for plus", () => {

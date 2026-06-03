@@ -184,13 +184,20 @@ export async function presentRevenueCatPaywall(): Promise<PAYWALL_RESULT> {
 
   try {
     const offerings = await Purchases.getOfferings();
-    const offering = getCurrentOffering(offerings, config.offeringId);
 
-    if (!offering) {
+    if (!getCurrentOffering(offerings, config.offeringId)) {
       throw new AppError("IAP_PACKAGE_UNAVAILABLE");
     }
 
-    return await RevenueCatUI.presentPaywall({ offering });
+    if (__DEV__) {
+      logger.debug("Presenting RevenueCat paywall", {
+        currentOfferingId: offerings.current?.identifier ?? null,
+        configuredOfferingId: config.offeringId,
+      });
+    }
+
+    // Omit offering so RevenueCat presents the paywall attached to the dashboard "Current" offering.
+    return await RevenueCatUI.presentPaywall();
   } catch (error) {
     throw mapRevenueCatError(error);
   }
