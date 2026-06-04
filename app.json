@@ -2,13 +2,13 @@
   "expo": {
     "name": "Black White Accounting",
     "slug": "flash-accounting",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "scheme": "flashaccounting",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/icons/AppIcon.icon",
-      "buildNumber": "7",
+      "buildNumber": "8",
       "supportsTablet": true,
       "infoPlist": {
         "NSSpeechRecognitionUsageDescription": "This app needs access to speech recognition to allow you to dictate expense descriptions.",
