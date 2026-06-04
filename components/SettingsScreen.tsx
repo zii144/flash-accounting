@@ -468,209 +468,108 @@ export function SettingsScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.contentInner}>
-          <GlassContainer intensity="medium" style={styles.sectionCard}>
-            {showAuthSection && (
-              <>
-                <View style={styles.sectionHeader}>
-                  <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                    {t("authFeatureTitle")}
-                  </Text>
-                  <Text style={[styles.sectionSubtitle, { color: theme.textSecondary }]}>
-                    {t("authFeatureSubtitle")}
-                  </Text>
-                </View>
+          {showAuthSection && (
+            <GlassContainer intensity="medium" style={styles.sectionCard}>
+              <View style={styles.sectionHeader}>
+                <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                  {t("settingsSectionAccount")}
+                </Text>
+              </View>
 
-                <View
+              <View
+                style={[
+                  styles.settingItem,
+                  { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                ]}
+              >
+                <View style={styles.settingLeft}>
+                  <SymbolIcon name="person-circle" size={22} color={theme.text} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.settingText, { color: theme.text }]}>
+                      {isSignedIn ? t("authStatusSignedIn") : t("authStatusSignedOut")}
+                    </Text>
+                    {isSignedIn ? (
+                      <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                        {user?.email || user?.displayName || user?.uid}
+                      </Text>
+                    ) : (
+                      <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                        {t("authOptionalNote")}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              </View>
+
+              {!isSignedIn ? (
+                <TouchableOpacity
                   style={[
                     styles.settingItem,
                     { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
                   ]}
+                  onPress={handleSignInApple}
+                  disabled={isAuthBusy || !isAppleAuthAvailable}
                 >
                   <View style={styles.settingLeft}>
-                    <SymbolIcon name="person-circle" size={22} color={theme.text} />
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.settingText, { color: theme.text }]}>
-                        {isSignedIn ? t("authStatusSignedIn") : t("authStatusSignedOut")}
-                      </Text>
-                      {isSignedIn ? (
-                        <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                          {user?.email || user?.displayName || user?.uid}
-                        </Text>
-                      ) : (
-                        <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                          {t("authOptionalNote")}
-                        </Text>
-                      )}
-                    </View>
+                    <SymbolIcon name="apple-logo" size={22} color={theme.text} />
+                    <Text style={[styles.settingText, { color: theme.text }]}>
+                      {t("authContinueApple")}
+                    </Text>
                   </View>
-                </View>
+                  <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={[
+                    styles.settingItem,
+                    { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                  ]}
+                  onPress={handleSignOut}
+                  disabled={isAuthBusy}
+                >
+                  <View style={styles.settingLeft}>
+                    <SymbolIcon name="logout" size={22} color={theme.text} />
+                    <Text style={[styles.settingText, { color: theme.text }]}>
+                      {t("authSignOut")}
+                    </Text>
+                  </View>
+                  <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                </TouchableOpacity>
+              )}
+            </GlassContainer>
+          )}
 
-                {!isSignedIn ? (
-                  <TouchableOpacity
-                    style={[
-                      styles.settingItem,
-                      { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
-                    ]}
-                    onPress={handleSignInApple}
-                    disabled={isAuthBusy || !isAppleAuthAvailable}
-                  >
-                    <View style={styles.settingLeft}>
-                      <SymbolIcon name="apple-logo" size={22} color={theme.text} />
-                      <Text style={[styles.settingText, { color: theme.text }]}>
-                        {t("authContinueApple")}
-                      </Text>
-                    </View>
-                    <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    style={[
-                      styles.settingItem,
-                      { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
-                    ]}
-                    onPress={handleSignOut}
-                    disabled={isAuthBusy}
-                  >
-                    <View style={styles.settingLeft}>
-                      <SymbolIcon name="logout" size={22} color={theme.text} />
-                      <Text style={[styles.settingText, { color: theme.text }]}>
-                        {t("authSignOut")}
-                      </Text>
-                    </View>
-                    <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
-                  </TouchableOpacity>
-                )}
-              </>
-            )}
+          <GlassContainer intensity="medium" style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                {t("settingsSectionStorage")}
+              </Text>
+            </View>
 
             {showCloudSection && (
-              <>
-                <View
-                  style={[
-                    styles.settingItem,
-                    { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
-                  ]}
-                >
-                  <View style={styles.settingLeft}>
-                    <SymbolIcon name="cloud" size={22} color={theme.text} />
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.settingText, { color: theme.text }]}>
-                        {t("cloudSyncTitle")}
+              <View
+                style={[
+                  styles.settingItem,
+                  { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                ]}
+              >
+                <View style={styles.settingLeft}>
+                  <SymbolIcon name="cloud" size={22} color={theme.text} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.settingText, { color: theme.text }]}>
+                      {t("cloudSyncTitle")}
+                    </Text>
+                    <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                      {cloudStatusMessage}
+                    </Text>
+                    {cloudStatusDetail ? (
+                      <Text style={[styles.settingMeta, { color: theme.textSecondary }]}>
+                        {cloudStatusDetail}
                       </Text>
-                      <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                        {cloudStatusMessage}
-                      </Text>
-                      {cloudStatusDetail ? (
-                        <Text style={[styles.settingMeta, { color: theme.textSecondary }]}>
-                          {cloudStatusDetail}
-                        </Text>
-                      ) : null}
-                    </View>
+                    ) : null}
                   </View>
                 </View>
-
-                {shouldShowPurchaseActions && (
-                  <>
-                    <TouchableOpacity
-                      style={[
-                        styles.settingItem,
-                        { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
-                      ]}
-                      onPress={() => void handleOpenPaywall()}
-                      disabled={isPurchaseBusy || !isPurchaseConfigured}
-                    >
-                      <View style={styles.settingLeft}>
-                        <SymbolIcon name="cart" size={22} color={theme.text} />
-                        <View style={{ flex: 1 }}>
-                          <Text style={[styles.settingText, { color: theme.text }]}>
-                            {t("storageUpgradeTitle")}
-                          </Text>
-                          <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                            {currentStoragePlanLabel}
-                          </Text>
-                          <Text style={[styles.settingMeta, { color: theme.textSecondary }]}>
-                            {t("storageUpgradeSubtitle")}
-                          </Text>
-                        </View>
-                      </View>
-                      <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[
-                        styles.settingItem,
-                        { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
-                      ]}
-                      onPress={handleRestorePro}
-                      disabled={isPurchaseBusy || !isPurchaseConfigured}
-                    >
-                      <View style={styles.settingLeft}>
-                        <SymbolIcon name="refresh" size={22} color={theme.text} />
-                        <Text style={[styles.settingText, { color: theme.text }]}>
-                          {t("cloudSyncRestoreCta")}
-                        </Text>
-                      </View>
-                      <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
-                    </TouchableOpacity>
-                  </>
-                )}
-
-                {cloudEnabled && (
-                  <TouchableOpacity
-                    style={[
-                      styles.settingItem,
-                      { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
-                    ]}
-                    onPress={handleSyncLocal}
-                    disabled={isSyncBusy}
-                  >
-                    <View style={styles.settingLeft}>
-                      <SymbolIcon name="cloud-upload" size={22} color={theme.text} />
-                      <View style={{ flex: 1 }}>
-                        <Text style={[styles.settingText, { color: theme.text }]}>
-                          {syncPrimaryTitle}
-                        </Text>
-                        <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                          {syncPrimaryDetail}
-                        </Text>
-                      </View>
-                    </View>
-                    <SymbolIcon
-                      name={isSyncBusy ? "hourglass" : "chevron-forward"}
-                      size={18}
-                      color={theme.textSecondary}
-                    />
-                  </TouchableOpacity>
-                )}
-
-                {cloudEnabled && (
-                  <TouchableOpacity
-                    style={[
-                      styles.settingItem,
-                      { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
-                    ]}
-                    onPress={handlePullCloud}
-                    disabled={isSyncBusy}
-                  >
-                    <View style={styles.settingLeft}>
-                      <SymbolIcon name="cloud-download" size={22} color={theme.text} />
-                      <View style={{ flex: 1 }}>
-                        <Text style={[styles.settingText, { color: theme.text }]}>
-                          {t("cloudSyncPullCta")}
-                        </Text>
-                        <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                          {t("cloudSyncPullDetail")}
-                        </Text>
-                      </View>
-                    </View>
-                    <SymbolIcon
-                      name={isSyncBusy ? "hourglass" : "chevron-forward"}
-                      size={18}
-                      color={theme.textSecondary}
-                    />
-                  </TouchableOpacity>
-                )}
-              </>
+              </View>
             )}
 
             {!cloudEnabled && !hasUnlimitedLocal && (
@@ -715,72 +614,94 @@ export function SettingsScreen() {
               <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
             </TouchableOpacity>
 
-            {__DEV__ && (
+            {shouldShowPurchaseActions && (
               <TouchableOpacity
-                style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
-                onPress={async () => {
-                  if (isPro) {
-                    await signOutResetProDebug();
-                    Alert.alert("Dev", "Pro disabled");
-                  } else {
-                    await enableProDebug();
-                    Alert.alert("Dev", "Pro enabled");
-                  }
-                }}
+                style={[
+                  styles.settingItem,
+                  { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                ]}
+                onPress={handleRestorePro}
+                disabled={isPurchaseBusy || !isPurchaseConfigured}
               >
                 <View style={styles.settingLeft}>
-                  <SymbolIcon name="bug" size={22} color={theme.textSecondary} />
-                  <Text style={[styles.settingText, { color: theme.textSecondary }]}>
-                    {isPro ? "Dev: Disable Pro" : "Dev: Enable Pro"}
+                  <SymbolIcon name="refresh" size={22} color={theme.text} />
+                  <Text style={[styles.settingText, { color: theme.text }]}>
+                    {t("cloudSyncRestoreCta")}
                   </Text>
                 </View>
                 <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
               </TouchableOpacity>
             )}
 
-            {__DEV__ && (
+            {cloudEnabled && (
               <TouchableOpacity
-                style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
-                onPress={() => {
-                  Alert.alert(
-                    "Seed demo expenses",
-                    `Replace all records with ~150 demo expenses in ${resolvedLanguage.toUpperCase()}?`,
-                    [
-                      { text: "Cancel", style: "cancel" },
-                      {
-                        text: "Seed",
-                        style: "destructive",
-                        onPress: async () => {
-                          try {
-                            const batch = await seedDemoExpenses(resolvedLanguage, {
-                              replaceExisting: true,
-                            });
-                            await refresh();
-                            Alert.alert("Dev", `Seeded ${batch.records.length} demo records.`);
-                          } catch (error) {
-                            logger.error("Failed to seed demo expenses", error);
-                            Alert.alert("Dev", "Failed to seed demo expenses.");
-                          }
-                        },
-                      },
-                    ],
-                  );
-                }}
+                style={[
+                  styles.settingItem,
+                  { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                ]}
+                onPress={handleSyncLocal}
+                disabled={isSyncBusy}
               >
                 <View style={styles.settingLeft}>
-                  <SymbolIcon name="local-drive" size={22} color={theme.textSecondary} />
-                  <Text style={[styles.settingText, { color: theme.textSecondary }]}>
-                    Dev: Seed demo expenses
-                  </Text>
+                  <SymbolIcon name="cloud-upload" size={22} color={theme.text} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.settingText, { color: theme.text }]}>
+                      {syncPrimaryTitle}
+                    </Text>
+                    <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                      {syncPrimaryDetail}
+                    </Text>
+                  </View>
                 </View>
-                <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                <SymbolIcon
+                  name={isSyncBusy ? "hourglass" : "chevron-forward"}
+                  size={18}
+                  color={theme.textSecondary}
+                />
+              </TouchableOpacity>
+            )}
+
+            {cloudEnabled && (
+              <TouchableOpacity
+                style={[
+                  styles.settingItem,
+                  { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                ]}
+                onPress={handlePullCloud}
+                disabled={isSyncBusy}
+              >
+                <View style={styles.settingLeft}>
+                  <SymbolIcon name="cloud-download" size={22} color={theme.text} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.settingText, { color: theme.text }]}>
+                      {t("cloudSyncPullCta")}
+                    </Text>
+                    <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                      {t("cloudSyncPullDetail")}
+                    </Text>
+                  </View>
+                </View>
+                <SymbolIcon
+                  name={isSyncBusy ? "hourglass" : "chevron-forward"}
+                  size={18}
+                  color={theme.textSecondary}
+                />
               </TouchableOpacity>
             )}
           </GlassContainer>
 
           <GlassContainer intensity="medium" style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                {t("settingsSectionData")}
+              </Text>
+            </View>
+
             <TouchableOpacity
-              style={[styles.settingItem, { borderBottomColor: theme.border }]}
+              style={[
+                styles.settingItem,
+                { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+              ]}
               onPress={exportToCSV}
               disabled={isExporting}
             >
@@ -794,6 +715,37 @@ export function SettingsScreen() {
                 <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
               )}
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
+              onPress={handleGlossaryPress}
+            >
+              <View style={styles.settingLeft}>
+                <SymbolIcon name="sparkles" size={22} color={theme.text} />
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.settingText, { color: theme.text }]}>
+                    {t("smartGlossaryTitle")}
+                  </Text>
+                  <Text style={[styles.settingMeta, { color: theme.textSecondary }]}>
+                    {t("smartGlossarySubtitle")}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.settingRight}>
+                <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
+                  {glossarySummary}
+                </Text>
+                <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+              </View>
+            </TouchableOpacity>
+          </GlassContainer>
+
+          <GlassContainer intensity="medium" style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                {t("settingsSectionAppearance")}
+              </Text>
+            </View>
 
             <View
               style={[
@@ -835,29 +787,6 @@ export function SettingsScreen() {
 
             <TouchableOpacity
               style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
-              onPress={handleGlossaryPress}
-            >
-              <View style={styles.settingLeft}>
-                <SymbolIcon name="sparkles" size={22} color={theme.text} />
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.settingText, { color: theme.text }]}>
-                    {t("smartGlossaryTitle")}
-                  </Text>
-                  <Text style={[styles.settingMeta, { color: theme.textSecondary }]}>
-                    {t("smartGlossarySubtitle")}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.settingRight}>
-                <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                  {glossarySummary}
-                </Text>
-                <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
               onPress={handleLanguagePress}
             >
               <View style={styles.settingLeft}>
@@ -876,7 +805,19 @@ export function SettingsScreen() {
           </GlassContainer>
 
           <GlassContainer intensity="medium" style={styles.sectionCard}>
-            <TouchableOpacity style={styles.settingItem} onPress={handleClearHistory}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                {t("settingsSectionDanger")}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={[
+                styles.settingItem,
+                { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+              ]}
+              onPress={handleClearHistory}
+            >
               <View style={styles.settingLeft}>
                 <SymbolIcon name="trash" size={22} color="#FF3B30" />
                 <Text style={[styles.settingText, { color: "#FF3B30" }]}>
@@ -886,6 +827,80 @@ export function SettingsScreen() {
               <SymbolIcon name="chevron-forward" size={18} color="#FF3B30" />
             </TouchableOpacity>
           </GlassContainer>
+
+          {__DEV__ && (
+            <GlassContainer intensity="medium" style={styles.sectionCard}>
+              <View style={styles.sectionHeader}>
+                <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                  {t("settingsSectionDeveloper")}
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.settingItem,
+                  { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                ]}
+                onPress={async () => {
+                  if (isPro) {
+                    await signOutResetProDebug();
+                    Alert.alert("Dev", "Pro disabled");
+                  } else {
+                    await enableProDebug();
+                    Alert.alert("Dev", "Pro enabled");
+                  }
+                }}
+              >
+                <View style={styles.settingLeft}>
+                  <SymbolIcon name="bug" size={22} color={theme.textSecondary} />
+                  <Text style={[styles.settingText, { color: theme.textSecondary }]}>
+                    {isPro ? "Dev: Disable Pro" : "Dev: Enable Pro"}
+                  </Text>
+                </View>
+                <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.settingItem,
+                  { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                ]}
+                onPress={() => {
+                  Alert.alert(
+                    "Seed demo expenses",
+                    `Replace all records with ~150 demo expenses in ${resolvedLanguage.toUpperCase()}?`,
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      {
+                        text: "Seed",
+                        style: "destructive",
+                        onPress: async () => {
+                          try {
+                            const batch = await seedDemoExpenses(resolvedLanguage, {
+                              replaceExisting: true,
+                            });
+                            await refresh();
+                            Alert.alert("Dev", `Seeded ${batch.records.length} demo records.`);
+                          } catch (error) {
+                            logger.error("Failed to seed demo expenses", error);
+                            Alert.alert("Dev", "Failed to seed demo expenses.");
+                          }
+                        },
+                      },
+                    ],
+                  );
+                }}
+              >
+                <View style={styles.settingLeft}>
+                  <SymbolIcon name="local-drive" size={22} color={theme.textSecondary} />
+                  <Text style={[styles.settingText, { color: theme.textSecondary }]}>
+                    Dev: Seed demo expenses
+                  </Text>
+                </View>
+                <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+              </TouchableOpacity>
+            </GlassContainer>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
