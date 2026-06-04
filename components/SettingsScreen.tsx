@@ -37,6 +37,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FacebookAuthProvider, GoogleAuthProvider, OAuthProvider } from "firebase/auth";
+import Svg, { Circle, Path } from "react-native-svg";
 
 type AppleAuthenticationModule = typeof import("expo-apple-authentication");
 type AuthSessionModule = typeof import("expo-auth-session");
@@ -49,6 +50,41 @@ let cryptoModulePromise: Promise<CryptoModule | null> | null = null;
 const FACEBOOK_DISCOVERY = {
   authorizationEndpoint: "https://www.facebook.com/v6.0/dialog/oauth",
 };
+
+function GoogleLogo({ size = 22 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48">
+      <Path
+        fill="#FFC107"
+        d="M43.61 20.08H42V20H24v8h11.3c-1.65 4.66-6.08 8-11.3 8-6.63 0-12-5.37-12-12s5.37-12 12-12c3.06 0 5.84 1.15 7.96 3.04l5.66-5.66C34.05 6.05 29.27 4 24 4 12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20c0-1.34-.14-2.65-.39-3.92Z"
+      />
+      <Path
+        fill="#FF3D00"
+        d="m6.31 14.69 6.57 4.82C14.66 15.11 18.97 12 24 12c3.06 0 5.84 1.15 7.96 3.04l5.66-5.66C34.05 6.05 29.27 4 24 4 16.32 4 9.66 8.34 6.31 14.69Z"
+      />
+      <Path
+        fill="#4CAF50"
+        d="M24 44c5.17 0 9.86-1.98 13.41-5.2l-6.19-5.24C29.14 35.14 26.55 36 24 36c-5.2 0-9.61-3.31-11.28-7.94l-6.52 5.02C9.91 40.56 16.18 44 24 44Z"
+      />
+      <Path
+        fill="#1976D2"
+        d="M43.61 20.08H42V20H24v8h11.3a12.04 12.04 0 0 1-4.11 5.56l.01-.01 6.19 5.24C36.96 39.19 44 34 44 24c0-1.34-.14-2.65-.39-3.92Z"
+      />
+    </Svg>
+  );
+}
+
+function FacebookLogo({ size = 22 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48">
+      <Circle cx="24" cy="24" r="22" fill="#1877F2" />
+      <Path
+        fill="#FFFFFF"
+        d="M30.1 25.4 31 19.6h-5.6v-3.8c0-1.6.78-3.15 3.29-3.15h2.55V7.7S28.93 7.3 26.72 7.3c-4.62 0-7.64 2.8-7.64 7.86v4.44h-5.14v5.8h5.14V39.4c1.03.16 2.08.24 3.16.24s2.13-.08 3.16-.24V25.4h4.7Z"
+      />
+    </Svg>
+  );
+}
 
 async function loadAppleAuthenticationModule(): Promise<AppleAuthenticationModule | null> {
   if (!appleAuthenticationModulePromise) {
@@ -750,7 +786,7 @@ export function SettingsScreen() {
                     disabled={isAuthBusy}
                   >
                     <View style={styles.settingLeft}>
-                      <SymbolIcon name="language" size={22} color={theme.text} />
+                      <GoogleLogo />
                       <Text style={[styles.settingText, { color: theme.text }]}>
                         {t("authContinueGoogle")}
                       </Text>
@@ -767,7 +803,7 @@ export function SettingsScreen() {
                     disabled={isAuthBusy}
                   >
                     <View style={styles.settingLeft}>
-                      <SymbolIcon name="person-circle" size={22} color={theme.text} />
+                      <FacebookLogo />
                       <Text style={[styles.settingText, { color: theme.text }]}>
                         {t("authContinueFacebook")}
                       </Text>
