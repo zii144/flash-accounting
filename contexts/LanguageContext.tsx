@@ -207,7 +207,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     localLimitValue: "{count} / {limit} records on this device",
     localLimitReachedTitle: "Limit reached",
     localLimitReachedMessage:
-      "You reached the free local limit. Upgrade to Pro and sign in to unlock unlimited cloud storage.",
+      "You reached the free local limit. Upgrade to Plus for unlimited local storage, or Pro and sign in for unlimited cloud storage.",
     localLimitReachedLocalOnlyMessage:
       "You reached the local record limit for this build. Remove some records to keep using this device.",
     storageUpgradeTitle: "Upgrade Storage Plan",
@@ -222,7 +222,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storagePlanBasicTitle: "Basic Free",
     storagePlanBasicPrice: "USD $0",
     storagePlanBasicDescription: "Start accounting for free without signing in.",
-    storagePlanBasicFeatureLimit: "Up to 200 records stored locally on this device.",
+    storagePlanBasicFeatureLimit: "Up to {limit} records stored locally on this device.",
     storagePlanBasicFeatureNoLogin: "No account required.",
     storagePlanPlusTitle: "Plus Local",
     storagePlanPlusPrice: "USD $14.99 one-time",
@@ -403,7 +403,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     localLimitValue: "本機記錄：{count} / {limit}",
     localLimitReachedTitle: "已達上限",
     localLimitReachedMessage:
-      "已達免費本機上限。升級 Pro 並登入即可解鎖無上限雲端儲存。",
+      "已達免費本機上限。升級 Plus 可解鎖本機無限記錄，或升級 Pro 並登入以使用無上限雲端儲存。",
     localLimitReachedLocalOnlyMessage:
       "此版本已達本機記錄上限。請先刪除部分記錄，再繼續在這台裝置上使用。",
     storageUpgradeTitle: "升級儲存方案",
@@ -418,7 +418,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storagePlanBasicTitle: "Basic 免費",
     storagePlanBasicPrice: "USD $0",
     storagePlanBasicDescription: "免登入即可免費開始記帳，適合先建立記帳習慣。",
-    storagePlanBasicFeatureLimit: "本機最多保存 200 筆紀錄。",
+    storagePlanBasicFeatureLimit: "本機最多保存 {limit} 筆紀錄。",
     storagePlanBasicFeatureNoLogin: "不需要帳號即可使用。",
     storagePlanPlusTitle: "Plus 單機買斷",
     storagePlanPlusPrice: "USD $14.99 一次性買斷",
@@ -604,7 +604,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     localLimitValue: "{count} / {limit} registros en este dispositivo",
     localLimitReachedTitle: "Límite alcanzado",
     localLimitReachedMessage:
-      "Alcanzaste el límite local gratuito. Mejora a Pro e inicia sesión para desbloquear almacenamiento ilimitado en la nube.",
+      "Alcanzaste el límite local gratuito. Mejora a Plus para obtener almacenamiento local ilimitado, o a Pro e inicia sesión para desbloquear almacenamiento ilimitado en la nube.",
     localLimitReachedLocalOnlyMessage:
       "Has alcanzado el limite de registros locales de esta version. Elimina algunos registros para seguir usando este dispositivo.",
     storageUpgradeTitle: "Mejorar plan de almacenamiento",
@@ -619,7 +619,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storagePlanBasicTitle: "Basic gratis",
     storagePlanBasicPrice: "USD $0",
     storagePlanBasicDescription: "Empieza a llevar cuentas gratis sin iniciar sesión.",
-    storagePlanBasicFeatureLimit: "Hasta 200 registros guardados localmente en este dispositivo.",
+    storagePlanBasicFeatureLimit: "Hasta {limit} registros guardados localmente en este dispositivo.",
     storagePlanBasicFeatureNoLogin: "No se requiere cuenta.",
     storagePlanPlusTitle: "Plus local",
     storagePlanPlusPrice: "USD $14.99 pago único",
@@ -804,7 +804,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     localLimitValue: "{count} / {limit} enregistrements sur cet appareil",
     localLimitReachedTitle: "Limite atteinte",
     localLimitReachedMessage:
-      "Vous avez atteint la limite locale gratuite. Passez à Pro et connectez-vous pour débloquer un stockage cloud illimité.",
+      "Vous avez atteint la limite locale gratuite. Passez à Plus pour un stockage local illimité, ou à Pro et connectez-vous pour débloquer un stockage cloud illimité.",
     localLimitReachedLocalOnlyMessage:
       "Vous avez atteint la limite d'enregistrements locaux pour cette version. Supprimez quelques entrees pour continuer a utiliser cet appareil.",
     storageUpgradeTitle: "Améliorer le plan de stockage",
@@ -819,7 +819,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storagePlanBasicTitle: "Basic gratuit",
     storagePlanBasicPrice: "USD $0",
     storagePlanBasicDescription: "Commencez la comptabilité gratuitement sans connexion.",
-    storagePlanBasicFeatureLimit: "Jusqu'à 200 enregistrements stockés localement sur cet appareil.",
+    storagePlanBasicFeatureLimit: "Jusqu'à {limit} enregistrements stockés localement sur cet appareil.",
     storagePlanBasicFeatureNoLogin: "Aucun compte requis.",
     storagePlanPlusTitle: "Plus local",
     storagePlanPlusPrice: "USD $14.99 achat unique",
@@ -1005,7 +1005,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     localLimitValue: "{count} / {limit} Einträge auf diesem Gerät",
     localLimitReachedTitle: "Limit erreicht",
     localLimitReachedMessage:
-      "Du hast das kostenlose lokale Limit erreicht. Upgrade auf Pro und melde dich an, um unbegrenzten Cloud-Speicher freizuschalten.",
+      "Du hast das kostenlose lokale Limit erreicht. Upgrade auf Plus für unbegrenzten lokalen Speicher oder auf Pro und melde dich an, um unbegrenzten Cloud-Speicher freizuschalten.",
     localLimitReachedLocalOnlyMessage:
       "Sie haben das lokale Datensatzlimit fur diese Version erreicht. Loschen Sie einige Eintrage, um dieses Gerat weiter zu verwenden.",
     storageUpgradeTitle: "Speicherplan upgraden",
@@ -1020,7 +1020,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storagePlanBasicTitle: "Basic kostenlos",
     storagePlanBasicPrice: "USD $0",
     storagePlanBasicDescription: "Starte kostenlos mit der Buchhaltung ohne Anmeldung.",
-    storagePlanBasicFeatureLimit: "Bis zu 200 Einträge lokal auf diesem Gerät gespeichert.",
+    storagePlanBasicFeatureLimit: "Bis zu {limit} Einträge lokal auf diesem Gerät gespeichert.",
     storagePlanBasicFeatureNoLogin: "Kein Konto erforderlich.",
     storagePlanPlusTitle: "Plus lokal",
     storagePlanPlusPrice: "USD $14.99 einmalig",
@@ -1205,7 +1205,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     localLimitValue: "このデバイスの記録: {count} / {limit}",
     localLimitReachedTitle: "上限に達しました",
     localLimitReachedMessage:
-      "無料のローカル上限に達しました。Pro にアップグレードしてログインすると、無制限のクラウド保存が利用できます。",
+      "無料のローカル上限に達しました。Plus にアップグレードするとローカル保存が無制限になり、Pro にアップグレードしてログインすると無制限のクラウド保存が利用できます。",
     localLimitReachedLocalOnlyMessage:
       "このビルドのローカル記録上限に達しました。このデバイスで使い続けるには、いくつかの記録を削除してください。",
     storageUpgradeTitle: "保存プランをアップグレード",
@@ -1220,7 +1220,7 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     storagePlanBasicTitle: "Basic 無料",
     storagePlanBasicPrice: "USD $0",
     storagePlanBasicDescription: "ログインなしで無料で家計簿を始められます。",
-    storagePlanBasicFeatureLimit: "このデバイスに最大 200 件までローカル保存。",
+    storagePlanBasicFeatureLimit: "このデバイスに最大 {limit} 件までローカル保存。",
     storagePlanBasicFeatureNoLogin: "アカウント不要。",
     storagePlanPlusTitle: "Plus ローカル",
     storagePlanPlusPrice: "USD $14.99 買い切り",

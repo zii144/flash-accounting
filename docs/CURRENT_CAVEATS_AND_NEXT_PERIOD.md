@@ -18,7 +18,7 @@ Use this document as the source of truth for implementation status. Some higher-
 - Language selection and localization
 - Dark / light theme support
 - Error boundary and basic structured logging
-- Free local storage limit (`200` records)
+- Free local storage limit (`50` records)
 
 ### Implemented but config-dependent
 

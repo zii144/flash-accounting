@@ -10,7 +10,7 @@ export const STORAGE_KEYS = {
   PRO_ENTITLEMENT: "@flash_accounting_pro_entitlement",
 } as const;
 
-export const FREE_LOCAL_RECORD_LIMIT = 200;
+export const FREE_LOCAL_RECORD_LIMIT = 50;
 
 export const ANIMATION_CONFIG = {
   SPRING_DAMPING: 20,
