@@ -13,6 +13,11 @@ import { buildConsumptionsCsv } from "@/utils/export";
 import { LOCALE_MAP } from "@/utils/formatting";
 import { getLanguageOptions } from "@/utils/language-options";
 import { logger } from "@/utils/logger";
+import {
+  getGoogleClientIdForPlatform,
+  getGoogleOAuthRedirectUri,
+  GOOGLE_OAUTH_DISCOVERY,
+} from "@/utils/google-oauth";
 import { seedDemoExpenses } from "@/utils/seed-data/seed-database";
 import { router } from "expo-router";
 import { SymbolIcon } from "@/components/symbol-icon";
@@ -31,13 +36,19 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { OAuthProvider } from "firebase/auth";
+import { FacebookAuthProvider, GoogleAuthProvider, OAuthProvider } from "firebase/auth";
 
 type AppleAuthenticationModule = typeof import("expo-apple-authentication");
+type AuthSessionModule = typeof import("expo-auth-session");
 type CryptoModule = typeof import("expo-crypto");
 
 let appleAuthenticationModulePromise: Promise<AppleAuthenticationModule | null> | null = null;
+let authSessionModulePromise: Promise<AuthSessionModule | null> | null = null;
 let cryptoModulePromise: Promise<CryptoModule | null> | null = null;
+
+const FACEBOOK_DISCOVERY = {
+  authorizationEndpoint: "https://www.facebook.com/v6.0/dialog/oauth",
+};
 
 async function loadAppleAuthenticationModule(): Promise<AppleAuthenticationModule | null> {
   if (!appleAuthenticationModulePromise) {
@@ -52,6 +63,21 @@ async function loadAppleAuthenticationModule(): Promise<AppleAuthenticationModul
   }
 
   return appleAuthenticationModulePromise;
+}
+
+async function loadAuthSessionModule(): Promise<AuthSessionModule | null> {
+  if (!authSessionModulePromise) {
+    authSessionModulePromise = import("expo-auth-session")
+      .then((module) => module)
+      .catch((error) => {
+        logger.debug("Expo auth session module unavailable", {
+          error: error instanceof Error ? error.message : String(error),
+        });
+        return null;
+      });
+  }
+
+  return authSessionModulePromise;
 }
 
 async function loadCryptoModule(): Promise<CryptoModule | null> {
@@ -76,6 +102,14 @@ function randomNonce(length: number = 32): string {
     result += charset[Math.floor(Math.random() * charset.length)];
   }
   return result;
+}
+
+function normalizeEnvValue(value?: string): string | undefined {
+  return value && value.trim().length > 0 ? value : undefined;
+}
+
+function getFacebookAppId(): string | undefined {
+  return normalizeEnvValue(process.env.EXPO_PUBLIC_FACEBOOK_APP_ID);
 }
 
 export function SettingsScreen() {
@@ -115,8 +149,9 @@ export function SettingsScreen() {
   const currentLanguageLabel =
     languages.find((option) => option.code === language)?.name ?? t("device");
   const showAppleSignIn = isFirebaseReady && Platform.OS === "ios" && isAppleAuthAvailable;
-  const showAuthSection = isSignedIn || showAppleSignIn;
-  const showCloudSection = cloudEnabled || (isPurchaseConfigured && (isSignedIn || showAppleSignIn));
+  const showAuthOptions = isFirebaseReady && !isSignedIn;
+  const showAuthSection = isSignedIn || showAuthOptions;
+  const showCloudSection = cloudEnabled || (isPurchaseConfigured && (isSignedIn || showAuthOptions));
   const shouldShowPurchaseActions = showCloudSection && !cloudEnabled && !isPro && isPurchaseConfigured;
   const syncPrimaryTitle = syncSnapshot.hasPendingLocalChanges
     ? t("cloudSyncRetryCta")
@@ -300,6 +335,161 @@ export function SettingsScreen() {
       },
     ]);
   }, [clearAll, t]);
+
+  const getRedirectUri = useCallback(
+    (authSession: AuthSessionModule) =>
+      authSession.makeRedirectUri({
+        scheme: "flashaccounting",
+        path: "auth",
+      }),
+    []
+  );
+
+  const handleSignInGoogle = useCallback(async () => {
+    if (!isFirebaseReady) {
+      Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
+      return;
+    }
+
+    const clientId = getGoogleClientIdForPlatform(Platform.OS);
+    if (!clientId) {
+      Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
+      return;
+    }
+
+    if (
+      Platform.OS === "android" &&
+      !normalizeEnvValue(process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID)
+    ) {
+      Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
+      return;
+    }
+
+    try {
+      setIsAuthBusy(true);
+      const authSession = await loadAuthSessionModule();
+      if (!authSession) {
+        Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
+        return;
+      }
+
+      const redirectUri = getGoogleOAuthRedirectUri(clientId, Platform.OS, authSession);
+      const useAuthorizationCode = Platform.OS !== "web";
+
+      const request = await authSession.loadAsync(
+        {
+          clientId,
+          redirectUri,
+          responseType: useAuthorizationCode
+            ? authSession.ResponseType.Code
+            : authSession.ResponseType.Token,
+          scopes: ["openid", "profile", "email"],
+          state: randomNonce(),
+          usePKCE: useAuthorizationCode,
+          prompt: authSession.Prompt.SelectAccount,
+        },
+        GOOGLE_OAUTH_DISCOVERY
+      );
+      const result = await request.promptAsync(GOOGLE_OAUTH_DISCOVERY);
+
+      if (result.type === "cancel" || result.type === "dismiss") {
+        return;
+      }
+
+      if (result.type !== "success") {
+        throw new Error("GOOGLE_AUTH_FAILED");
+      }
+
+      let accessToken = result.params.access_token as string | undefined;
+      let idToken = result.params.id_token as string | undefined;
+
+      if (useAuthorizationCode) {
+        const authCode = result.params.code;
+        if (!authCode) {
+          throw new Error("GOOGLE_CODE_MISSING");
+        }
+        if (!request.codeVerifier) {
+          throw new Error("GOOGLE_CODE_VERIFIER_MISSING");
+        }
+
+        const exchangeRequest = new authSession.AccessTokenRequest({
+          clientId,
+          redirectUri,
+          code: authCode,
+          extraParams: {
+            code_verifier: request.codeVerifier,
+          },
+        });
+        const tokens = await exchangeRequest.performAsync(GOOGLE_OAUTH_DISCOVERY);
+        accessToken = tokens.accessToken;
+        idToken = tokens.idToken;
+      }
+
+      if (!accessToken && !idToken) {
+        throw new Error("GOOGLE_TOKEN_MISSING");
+      }
+
+      await signInWithCredential(GoogleAuthProvider.credential(idToken ?? null, accessToken));
+    } catch (error) {
+      logger.error("Google sign-in failed", error);
+      Alert.alert(t("authErrorTitle"), t("authErrorMessage"));
+    } finally {
+      setIsAuthBusy(false);
+    }
+  }, [isFirebaseReady, signInWithCredential, t]);
+
+  const handleSignInFacebook = useCallback(async () => {
+    if (!isFirebaseReady) {
+      Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
+      return;
+    }
+
+    const appId = getFacebookAppId();
+    if (!appId) {
+      Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
+      return;
+    }
+
+    try {
+      setIsAuthBusy(true);
+      const authSession = await loadAuthSessionModule();
+      if (!authSession) {
+        Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
+        return;
+      }
+
+      const request = await authSession.loadAsync(
+        {
+          clientId: appId,
+          redirectUri: getRedirectUri(authSession),
+          responseType: authSession.ResponseType.Token,
+          scopes: ["public_profile", "email"],
+          state: randomNonce(),
+          usePKCE: false,
+          extraParams: {
+            display: "popup",
+          },
+        },
+        FACEBOOK_DISCOVERY
+      );
+      const result = await request.promptAsync(FACEBOOK_DISCOVERY);
+
+      if (result.type === "cancel" || result.type === "dismiss") {
+        return;
+      }
+
+      if (result.type !== "success" || !result.params.access_token) {
+        throw new Error("FACEBOOK_AUTH_FAILED");
+      }
+
+      await signInWithCredential(FacebookAuthProvider.credential(result.params.access_token));
+    } catch (error) {
+      logger.error("Facebook sign-in failed", error);
+      Alert.alert(t("authErrorTitle"), t("authErrorMessage"));
+    } finally {
+      setIsAuthBusy(false);
+    }
+  }, [getRedirectUri, isFirebaseReady, signInWithCredential, t]);
 
   const handleSignInApple = useCallback(async () => {
     if (!isFirebaseReady || !isAppleAuthAvailable) {
@@ -550,22 +740,60 @@ export function SettingsScreen() {
               </View>
 
               {!isSignedIn ? (
-                <TouchableOpacity
-                  style={[
-                    styles.settingItem,
-                    { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
-                  ]}
-                  onPress={handleSignInApple}
-                  disabled={isAuthBusy || !isAppleAuthAvailable}
-                >
-                  <View style={styles.settingLeft}>
-                    <SymbolIcon name="apple-logo" size={22} color={theme.text} />
-                    <Text style={[styles.settingText, { color: theme.text }]}>
-                      {t("authContinueApple")}
-                    </Text>
-                  </View>
-                  <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
-                </TouchableOpacity>
+                <>
+                  <TouchableOpacity
+                    style={[
+                      styles.settingItem,
+                      { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                    ]}
+                    onPress={handleSignInGoogle}
+                    disabled={isAuthBusy}
+                  >
+                    <View style={styles.settingLeft}>
+                      <SymbolIcon name="language" size={22} color={theme.text} />
+                      <Text style={[styles.settingText, { color: theme.text }]}>
+                        {t("authContinueGoogle")}
+                      </Text>
+                    </View>
+                    <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.settingItem,
+                      { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                    ]}
+                    onPress={handleSignInFacebook}
+                    disabled={isAuthBusy}
+                  >
+                    <View style={styles.settingLeft}>
+                      <SymbolIcon name="person-circle" size={22} color={theme.text} />
+                      <Text style={[styles.settingText, { color: theme.text }]}>
+                        {t("authContinueFacebook")}
+                      </Text>
+                    </View>
+                    <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                  </TouchableOpacity>
+
+                  {showAppleSignIn ? (
+                    <TouchableOpacity
+                      style={[
+                        styles.settingItem,
+                        { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
+                      ]}
+                      onPress={handleSignInApple}
+                      disabled={isAuthBusy || !isAppleAuthAvailable}
+                    >
+                      <View style={styles.settingLeft}>
+                        <SymbolIcon name="apple-logo" size={22} color={theme.text} />
+                        <Text style={[styles.settingText, { color: theme.text }]}>
+                          {t("authContinueApple")}
+                        </Text>
+                      </View>
+                      <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                    </TouchableOpacity>
+                  ) : null}
+                </>
               ) : (
                 <TouchableOpacity
                   style={[

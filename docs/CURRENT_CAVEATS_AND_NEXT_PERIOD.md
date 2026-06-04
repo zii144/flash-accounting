@@ -46,7 +46,7 @@ There is no native iOS / Android speech recognition implementation yet.
 ### 2.1 Auth caveats
 
 - `AuthContext` supports Firebase credential sign-in and sign-out, but only Apple is currently exposed in the `Settings` UI when the native modules and Firebase config are available.
-- Google and Facebook auth are **not currently exposed** in the local-safe Settings build.
+- Google and Facebook auth are exposed in Settings through safely loaded `expo-auth-session` flows. They still require the matching OAuth client IDs / app ID and provider console setup.
 - Apple sign-in is iOS-only and requires native modules to be present in the local development build.
 - If Firebase env values are missing, auth degrades gracefully to a signed-out local-only experience.
 - Firebase auth persistence is kept simple. There is no explicit custom persistence strategy yet.
@@ -82,7 +82,7 @@ There is no native iOS / Android speech recognition implementation yet.
 ### 2.4 Platform / build caveats
 
 - Native module availability still matters in development builds. If a package is added or changed, the local dev client may need to be rebuilt before native functionality works.
-- `expo-auth-session` is currently avoided in `Settings` because of the `ExpoCrypto` crash path observed in the local build.
+- `expo-auth-session` is loaded only after the user taps Google or Facebook sign-in, so missing native support degrades into an auth error instead of crashing Settings at import time.
 - The iOS `RCTScrollViewComponentView implements focusItemsInRect` log is a UIKit / React Native system log, not an app crash or app-level functional defect.
 - Expo Go should not be considered the target environment for validating auth, IAP, or other native-gated production flows.
 

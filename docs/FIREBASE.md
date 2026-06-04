@@ -39,6 +39,15 @@ Also configure OAuth client IDs for Expo AuthSession:
 - Apple sign-in uses `expo-apple-authentication` and requires an iOS native build.
 - For production testing, use a development build or store build. Do not rely on Expo Go for final auth verification.
 
+### Google OAuth (iOS / Android)
+
+1. Create **iOS** and **Android** OAuth clients in Google Cloud (not only the Firebase **Web** client).
+2. Set `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` and `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` in `.env`.
+3. Do **not** add `flashaccounting://auth` to the **Web** client redirect list — Google only allows HTTPS URLs there.
+4. Native sign-in uses redirect `com.googleusercontent.apps.<dot-reversed-client-id>:/oauth2redirect` (derived from the platform client ID; for example `com.googleusercontent.apps.1234567890-abcdefg:/oauth2redirect`). `app.config.ts` registers the matching URL scheme on iOS and the matching Android intent filter when the platform Google client IDs are set.
+5. After changing `app.config.ts` or OAuth env vars, rebuild the native app (`npx expo prebuild --clean` then `npx expo run:ios`, or a new EAS build).
+6. In Google Cloud **OAuth consent screen**, add your Google account under **Test users** while the app is in **Testing**; otherwise sign-in is blocked for non-testers.
+
 ## 4) Firestore data model
 
 User-scoped collection:
