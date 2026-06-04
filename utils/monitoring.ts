@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react-native";
+import { normalizePublicEnv } from "@/utils/public-env";
 
 type MonitoringContext = Record<string, unknown>;
 type MonitoringUser = {
@@ -6,15 +7,6 @@ type MonitoringUser = {
   email?: string | null;
   username?: string | null;
 };
-
-function readEnv(name: string): string | undefined {
-  const value = process.env[name];
-  if (!value || value.trim().length === 0) {
-    return undefined;
-  }
-
-  return value;
-}
 
 function normalizeError(error: unknown): Error {
   if (error instanceof Error) {
@@ -41,11 +33,12 @@ function withMonitoringScope(
   });
 }
 
-const dsn = readEnv("EXPO_PUBLIC_SENTRY_DSN");
-const enableInDevelopment = readEnv("EXPO_PUBLIC_SENTRY_ENABLE_IN_DEV") === "true";
+const dsn = normalizePublicEnv(process.env.EXPO_PUBLIC_SENTRY_DSN);
+const enableInDevelopment =
+  normalizePublicEnv(process.env.EXPO_PUBLIC_SENTRY_ENABLE_IN_DEV) === "true";
 const environment =
-  readEnv("EXPO_PUBLIC_APP_ENV") ??
-  readEnv("EAS_BUILD_PROFILE") ??
+  normalizePublicEnv(process.env.EXPO_PUBLIC_APP_ENV) ??
+  normalizePublicEnv(process.env.EAS_BUILD_PROFILE) ??
   (__DEV__ ? "development" : "production");
 const monitoringEnabled = Boolean(dsn) && (!__DEV__ || enableInDevelopment);
 

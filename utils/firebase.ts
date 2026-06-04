@@ -2,6 +2,7 @@ import { initializeApp, getApp, getApps, type FirebaseApp } from "firebase/app";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import type { Auth } from "firebase/auth";
 import { getAuth } from "firebase/auth";
+import { normalizePublicEnv } from "@/utils/public-env";
 
 type FirebaseServices = {
   app: FirebaseApp;
@@ -9,18 +10,12 @@ type FirebaseServices = {
   firestore: Firestore;
 };
 
-function readEnv(name: string): string | undefined {
-  const value = process.env[name];
-  if (!value || value.trim().length === 0) return undefined;
-  return value;
-}
-
 export function isFirebaseConfigured(): boolean {
   return Boolean(
-    readEnv("EXPO_PUBLIC_FIREBASE_API_KEY") &&
-      readEnv("EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN") &&
-      readEnv("EXPO_PUBLIC_FIREBASE_PROJECT_ID") &&
-      readEnv("EXPO_PUBLIC_FIREBASE_APP_ID")
+    normalizePublicEnv(process.env.EXPO_PUBLIC_FIREBASE_API_KEY) &&
+      normalizePublicEnv(process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN) &&
+      normalizePublicEnv(process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID) &&
+      normalizePublicEnv(process.env.EXPO_PUBLIC_FIREBASE_APP_ID)
   );
 }
 
@@ -31,12 +26,12 @@ export function getFirebase(): FirebaseServices | null {
   if (!isFirebaseConfigured()) return null;
 
   const firebaseConfig = {
-    apiKey: readEnv("EXPO_PUBLIC_FIREBASE_API_KEY")!,
-    authDomain: readEnv("EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN")!,
-    projectId: readEnv("EXPO_PUBLIC_FIREBASE_PROJECT_ID")!,
-    storageBucket: readEnv("EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET"),
-    messagingSenderId: readEnv("EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID"),
-    appId: readEnv("EXPO_PUBLIC_FIREBASE_APP_ID")!,
+    apiKey: normalizePublicEnv(process.env.EXPO_PUBLIC_FIREBASE_API_KEY)!,
+    authDomain: normalizePublicEnv(process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN)!,
+    projectId: normalizePublicEnv(process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID)!,
+    storageBucket: normalizePublicEnv(process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET),
+    messagingSenderId: normalizePublicEnv(process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID),
+    appId: normalizePublicEnv(process.env.EXPO_PUBLIC_FIREBASE_APP_ID)!,
   };
 
   const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);

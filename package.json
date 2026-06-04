@@ -24,6 +24,7 @@
     "build:ios:prod": "eas build --platform ios --profile production",
     "build:android:prod": "eas build --platform android --profile production",
     "submit:ios:prod": "eas submit --platform ios --profile production",
+    "verify:ios:env": "bash scripts/verify-ios-env.sh",
     "submit:android:prod": "eas submit --platform android --profile production"
   },
   "dependencies": {

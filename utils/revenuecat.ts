@@ -1,19 +1,11 @@
 import type { CustomerInfo, PurchasesOffering, PurchasesPackage } from "react-native-purchases";
 import { AppError } from "@/utils/app-error";
 import type { ResolvedLanguage } from "@/utils/formatting";
+import { normalizePublicEnv } from "@/utils/public-env";
 
 export type StoragePlanId = "basic" | "plus" | "pro";
 export type ProPlan = "monthly" | "annual";
 export type PurchasePlan = ProPlan | "plus";
-
-function readEnv(name: string): string | undefined {
-  const value = process.env[name];
-  if (!value || value.trim().length === 0) {
-    return undefined;
-  }
-
-  return value;
-}
 
 export type RevenueCatConfig = {
   apiKey: string;
@@ -36,16 +28,16 @@ function isRevenueCatDebugBuild(): boolean {
 }
 
 function getRevenueCatApiKey(): string | undefined {
-  const testApiKey = readEnv("EXPO_PUBLIC_REVENUECAT_API_KEY_TEST");
+  const testApiKey = normalizePublicEnv(process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_TEST);
 
   if (isRevenueCatDebugBuild() && testApiKey) {
     return testApiKey;
   }
 
   return process.env.EXPO_OS === "ios"
-    ? readEnv("EXPO_PUBLIC_REVENUECAT_API_KEY_IOS")
+    ? normalizePublicEnv(process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_IOS)
     : process.env.EXPO_OS === "android"
-      ? readEnv("EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID")
+      ? normalizePublicEnv(process.env.EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID)
       : undefined;
 }
 
@@ -59,11 +51,14 @@ export function getRevenueCatConfig(): RevenueCatConfig | null {
   return {
     apiKey,
     proEntitlementId:
-      readEnv("EXPO_PUBLIC_REVENUECAT_PRO_ENTITLEMENT_ID") ??
-      readEnv("EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID") ??
+      normalizePublicEnv(process.env.EXPO_PUBLIC_REVENUECAT_PRO_ENTITLEMENT_ID) ??
+      normalizePublicEnv(process.env.EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID) ??
       "cloud_sync_pro",
-    plusEntitlementId: readEnv("EXPO_PUBLIC_REVENUECAT_PLUS_ENTITLEMENT_ID") ?? "local_unlimited",
-    offeringId: readEnv("EXPO_PUBLIC_REVENUECAT_OFFERING_ID") ?? "default",
+    plusEntitlementId:
+      normalizePublicEnv(process.env.EXPO_PUBLIC_REVENUECAT_PLUS_ENTITLEMENT_ID) ??
+      "local_unlimited",
+    offeringId:
+      normalizePublicEnv(process.env.EXPO_PUBLIC_REVENUECAT_OFFERING_ID) ?? "default",
     recommendedMonthlyPrice: "USD $5.99/month",
     recommendedAnnualPrice: "USD $59/year",
     recommendedPlusPrice: "USD $14.99",
@@ -94,9 +89,28 @@ const RESOLVED_LANGUAGE_TO_REVENUECAT_LOCALE: Record<ResolvedLanguage, string> =
   ja: "ja",
 };
 
+function getRevenueCatPaywallLocaleOverride(language: ResolvedLanguage): string | undefined {
+  switch (language) {
+    case "en":
+      return normalizePublicEnv(process.env.EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_EN);
+    case "zh":
+      return normalizePublicEnv(process.env.EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_ZH);
+    case "es":
+      return normalizePublicEnv(process.env.EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_ES);
+    case "fr":
+      return normalizePublicEnv(process.env.EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_FR);
+    case "de":
+      return normalizePublicEnv(process.env.EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_DE);
+    case "ja":
+      return normalizePublicEnv(process.env.EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_JA);
+    default:
+      return undefined;
+  }
+}
+
 function getRevenueCatLocaleForLanguage(language: ResolvedLanguage): string {
   return (
-    readEnv(`EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_${language.toUpperCase()}`) ??
+    getRevenueCatPaywallLocaleOverride(language) ??
     RESOLVED_LANGUAGE_TO_REVENUECAT_LOCALE[language] ??
     RESOLVED_LANGUAGE_TO_REVENUECAT_LOCALE.en
   );

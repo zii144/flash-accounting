@@ -68,6 +68,12 @@ Optional for Sentry source maps and debug symbol upload:
 
 Do not submit an App Store build with `EXPO_PUBLIC_REVENUECAT_API_KEY_TEST`.
 
+`EXPO_PUBLIC_*` values are baked into `main.jsbundle` at archive time. Use static `process.env.EXPO_PUBLIC_*` access in app code (not `process.env[variable]`) so Expo can inline them. Before archiving, confirm embedding:
+
+```bash
+npm run verify:ios:env
+```
+
 ## Every Release Checklist
 
 ### 1. Start Clean
