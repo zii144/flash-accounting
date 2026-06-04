@@ -70,6 +70,7 @@ type ConsumptionStorageValue = {
   refresh: () => Promise<void>;
   loadPaginated: (options: PaginationOptions) => Promise<PaginatedResult>;
   getAllForExport: () => Promise<Consumption[]>;
+  importConsumptions: (consumptions: Consumption[]) => Promise<{ imported: number }>;
   syncLocalToCloud: () => Promise<{ uploaded: number }>;
   pullCloudToLocal: () => Promise<{ downloaded: number }>;
 };
@@ -743,6 +744,83 @@ function useConsumptionStorageController(): ConsumptionStorageValue {
     return getAllLocalConsumptions();
   }, []);
 
+  const importConsumptions = useCallback(
+    async (records: Consumption[]): Promise<{ imported: number }> => {
+      try {
+        if (records.length === 0) {
+          return { imported: 0 };
+        }
+
+        const timestamp = new Date().toISOString();
+        const normalizedRecords = records.map((record) => {
+          if (!record.id || !record.date) {
+            throw new Error("Invalid consumption data: missing required fields");
+          }
+
+          if (record.amount <= 0 || Number.isNaN(record.amount)) {
+            throw new AppError(
+              "INVALID_CONSUMPTION",
+              "Invalid consumption data: amount must be greater than zero"
+            );
+          }
+
+          return normalizeConsumptionRecord({
+            ...record,
+            createdAt: record.createdAt ?? timestamp,
+            updatedAt: timestamp,
+            deletedAt: null,
+          });
+        });
+
+        if (
+          !hasUnlimitedLocal &&
+          !cloudEnabled &&
+          totalCount + normalizedRecords.length > FREE_LOCAL_RECORD_LIMIT
+        ) {
+          throw new AppError("LOCAL_LIMIT_REACHED");
+        }
+
+        await transaction(
+          normalizedRecords.map((record) => async (runInTransaction) => {
+            await upsertLocalConsumption(record, runInTransaction);
+          })
+        );
+
+        if (cloudEnabled && user?.uid) {
+          for (const record of normalizedRecords) {
+            await queueSyncConsumption(user.uid, record);
+          }
+
+          const nextMetadata = await markPendingLocalChanges(user.uid);
+          applyStoredSyncMetadata(nextMetadata);
+          void attemptBackgroundSync(user.uid);
+        }
+
+        await refreshLocalState();
+        return { imported: normalizedRecords.length };
+      } catch (error) {
+        logger.error("Failed to import consumptions", error);
+        if (error instanceof AppError) {
+          throw error;
+        }
+        throw new AppError(
+          "IMPORT_CONSUMPTIONS_FAILED",
+          error instanceof Error ? error.message : "Failed to import consumptions.",
+          { cause: error }
+        );
+      }
+    },
+    [
+      applyStoredSyncMetadata,
+      attemptBackgroundSync,
+      cloudEnabled,
+      hasUnlimitedLocal,
+      refreshLocalState,
+      totalCount,
+      user?.uid,
+    ]
+  );
+
   const syncLocalToCloud = useCallback(async (): Promise<{ uploaded: number }> => {
     if (!user?.uid || !isPro) {
       throw new AppError("CLOUD_SYNC_NOT_AVAILABLE");
@@ -777,6 +855,7 @@ function useConsumptionStorageController(): ConsumptionStorageValue {
     refresh: loadConsumptions,
     loadPaginated: loadPaginatedConsumptions,
     getAllForExport,
+    importConsumptions,
     syncLocalToCloud,
     pullCloudToLocal,
   };

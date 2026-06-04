@@ -8,6 +8,7 @@ import { useGlossary } from "@/contexts/GlossaryContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import { getAppErrorCode } from "@/utils/app-error";
 import { FREE_LOCAL_RECORD_LIMIT } from "@/utils/constants";
+import { parseConsumptionsCsv } from "@/utils/csv-import";
 import { buildConsumptionsCsv } from "@/utils/export";
 import { LOCALE_MAP } from "@/utils/formatting";
 import { getLanguageOptions } from "@/utils/language-options";
@@ -98,6 +99,7 @@ export function SettingsScreen() {
   const {
     clearAll,
     getAllForExport,
+    importConsumptions,
     isSyncBusy,
     pullCloudToLocal,
     refresh,
@@ -106,6 +108,7 @@ export function SettingsScreen() {
     totalCount,
   } = useConsumptionStorage();
   const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [isAuthBusy, setIsAuthBusy] = useState(false);
   const [isAppleAuthAvailable, setIsAppleAuthAvailable] = useState(false);
   const languages = useMemo(() => getLanguageOptions(t), [t]);
@@ -228,6 +231,51 @@ export function SettingsScreen() {
       setIsExporting(false);
     }
   }, [getAllForExport, resolvedLanguage, t]);
+
+  const importFromCSV = useCallback(async () => {
+    setIsImporting(true);
+    try {
+      const result = await File.pickFileAsync({
+        mimeTypes: ["text/csv", "text/comma-separated-values", "application/csv"],
+      });
+
+      if (result.canceled) {
+        return;
+      }
+
+      const file = result.result;
+      if (!file) {
+        Alert.alert(t("importCSVError"), t("importCSVInvalid"));
+        return;
+      }
+
+      const csvContent = await file.text();
+      const { consumptions: importedRecords } = parseConsumptionsCsv(csvContent);
+      const importResult = await importConsumptions(importedRecords);
+
+      Alert.alert(
+        t("importCSVSuccess"),
+        t("importCSVSuccessMessage").replace("{count}", String(importResult.imported))
+      );
+    } catch (error) {
+      logger.error("Import error", error);
+      if (getAppErrorCode(error) === "LOCAL_LIMIT_REACHED") {
+        Alert.alert(
+          t("localLimitReachedTitle"),
+          t("localLimitReachedLocalOnlyMessage").replace(
+            "{limit}",
+            String(FREE_LOCAL_RECORD_LIMIT)
+          )
+        );
+        return;
+      }
+
+      const errorMessage = error instanceof Error ? error.message : t("importCSVInvalid");
+      Alert.alert(t("importCSVError"), errorMessage);
+    } finally {
+      setIsImporting(false);
+    }
+  }, [importConsumptions, t]);
 
   const handleClearHistory = useCallback(() => {
     Alert.alert(t("clearHistory"), t("clearHistoryConfirm"), [
@@ -710,6 +758,22 @@ export function SettingsScreen() {
                 <Text style={[styles.settingText, { color: theme.text }]}>{t("exportCSV")}</Text>
               </View>
               {isExporting ? (
+                <SymbolIcon name="hourglass" size={20} color={theme.textSecondary} />
+              ) : (
+                <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
+              onPress={importFromCSV}
+              disabled={isImporting}
+            >
+              <View style={styles.settingLeft}>
+                <SymbolIcon name="cloud-upload" size={22} color={theme.text} />
+                <Text style={[styles.settingText, { color: theme.text }]}>{t("importCSV")}</Text>
+              </View>
+              {isImporting ? (
                 <SymbolIcon name="hourglass" size={20} color={theme.textSecondary} />
               ) : (
                 <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
