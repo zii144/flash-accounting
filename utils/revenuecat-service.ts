@@ -25,12 +25,16 @@ type CustomerProfile = {
 
 let configured = false;
 let configuredAppUserId: string | null | undefined = undefined;
+let configuredPreferredLocale: string | null = null;
 
 export function isRevenueCatConfigured(): boolean {
   return configured;
 }
 
-export async function configureRevenueCat(appUserId?: string | null): Promise<RevenueCatConfig | null> {
+export async function configureRevenueCat(
+  appUserId?: string | null,
+  preferredUILocaleOverride?: string | null
+): Promise<RevenueCatConfig | null> {
   const config = getRevenueCatConfig();
   if (!config || !isRevenueCatSupportedPlatform()) {
     return null;
@@ -44,11 +48,18 @@ export async function configureRevenueCat(appUserId?: string | null): Promise<Re
     Purchases.configure({
       apiKey: config.apiKey,
       appUserID: appUserId ?? undefined,
+      preferredUILocaleOverride: preferredUILocaleOverride ?? undefined,
     });
 
     configured = true;
     configuredAppUserId = appUserId ?? null;
+    configuredPreferredLocale = preferredUILocaleOverride ?? null;
     return config;
+  }
+
+  if (configuredPreferredLocale !== (preferredUILocaleOverride ?? null)) {
+    await Purchases.overridePreferredLocale(preferredUILocaleOverride ?? null);
+    configuredPreferredLocale = preferredUILocaleOverride ?? null;
   }
 
   if (configuredAppUserId !== appUserId) {
@@ -58,6 +69,17 @@ export async function configureRevenueCat(appUserId?: string | null): Promise<Re
   }
 
   return config;
+}
+
+export async function setRevenueCatPreferredLocale(
+  preferredUILocaleOverride?: string | null
+): Promise<void> {
+  const config = getRevenueCatConfig();
+  if (!config || !isRevenueCatSupportedPlatform()) {
+    return;
+  }
+
+  await configureRevenueCat(configuredAppUserId ?? null, preferredUILocaleOverride ?? null);
 }
 
 export async function syncRevenueCatCustomerProfile(
@@ -174,13 +196,15 @@ export async function restoreRevenueCatPurchases(): Promise<CustomerInfo> {
   }
 }
 
-export async function presentRevenueCatPaywall(): Promise<PAYWALL_RESULT> {
+export async function presentRevenueCatPaywall(
+  preferredUILocaleOverride?: string | null
+): Promise<PAYWALL_RESULT> {
   const config = getRevenueCatConfig();
   if (!config || !isRevenueCatSupportedPlatform()) {
     throw new AppError("IAP_NOT_CONFIGURED");
   }
 
-  await configureRevenueCat(configuredAppUserId ?? null);
+  await configureRevenueCat(configuredAppUserId ?? null, preferredUILocaleOverride ?? null);
 
   try {
     const offerings = await Purchases.getOfferings();
@@ -193,6 +217,7 @@ export async function presentRevenueCatPaywall(): Promise<PAYWALL_RESULT> {
       logger.debug("Presenting RevenueCat paywall", {
         currentOfferingId: offerings.current?.identifier ?? null,
         configuredOfferingId: config.offeringId,
+        preferredUILocaleOverride,
       });
     }
 

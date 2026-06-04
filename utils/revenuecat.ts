@@ -1,5 +1,6 @@
 import type { CustomerInfo, PurchasesOffering, PurchasesPackage } from "react-native-purchases";
 import { AppError } from "@/utils/app-error";
+import type { ResolvedLanguage } from "@/utils/formatting";
 
 export type StoragePlanId = "basic" | "plus" | "pro";
 export type ProPlan = "monthly" | "annual";
@@ -23,6 +24,8 @@ export type RevenueCatConfig = {
   recommendedAnnualPrice: string;
   recommendedPlusPrice: string;
 };
+
+export type RevenueCatLanguagePreference = ResolvedLanguage | "device";
 
 export function isRevenueCatSupportedPlatform(): boolean {
   return process.env.EXPO_OS === "ios" || process.env.EXPO_OS === "android";
@@ -66,6 +69,70 @@ export function getRevenueCatConfig(): RevenueCatConfig | null {
     recommendedPlusPrice: "USD $14.99",
   };
 }
+
+export function getRevenueCatPreferredLocale(
+  language: RevenueCatLanguagePreference,
+  resolvedLanguage: ResolvedLanguage,
+  deviceLocaleTag?: string | null
+): string {
+  if (language === "device") {
+    const normalizedDeviceLocale = normalizeRevenueCatLocale(deviceLocaleTag, resolvedLanguage);
+    if (normalizedDeviceLocale) {
+      return normalizedDeviceLocale;
+    }
+  }
+
+  return getRevenueCatLocaleForLanguage(resolvedLanguage);
+}
+
+const RESOLVED_LANGUAGE_TO_REVENUECAT_LOCALE: Record<ResolvedLanguage, string> = {
+  en: "en_US",
+  zh: "zh_Hant",
+  es: "es_ES",
+  fr: "fr_FR",
+  de: "de_DE",
+  ja: "ja",
+};
+
+function getRevenueCatLocaleForLanguage(language: ResolvedLanguage): string {
+  return (
+    readEnv(`EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_${language.toUpperCase()}`) ??
+    RESOLVED_LANGUAGE_TO_REVENUECAT_LOCALE[language] ??
+    RESOLVED_LANGUAGE_TO_REVENUECAT_LOCALE.en
+  );
+}
+
+function normalizeRevenueCatLocale(
+  localeTag: string | null | undefined,
+  resolvedLanguage: ResolvedLanguage
+): string | null {
+  if (!localeTag) {
+    return null;
+  }
+
+  const normalized = localeTag.replace(/_/g, "-");
+  const lower = normalized.toLowerCase();
+
+  if (lower === "zh-tw" || lower === "zh-hk" || lower === "zh-mo" || lower.startsWith("zh-hant")) {
+    return "zh_Hant";
+  }
+
+  if (lower === "zh-cn" || lower === "zh-sg" || lower.startsWith("zh-hans")) {
+    return "zh_Hans";
+  }
+
+  if (lower === "ja" || lower.startsWith("ja-")) {
+    return "ja";
+  }
+
+  if (SUPPORTED_REVENUECAT_LANGUAGE_CODES.has(lower.split("-")[0] ?? "")) {
+    return getRevenueCatLocaleForLanguage(resolvedLanguage);
+  }
+
+  return normalized.replace(/-/g, "_");
+}
+
+const SUPPORTED_REVENUECAT_LANGUAGE_CODES = new Set(["en", "zh", "es", "fr", "de", "ja"]);
 
 export function hasActiveEntitlement(
   customerInfo: CustomerInfo | null,

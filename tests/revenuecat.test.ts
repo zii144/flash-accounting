@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   getCurrentOffering,
   getRevenueCatConfig,
+  getRevenueCatPreferredLocale,
   getPurchasePackage,
   hasActiveEntitlement,
   hasUnlimitedLocalAccess,
@@ -212,6 +213,39 @@ test("getRevenueCatConfig uses platform keys outside debug builds", () => {
       const config = getRevenueCatConfig();
       assert.ok(config);
       assert.equal(config.apiKey, "android_key");
+    }
+  );
+});
+
+test("getRevenueCatPreferredLocale maps app zh to RevenueCat Traditional Chinese", () => {
+  assert.equal(getRevenueCatPreferredLocale("zh", "zh"), "zh_Hant");
+});
+
+test("getRevenueCatPreferredLocale preserves supported device locales when using device language", () => {
+  assert.equal(getRevenueCatPreferredLocale("device", "en", "zh-TW"), "zh_Hant");
+  assert.equal(getRevenueCatPreferredLocale("device", "en", "ja-JP"), "ja");
+});
+
+test("getRevenueCatPreferredLocale maps app Japanese to RevenueCat Japanese", () => {
+  assert.equal(getRevenueCatPreferredLocale("ja", "ja"), "ja");
+});
+
+test("getRevenueCatPreferredLocale maps regional device locales through the app language bridge", () => {
+  assert.equal(getRevenueCatPreferredLocale("device", "es", "es-MX"), "es_ES");
+  assert.equal(getRevenueCatPreferredLocale("device", "fr", "fr-CA"), "fr_FR");
+  assert.equal(getRevenueCatPreferredLocale("device", "de", "de-AT"), "de_DE");
+});
+
+test("getRevenueCatPreferredLocale supports RevenueCat dashboard locale overrides", () => {
+  runWithRevenueCatEnv(
+    {
+      EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_ES: "es_419",
+      EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_FR: "fr_CA",
+    },
+    undefined,
+    () => {
+      assert.equal(getRevenueCatPreferredLocale("es", "es"), "es_419");
+      assert.equal(getRevenueCatPreferredLocale("device", "fr", "fr-CA"), "fr_CA");
     }
   );
 });

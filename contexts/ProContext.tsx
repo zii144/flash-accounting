@@ -1,9 +1,12 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { CustomerInfo, PurchasesOffering } from "react-native-purchases";
+import * as Localization from "expo-localization";
 import { PAYWALL_RESULT } from "react-native-purchases-ui";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { logger } from "@/utils/logger";
 import {
+  getRevenueCatPreferredLocale,
   getPurchasePackage,
   getRevenueCatConfig,
   hasUnlimitedLocalAccess,
@@ -17,6 +20,7 @@ import {
   purchaseRevenueCatPlan,
   presentRevenueCatPaywall,
   restoreRevenueCatPurchases,
+  setRevenueCatPreferredLocale,
   syncRevenueCatCustomerProfile,
 } from "@/utils/revenuecat-service";
 
@@ -50,12 +54,17 @@ const ProContext = createContext<ProContextValue | null>(null);
 
 export function ProProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { language, resolvedLanguage } = useLanguage();
   const config = useMemo(() => getRevenueCatConfig(), []);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [offering, setOffering] = useState<PurchasesOffering | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
   const [debugOverride, setDebugOverride] = useState(false);
+  const preferredPaywallLocale = useMemo(() => {
+    const deviceLocaleTag = Localization.getLocales()[0]?.languageTag ?? null;
+    return getRevenueCatPreferredLocale(language, resolvedLanguage, deviceLocaleTag);
+  }, [language, resolvedLanguage]);
 
   const syncRevenueCatState = useCallback(async () => {
     if (!config) {
@@ -64,6 +73,7 @@ export function ProProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
+      await setRevenueCatPreferredLocale(preferredPaywallLocale);
       await syncRevenueCatCustomerProfile({
         appUserId: user?.uid ?? null,
         email: user?.email,
@@ -79,7 +89,7 @@ export function ProProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsReady(true);
     }
-  }, [config, user?.displayName, user?.email, user?.uid]);
+  }, [config, preferredPaywallLocale, user?.displayName, user?.email, user?.uid]);
 
   useEffect(() => {
     if (!config) {
@@ -95,6 +105,14 @@ export function ProProvider({ children }: { children: React.ReactNode }) {
 
     return removeListener;
   }, [config, syncRevenueCatState]);
+
+  useEffect(() => {
+    if (!config) {
+      return;
+    }
+
+    void setRevenueCatPreferredLocale(preferredPaywallLocale);
+  }, [config, preferredPaywallLocale]);
 
   const purchasePro = useCallback(async (plan: ProPlan) => {
     setIsBusy(true);
@@ -135,7 +153,7 @@ export function ProProvider({ children }: { children: React.ReactNode }) {
   const presentPaywall = useCallback(async () => {
     setIsBusy(true);
     try {
-      const result = await presentRevenueCatPaywall();
+      const result = await presentRevenueCatPaywall(preferredPaywallLocale);
 
       if (result === PAYWALL_RESULT.PURCHASED || result === PAYWALL_RESULT.RESTORED) {
         const nextState = await fetchRevenueCatState();
@@ -147,7 +165,7 @@ export function ProProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsBusy(false);
     }
-  }, []);
+  }, [preferredPaywallLocale]);
 
   const refreshEntitlements = useCallback(async () => {
     await syncRevenueCatState();

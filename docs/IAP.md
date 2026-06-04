@@ -25,6 +25,17 @@ Recommended launch pricing:
 - `EXPO_PUBLIC_REVENUECAT_PLUS_ENTITLEMENT_ID` (defaults to `local_unlimited`)
 - `EXPO_PUBLIC_REVENUECAT_OFFERING_ID` (defaults to `default`)
 
+Optional paywall locale bridge overrides:
+
+- `EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_EN` (defaults to `en_US`)
+- `EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_ZH` (defaults to `zh_Hant`)
+- `EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_ES` (defaults to `es_ES`)
+- `EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_FR` (defaults to `fr_FR`)
+- `EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_DE` (defaults to `de_DE`)
+- `EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_JA` (defaults to `ja`)
+
+Set these only when the locale configured in the RevenueCat Paywall Localization tab uses a different supported locale, for example `EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_ES=es_419`.
+
 Legacy fallback:
 
 - `EXPO_PUBLIC_REVENUECAT_ENTITLEMENT_ID` is still read as the Pro entitlement if `EXPO_PUBLIC_REVENUECAT_PRO_ENTITLEMENT_ID` is not set.
@@ -67,8 +78,26 @@ Best-practice behaviors implemented:
 - Sync email/display name as customer attributes after login
 - Resolve access from entitlements, not product IDs
 - Present the current offering paywall from RevenueCat's Paywall editor
+- Bridge the app's selected language to RevenueCat paywall locales before presenting the paywall
 - Restore purchases from settings
 - Gracefully disable purchase actions when keys or packages are missing
+
+## Paywall localization bridge
+
+RevenueCat paywalls are native UI and do not automatically read the app's in-app language picker. The app explicitly sends RevenueCat a preferred paywall locale before fetching offerings and immediately before presenting the paywall.
+
+Default bridge:
+
+| App language | RevenueCat paywall locale |
+|---|---|
+| English | `en_US` |
+| Traditional Chinese | `zh_Hant` |
+| Spanish | `es_ES` |
+| French | `fr_FR` |
+| German | `de_DE` |
+| Japanese | `ja` |
+
+If a paywall still falls back to English for a language, confirm that the paywall has a published localization for the matching RevenueCat locale. If the dashboard uses a different supported locale, set the corresponding `EXPO_PUBLIC_REVENUECAT_PAYWALL_LOCALE_*` override, restart Metro, and reload the app; release builds need a new build.
 
 ## Testing notes
 
