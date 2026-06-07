@@ -1,242 +1,212 @@
 # Flash Accounting
 
-A modern, beautiful React Native expense tracking app built with Expo. Track your income and expenses with an intuitive interface featuring glass morphism design, dark mode support, and multi-language localization.
+Flash Accounting is a local-first mobile accounting app built with Expo and React Native. It lets users record income and expenses quickly, review spending through statistics and diagrams, export records, and optionally unlock cloud sync through a paid storage plan.
 
-## ✨ Features
+## Current Capabilities
 
-- **Quick Expense Tracking**: Add expenses and income with a single tap
-- **Statistics Dashboard**: View your spending patterns with day/month views
-- **Multi-language Support**: Available in English, Traditional Chinese, Spanish, French, German, and Japanese
-- **Dark Mode**: Automatic theme switching based on system preferences
-- **Modern UI**: Glass morphism design with smooth animations
-- **Offline First**: All data stored locally using SQLite
-- **Export Data**: Export your data to CSV format
+- Add, edit, delete, and page through income and expense records
+- SQLite-backed local storage with a free local record limit
+- Statistics tab with time filters, sort modes, grouped daily history, and net totals
+- Diagram tab for visual spending summaries
+- CSV export for recorded transactions
+- Device, English, Traditional Chinese, Spanish, French, German, and Japanese language modes
+- Automatic light and dark themes
+- Settings flows for language, glossary terms, auth, purchases, export, and sync recovery
+- Firebase auth and Firestore sync foundation for signed-in Pro users
+- RevenueCat-backed Plus and Pro entitlement handling
+- Sentry wiring for production crash reporting
 
-## 🚀 Getting Started
+The app is usable without sign-in. Auth, cloud sync, purchases, and crash reporting depend on the matching platform and environment configuration.
+
+## Tech Stack
+
+- Expo SDK 56
+- React Native 0.85
+- React 19
+- Expo Router with native tabs
+- TypeScript 6
+- SQLite through `expo-sqlite`
+- Firebase for auth and Firestore-backed cloud storage
+- RevenueCat for Plus and Pro entitlements
+- Sentry for crash reporting
+- React Native Reanimated and Worklets for animations
+
+## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ and npm/yarn
-- Expo CLI (`npm install -g expo-cli`)
-- iOS Simulator (for Mac) or Android Emulator
-- For physical devices: Expo Go app
+- Node.js 18 or newer
+- npm
+- Xcode and iOS Simulator for iOS development on macOS
+- Android Studio and an emulator for Android development
+- EAS CLI for cloud builds and store submission
 
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd flash-accounting
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Start the development server**
-   ```bash
-   npm start
-   ```
-
-4. **Run on your device**
-   - Press `i` for iOS simulator
-   - Press `a` for Android emulator
-   - Scan QR code with Expo Go app for physical device
-
-## 📱 Building for Production
-
-### iOS
+### Install
 
 ```bash
-# Build for iOS
-eas build --platform ios --profile production
+git clone https://github.com/zii144/flash-accounting.git
+cd flash-accounting
+npm install
 ```
 
-### Android
+### Run Locally
 
 ```bash
-# Build for Android
-eas build --platform android --profile production
+npm start
 ```
 
-## 🏗️ Project Structure
-
-```
-flash-accounting/
-├── app/                    # Expo Router pages
-│   ├── _layout.tsx        # Root layout with providers
-│   └── index.tsx          # Main screen
-├── components/            # React components
-│   ├── ConsumptionForm.tsx
-│   ├── ConsumptionItem.tsx
-│   ├── ErrorBoundary.tsx
-│   ├── GlassContainer.tsx
-│   ├── SettingsModal.tsx
-│   └── StatisticsView.tsx
-├── contexts/              # React Context providers
-│   ├── LanguageContext.tsx
-│   └── ThemeContext.tsx
-├── hooks/                 # Custom React hooks
-│   ├── useConsumptionStats.ts
-│   ├── useConsumptionStorage.ts
-│   └── useSpeechRecognition.ts
-├── types/                 # TypeScript type definitions
-│   └── consumption.ts
-├── utils/                 # Utility functions
-│   ├── constants.ts
-│   ├── db.ts
-│   ├── db-schema.ts
-│   ├── debounce.ts
-│   ├── formatting.ts
-│   └── validation.ts
-└── assets/                # Images, icons, fonts
-```
-
-## 🛠️ Technology Stack
-
-- **Framework**: React Native 0.83.4 with Expo SDK 55
-- **Navigation**: Expo Router (file-based routing)
-- **Database**: SQLite (expo-sqlite)
-- **Animations**: React Native Reanimated 4
-- **State Management**: React Context API + Custom Hooks
-- **Styling**: StyleSheet with dynamic theming
-- **Type Safety**: TypeScript with strict mode
-- **Architecture**: New Architecture enabled (React Native 0.81+)
-
-## 📚 Key Components
-
-### ErrorBoundary
-Catches React errors and displays user-friendly error messages. Prevents the entire app from crashing.
-
-### ConsumptionForm
-Form component for adding expenses/income with:
-- Real-time validation
-- Amount formatting with thousand separators
-- Error message display
-
-### StatisticsView
-Comprehensive statistics dashboard with:
-- Day/month view modes
-- Time filters (today, week, month, year, all)
-- Sort options (date, amount)
-- Pagination for large datasets
-- Optimized SQL queries
-
-### Database Layer
-- **db.ts**: Database connection and query utilities
-- **db-schema.ts**: Schema initialization and migrations
-- **useConsumptionStorage.ts**: Hook for consumption CRUD operations
-- **useConsumptionStats.ts**: Hook for optimized statistics queries
-
-## 🔒 Data Validation
-
-All user inputs are validated before saving:
-
-- **Amount**: Must be > 0, max 999,999,999.99, max 2 decimal places
-- **Description**: Max 500 characters, optional
-- **Type**: Must be 'expense' or 'income'
-
-See `utils/validation.ts` for validation logic.
-
-## 🌍 Internationalization
-
-The app supports 6 languages:
-- English (en)
-- Traditional Chinese (zh)
-- Spanish (es)
-- French (fr)
-- German (de)
-- Japanese (ja)
-
-Language is automatically detected from device settings, or can be manually selected in settings.
-
-## 🎨 Theming
-
-The app supports automatic dark/light mode based on system preferences:
-- Light theme: White background, black text
-- Dark theme: Black background, white text
-- Glass morphism effects adapt to theme
-
-## ⚡ Performance Optimizations
-
-- **Pagination**: Large lists are paginated (5 items per page)
-- **Memoization**: Components and callbacks are memoized
-- **SQL Optimization**: Indexed queries, efficient aggregations
-- **FlatList Optimization**: `getItemLayout`, `removeClippedSubviews`, `windowSize`
-- **Debouncing**: Input handlers are debounced where appropriate
-- **Lazy Loading**: Data loaded only when needed
-
-## 🧪 Development
-
-### Code Quality
-
-- **TypeScript**: Strict mode enabled
-- **ESLint**: Expo ESLint config
-- **Error Boundaries**: Comprehensive error handling
-- **Validation**: Input validation on all user inputs
-
-### Best Practices
-
-- ✅ Error boundaries for React errors
-- ✅ Input validation before database operations
-- ✅ User-friendly error messages
-- ✅ Optimistic UI updates
-- ✅ Proper cleanup in useEffect hooks
-- ✅ Memoization for expensive operations
-- ✅ Type-safe database queries
-
-## 📝 Scripts
+Useful app targets:
 
 ```bash
-npm start          # Start Expo development server
-npm run android    # Run on Android
-npm run ios        # Run on iOS
-npm run web        # Run on web
-npm run lint       # Run ESLint
-npm run typecheck  # Run TypeScript checks
-npm test           # Run unit tests
+npm run ios
+npm run android
+npm run web
+```
+
+Expo Go is useful for simple local screens, but auth, IAP, Sentry, and other native-gated flows should be validated in a development client or production build.
+
+## Scripts
+
+```bash
+npm start                    # Start the Expo dev server
+npm run ios                  # Start Expo for iOS on localhost
+npm run android              # Run the Android native target
+npm run web                  # Start the web target
+npm run lint                 # Run Expo ESLint
+npm run typecheck            # Run TypeScript without emitting files
+npm test                     # Run unit tests
+npm run seed:expenses        # Seed default sample records
+npm run seed:expenses:all    # Seed all localized sample records
+npm run build:ios:sim        # EAS iOS simulator build
+npm run build:android:dev    # EAS Android development build
 npm run build:ios:prod       # EAS iOS production build
 npm run build:android:prod   # EAS Android production build
-npm run submit:ios:prod      # EAS iOS submit
-npm run submit:android:prod  # EAS Android submit
+npm run submit:ios:prod      # Submit iOS production build
+npm run submit:android:prod  # Submit Android production build
+npm run verify:ios:env       # Check iOS release environment setup
 ```
 
-## 🔐 Auth + Cloud Sync (Pro)
+## Project Structure
 
-This app is **local-first** by default (SQLite). Users are not forced to log in.
+```text
+app/
+  _layout.tsx                # Root providers and navigation shell
+  (tabs)/                    # Accounting, statistics, and diagram tabs
+  settings.tsx               # Settings route
+  glossary.tsx               # Glossary management route
+  select-language.tsx        # Language selection route
+components/                  # Screens, forms, list items, sheets, and UI primitives
+contexts/                    # Theme, language, auth, Pro, diagram, and glossary state
+hooks/                       # Storage, statistics, and speech-recognition hooks
+types/                       # Shared TypeScript types
+utils/                       # Database, sync, export, validation, env, Firebase, RevenueCat, and formatting helpers
+docs/                        # Firebase, IAP, Sentry, and current caveat documentation
+scripts/                     # Repo and seed scripts
+tests/                       # Node test runner unit tests
+```
 
-- Sign-in options belong **only in Settings**. See `docs/CURRENT_CAVEATS_AND_NEXT_PERIOD.md` for the exact current provider status in this build.
-- Cloud sync is gated behind **Pro (IAP)**. Auth alone does not unlock cloud saving.
-- When **signed in + Pro**, records sync through **Firestore** and the app refreshes its local cache from cloud.
+## Configuration
 
-Setup docs:
+The app intentionally degrades to a local-only experience when optional public environment variables are absent.
+
+Firebase cloud sync uses:
+
+```text
+EXPO_PUBLIC_FIREBASE_API_KEY
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN
+EXPO_PUBLIC_FIREBASE_PROJECT_ID
+EXPO_PUBLIC_FIREBASE_APP_ID
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+```
+
+Native OAuth setup can also use:
+
+```text
+EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID
+EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID
+```
+
+RevenueCat uses:
+
+```text
+EXPO_PUBLIC_REVENUECAT_API_KEY_TEST
+EXPO_PUBLIC_REVENUECAT_API_KEY_IOS
+EXPO_PUBLIC_REVENUECAT_API_KEY_ANDROID
+EXPO_PUBLIC_REVENUECAT_PRO_ENTITLEMENT_ID
+EXPO_PUBLIC_REVENUECAT_PLUS_ENTITLEMENT_ID
+EXPO_PUBLIC_REVENUECAT_OFFERING_ID
+```
+
+Sentry uses:
+
+```text
+EXPO_PUBLIC_SENTRY_DSN
+```
+
+See the setup guides for details:
+
 - `docs/FIREBASE.md`
 - `docs/IAP.md`
 - `docs/SENTRY.md`
 - `docs/CURRENT_CAVEATS_AND_NEXT_PERIOD.md`
 
-## 🐛 Troubleshooting
+## Auth, Sync, and Plans
 
-### Database Issues
-If you encounter database errors:
-1. Clear app data and reinstall
-2. Check that migrations ran successfully
-3. Verify database file permissions
+Flash Accounting is local-first by default. Users can record data locally without signing in.
 
-### Build Issues
-- Ensure you have the latest Expo CLI
-- Clear node_modules and reinstall: `rm -rf node_modules && npm install`
-- Clear Expo cache: `expo start -c`
+- Basic users have local-only storage with the configured free record limit.
+- Plus unlocks unlimited local storage through RevenueCat.
+- Pro unlocks cloud sync when the user is signed in and has the active Pro entitlement.
+- Cloud sync stores records in Firestore and keeps SQLite as the device cache.
+- Failed cloud writes stay queued locally for a later sync attempt.
+- Manual push and pull recovery actions live in Settings.
 
-## 📄 License
+For the exact current caveats and next implementation priorities, use `docs/CURRENT_CAVEATS_AND_NEXT_PERIOD.md` as the source of truth.
 
-Private project - All rights reserved
+## Data Validation
 
-## 👥 Contributing
+User input is validated before saving:
 
-This is a private project. For questions or issues, please contact the maintainer.
+- Amount must be greater than 0
+- Amount is capped at `999,999,999.99`
+- Amount supports up to 2 decimal places
+- Description is optional and capped at 500 characters
+- Type must be `expense` or `income`
 
----
+Validation logic lives in `utils/validation.ts`.
 
-Built with ❤️ using React Native and Expo
+## Production Builds
+
+```bash
+npm run build:ios:prod
+npm run build:android:prod
+```
+
+Store submission:
+
+```bash
+npm run submit:ios:prod
+npm run submit:android:prod
+```
+
+Before validating production-only behavior, confirm Firebase, RevenueCat, Sentry, OAuth provider setup, native URL schemes, App Store Connect products, and RevenueCat offerings are configured for the target environment.
+
+## Troubleshooting
+
+Database issues:
+
+1. Clear app data and reinstall.
+2. Confirm migrations ran successfully.
+3. Check the local database logs for schema or permission errors.
+
+Build issues:
+
+1. Reinstall dependencies with `npm install`.
+2. Clear Expo cache with `npx expo start -c`.
+3. Rebuild the development client after changing native dependencies.
+4. Avoid using Expo Go as the source of truth for auth, IAP, or other native-gated flows.
+
+## License
+
+Private project. All rights reserved.
