@@ -6,14 +6,14 @@ import { useMemo } from "react";
 
 export default function TabsLayout() {
   const { theme } = useTheme();
-  const { t, resolvedLanguage } = useLanguage();
+  const { t } = useLanguage();
   const tabLabels = useMemo(
     () => ({
       accounting: t("accounting"),
       statistics: t("statistics"),
       diagram: t("diagram"),
     }),
-    [t, resolvedLanguage],
+    [t],
   );
 
   return (

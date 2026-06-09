@@ -8,6 +8,7 @@ import { setMonitoringUser } from "@/utils/monitoring";
 type AuthContextValue = {
   user: User | null;
   isSignedIn: boolean;
+  isAuthReady: boolean;
   isFirebaseReady: boolean;
   signInWithCredential: (credential: AuthCredential) => Promise<void>;
   signOut: () => Promise<void>;
@@ -18,10 +19,18 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const services = getFirebase();
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
-    if (!services) return;
-    const unsub = onAuthStateChanged(services.auth, (nextUser) => setUser(nextUser));
+    if (!services) {
+      setIsAuthReady(true);
+      return;
+    }
+
+    const unsub = onAuthStateChanged(services.auth, (nextUser) => {
+      setUser(nextUser);
+      setIsAuthReady(true);
+    });
     return () => unsub();
   }, [services]);
 
@@ -41,6 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return {
       user,
       isSignedIn: Boolean(user),
+      isAuthReady,
       isFirebaseReady: Boolean(services),
       signInWithCredential: async (credential) => {
         if (!services) {
@@ -58,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       },
     };
-  }, [services, user]);
+  }, [isAuthReady, services, user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

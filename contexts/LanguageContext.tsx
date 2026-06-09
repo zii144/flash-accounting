@@ -176,6 +176,14 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     authErrorMessage: "Please try again.",
     authNotConfiguredTitle: "Feature not supported yet",
     authNotConfiguredMessage: "This sign-in option is not supported in this build yet.",
+    authGateTitle: "Sign in before you start logging",
+    authGateSubtitle:
+      "Choose a provider to unlock cloud-ready access before entering your accounting workspace.",
+    authGateFootnote: "Sign-in is required before entering the ledger in this flow.",
+    authGateUnavailable: "This build does not have supported sign-in providers configured yet.",
+    authGateBottom: "Use the same provider later to restore your account on another device.",
+    authGateBottomApple:
+      "Use the same provider later to restore your account on another device. Apple Sign In appears on supported iPhone builds.",
     cloudSyncTitle: "Cloud Sync (Pro)",
     cloudSyncActive: "Active — saving to cloud",
     cloudSyncStatusReady: "Ready — device and cloud match",
@@ -387,6 +395,13 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     authErrorMessage: "請稍後再試一次。",
     authNotConfiguredTitle: "暫不支援此功能",
     authNotConfiguredMessage: "此版本暫未支援這個登入方式。",
+    authGateTitle: "登入後再開始記帳",
+    authGateSubtitle: "請先選擇登入方式，再進入記帳主畫面並啟用後續雲端能力。",
+    authGateFootnote: "此流程會先完成登入，再進入帳本畫面。",
+    authGateUnavailable: "此版本尚未完成可用的登入方式設定。",
+    authGateBottom: "之後換裝置時，請使用相同登入方式還原帳號。",
+    authGateBottomApple:
+      "之後換裝置時，請使用相同登入方式還原帳號。Apple 登入僅會在支援的 iPhone 版本顯示。",
     cloudSyncTitle: "雲端同步（Pro）",
     cloudSyncActive: "已啟用 — 會儲存到雲端",
     cloudSyncStatusReady: "已就緒 — 裝置與雲端一致",
@@ -595,6 +610,16 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     authErrorMessage: "Inténtalo de nuevo.",
     authNotConfiguredTitle: "Función aún no disponible",
     authNotConfiguredMessage: "Esta opción de inicio de sesión aún no está disponible en esta versión.",
+    authGateTitle: "Inicia sesión antes de registrar movimientos",
+    authGateSubtitle:
+      "Elige un proveedor para entrar en tu espacio de contabilidad con acceso listo para la nube.",
+    authGateFootnote: "En este flujo, es necesario iniciar sesión antes de entrar al libro.",
+    authGateUnavailable:
+      "Esta compilación aún no tiene proveedores de inicio de sesión compatibles configurados.",
+    authGateBottom:
+      "Usa el mismo proveedor más adelante para recuperar tu cuenta en otro dispositivo.",
+    authGateBottomApple:
+      "Usa el mismo proveedor más adelante para recuperar tu cuenta en otro dispositivo. Iniciar sesión con Apple solo aparece en compilaciones de iPhone compatibles.",
     cloudSyncTitle: "Sincronización en la nube (Pro)",
     cloudSyncActive: "Activa — guardando en la nube",
     cloudSyncStatusReady: "Listo — dispositivo y nube coinciden",
@@ -806,6 +831,16 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     authErrorMessage: "Veuillez réessayer.",
     authNotConfiguredTitle: "Fonction non disponible",
     authNotConfiguredMessage: "Cette option de connexion n'est pas encore disponible dans cette version.",
+    authGateTitle: "Connectez-vous avant de commencer à enregistrer",
+    authGateSubtitle:
+      "Choisissez un fournisseur pour accéder à votre espace comptable avec un accès prêt pour le cloud.",
+    authGateFootnote: "Dans ce flux, la connexion est requise avant d'entrer dans le registre.",
+    authGateUnavailable:
+      "Aucun fournisseur de connexion compatible n'est encore configuré dans cette build.",
+    authGateBottom:
+      "Utilisez le même fournisseur plus tard pour récupérer votre compte sur un autre appareil.",
+    authGateBottomApple:
+      "Utilisez le même fournisseur plus tard pour récupérer votre compte sur un autre appareil. Sign in with Apple n'apparaît que sur les builds iPhone compatibles.",
     cloudSyncTitle: "Synchronisation cloud (Pro)",
     cloudSyncActive: "Active — enregistrement dans le cloud",
     cloudSyncStatusReady: "Prêt — appareil et cloud synchronisés",
@@ -1018,6 +1053,17 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     authErrorMessage: "Bitte versuche es erneut.",
     authNotConfiguredTitle: "Funktion noch nicht verfügbar",
     authNotConfiguredMessage: "Diese Anmeldeoption wird in diesem Build noch nicht unterstützt.",
+    authGateTitle: "Vor dem Erfassen bitte anmelden",
+    authGateSubtitle:
+      "Wähle einen Anbieter, um deinen Buchhaltungsbereich mit cloudbereitem Zugriff zu öffnen.",
+    authGateFootnote:
+      "In diesem Ablauf ist eine Anmeldung erforderlich, bevor das Kassenbuch geöffnet wird.",
+    authGateUnavailable:
+      "In diesem Build sind noch keine unterstützten Anmeldeanbieter konfiguriert.",
+    authGateBottom:
+      "Nutze später denselben Anbieter, um dein Konto auf einem anderen Gerät wiederherzustellen.",
+    authGateBottomApple:
+      "Nutze später denselben Anbieter, um dein Konto auf einem anderen Gerät wiederherzustellen. Apple-Anmeldung erscheint nur auf unterstützten iPhone-Builds.",
     cloudSyncTitle: "Cloud-Synchronisation (Pro)",
     cloudSyncActive: "Aktiv — speichert in der Cloud",
     cloudSyncStatusReady: "Bereit — Gerät und Cloud stimmen überein",
@@ -1229,6 +1275,16 @@ const translations: Record<ResolvedLanguage, Record<string, string>> = {
     authErrorMessage: "もう一度お試しください。",
     authNotConfiguredTitle: "この機能はまだ利用できません",
     authNotConfiguredMessage: "このビルドでは、このログイン方法はまだサポートされていません。",
+    authGateTitle: "記帳を始める前にログイン",
+    authGateSubtitle:
+      "プロバイダーを選んでログインし、クラウド対応の状態で記帳ワークスペースへ進みます。",
+    authGateFootnote: "この導線では、帳本に入る前にログインが必要です。",
+    authGateUnavailable:
+      "このビルドでは、利用可能なログインプロバイダーがまだ設定されていません。",
+    authGateBottom:
+      "別の端末でアカウントを復元するときも同じログイン方法を使ってください。",
+    authGateBottomApple:
+      "別の端末でアカウントを復元するときも同じログイン方法を使ってください。Apple ログインは対応する iPhone ビルドでのみ表示されます。",
     cloudSyncTitle: "クラウド同期（Pro）",
     cloudSyncActive: "有効 — クラウドに保存中",
     cloudSyncStatusReady: "準備完了 — デバイスとクラウドが一致",
