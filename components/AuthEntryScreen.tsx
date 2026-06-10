@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -82,11 +81,7 @@ export function AuthEntryScreen() {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <LoginSplashVideo />
       <SafeAreaView style={styles.safeArea}>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.outer}
-        >
+        <View style={styles.outer}>
           <View style={styles.spacer} />
 
           <View style={styles.header}>
@@ -189,7 +184,7 @@ export function AuthEntryScreen() {
               </Text>
             </GlassContainer>
           </View>
-        </ScrollView>
+        </View>
       </SafeAreaView>
     </View>
   );
