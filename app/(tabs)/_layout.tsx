@@ -1,14 +1,14 @@
-import { useAuth } from "@/contexts/AuthContext";
+// import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Redirect } from "expo-router";
+// import { Redirect } from "expo-router";
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { useMemo } from "react";
 
 export default function TabsLayout() {
   const { theme } = useTheme();
   const { t } = useLanguage();
-  const { isAuthReady, isSignedIn } = useAuth();
+  // const { isAuthReady, isSignedIn } = useAuth();
   const tabLabels = useMemo(
     () => ({
       accounting: t("accounting"),
@@ -18,13 +18,14 @@ export default function TabsLayout() {
     [t],
   );
 
-  if (!isAuthReady) {
-    return null;
-  }
+  // Testing: auth gate disabled — restore when re-enabling login
+  // if (!isAuthReady) {
+  //   return null;
+  // }
 
-  if (isAuthReady && !isSignedIn) {
-    return <Redirect href="/" />;
-  }
+  // if (isAuthReady && !isSignedIn) {
+  //   return <Redirect href="/" />;
+  // }
 
   return (
     <NativeTabs

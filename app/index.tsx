@@ -1,5 +1,8 @@
-import { AuthEntryScreen } from "@/components/AuthEntryScreen";
+// import { AuthEntryScreen } from "@/components/AuthEntryScreen";
+import { Redirect } from "expo-router";
 
 export default function IndexRoute() {
-  return <AuthEntryScreen />;
+  // Testing: skip login — restore AuthEntryScreen when re-enabling auth
+  return <Redirect href="/(tabs)" />;
+  // return <AuthEntryScreen />;
 }

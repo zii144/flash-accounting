@@ -22,6 +22,7 @@ import * as Sharing from "expo-sharing";
 import React, { useCallback, useMemo, useState } from "react";
 import { PAYWALL_RESULT } from "react-native-purchases-ui";
 import {
+  ActivityIndicator,
   Alert,
   ScrollView,
   StyleSheet,
@@ -39,6 +40,7 @@ export function SettingsScreen() {
   const { activeEntryCount } = useGlossary();
   const { user, isSignedIn, isFirebaseReady } = useAuth();
   const {
+    activeAuthProvider,
     canUseAppleAuth,
     handleSignInApple,
     handleSignInFacebook,
@@ -71,12 +73,16 @@ export function SettingsScreen() {
   } = useConsumptionStorage();
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isAccountHelpRequested, setIsAccountHelpRequested] = useState(false);
   const languages = useMemo(() => getLanguageOptions(t), [t]);
   const currentLanguageLabel =
     languages.find((option) => option.code === language)?.name ?? t("device");
   const showAuthOptions = isFirebaseReady && !isSignedIn;
-  const showAuthSection = isSignedIn || showAuthOptions;
-  const showCloudSection = cloudEnabled || (isPurchaseConfigured && (isSignedIn || showAuthOptions));
+  const needsAccountForActivePro = isPro && !isSignedIn;
+  const shouldPromptForAccount = isAccountHelpRequested && !isSignedIn;
+  const showAuthSection =
+    isSignedIn || (showAuthOptions && (needsAccountForActivePro || shouldPromptForAccount));
+  const showCloudSection = cloudEnabled || isPro || (isPurchaseConfigured && isSignedIn);
   const shouldShowPurchaseActions = showCloudSection && !cloudEnabled && !isPro && isPurchaseConfigured;
   const syncPrimaryTitle = syncSnapshot.hasPendingLocalChanges
     ? t("cloudSyncRetryCta")
@@ -90,6 +96,46 @@ export function SettingsScreen() {
       : storagePlanId === "plus"
         ? t("storagePlanCurrentPlus")
         : t("storagePlanCurrentBasic");
+  const authStatusDetail = useMemo(() => {
+    if (isSignedIn) {
+      return user?.email || user?.displayName || user?.uid || t("authStatusSignedIn");
+    }
+
+    if (isAuthBusy) {
+      const providerLabel =
+        activeAuthProvider === "google"
+          ? "Google"
+          : activeAuthProvider === "facebook"
+            ? "Facebook"
+            : activeAuthProvider === "apple"
+              ? "Apple"
+              : null;
+
+      return providerLabel
+        ? t("authSigningInWithProvider").replace("{provider}", providerLabel)
+        : t("authSigningIn");
+    }
+
+    if (needsAccountForActivePro) {
+      return t("authRequiredForProCloud");
+    }
+
+    if (shouldPromptForAccount) {
+      return t("authRequiredBeforeSubscription");
+    }
+
+    return t("authOptionalNote");
+  }, [
+    activeAuthProvider,
+    isAuthBusy,
+    isSignedIn,
+    needsAccountForActivePro,
+    shouldPromptForAccount,
+    t,
+    user?.displayName,
+    user?.email,
+    user?.uid,
+  ]);
 
   const handlePurchaseError = useCallback(
     (error: unknown, context: string) => {
@@ -235,7 +281,7 @@ export function SettingsScreen() {
 
   const handleOpenPaywall = useCallback(async () => {
     try {
-      const result = await presentPaywall();
+      const { result, storagePlanId: purchasedPlanId } = await presentPaywall();
 
       if (result === PAYWALL_RESULT.ERROR) {
         Alert.alert(t("iapErrorTitle"), t("iapErrorMessage"));
@@ -244,11 +290,34 @@ export function SettingsScreen() {
 
       if (result === PAYWALL_RESULT.NOT_PRESENTED) {
         Alert.alert(t("iapNotReadyTitle"), t("iapPackageUnavailableMessage"));
+        return;
+      }
+
+      if (result === PAYWALL_RESULT.PURCHASED || result === PAYWALL_RESULT.RESTORED) {
+        if (purchasedPlanId === "pro") {
+          if (isSignedIn) {
+            Alert.alert(t("iapPurchaseSuccessTitle"), t("iapPurchaseSuccessProMessage"));
+          } else if (isFirebaseReady) {
+            setIsAccountHelpRequested(true);
+            Alert.alert(t("iapPurchaseSuccessTitle"), t("iapPurchaseSuccessProSignInMessage"));
+          } else {
+            Alert.alert(t("iapPurchaseSuccessTitle"), t("iapPurchaseSuccessMessage"));
+          }
+          return;
+        }
+
+        if (purchasedPlanId === "plus") {
+          setIsAccountHelpRequested(false);
+          Alert.alert(t("iapPurchaseSuccessTitle"), t("iapPurchaseSuccessPlusMessage"));
+          return;
+        }
+
+        Alert.alert(t("iapPurchaseSuccessTitle"), t("iapPurchaseSuccessMessage"));
       }
     } catch (error) {
       handlePurchaseError(error, "paywall");
     }
-  }, [handlePurchaseError, presentPaywall, t]);
+  }, [handlePurchaseError, isFirebaseReady, isSignedIn, presentPaywall, t]);
 
   const handleRestorePro = useCallback(async () => {
     try {
@@ -257,6 +326,11 @@ export function SettingsScreen() {
       handlePurchaseError(error, "restore");
     }
   }, [handlePurchaseError, restorePurchases]);
+
+  const handleSignOutFromSettings = useCallback(async () => {
+    await handleSignOut();
+    setIsAccountHelpRequested(false);
+  }, [handleSignOut]);
 
   const handleSyncLocal = useCallback(() => {
     Alert.alert(t("cloudSyncTitle"), t("cloudSyncSyncConfirm"), [
@@ -402,15 +476,16 @@ export function SettingsScreen() {
                     </Text>
                     {isSignedIn ? (
                       <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                        {user?.email || user?.displayName || user?.uid}
+                        {authStatusDetail}
                       </Text>
                     ) : (
                       <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                        {t("authOptionalNote")}
+                        {authStatusDetail}
                       </Text>
                     )}
                   </View>
                 </View>
+                {isAuthBusy ? <ActivityIndicator color={theme.textSecondary} /> : null}
               </View>
 
               {!isSignedIn ? (
@@ -429,7 +504,11 @@ export function SettingsScreen() {
                         {t("authContinueGoogle")}
                       </Text>
                     </View>
-                    <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                    {activeAuthProvider === "google" ? (
+                      <ActivityIndicator color={theme.textSecondary} />
+                    ) : (
+                      <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                    )}
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -446,7 +525,11 @@ export function SettingsScreen() {
                         {t("authContinueFacebook")}
                       </Text>
                     </View>
-                    <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                    {activeAuthProvider === "facebook" ? (
+                      <ActivityIndicator color={theme.textSecondary} />
+                    ) : (
+                      <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                    )}
                   </TouchableOpacity>
 
                   {canUseAppleAuth ? (
@@ -464,7 +547,11 @@ export function SettingsScreen() {
                           {t("authContinueApple")}
                         </Text>
                       </View>
-                      <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                      {activeAuthProvider === "apple" ? (
+                        <ActivityIndicator color={theme.textSecondary} />
+                      ) : (
+                        <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                      )}
                     </TouchableOpacity>
                   ) : null}
                 </>
@@ -474,7 +561,7 @@ export function SettingsScreen() {
                     styles.settingItem,
                     { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
                   ]}
-                  onPress={handleSignOut}
+                  onPress={() => void handleSignOutFromSettings()}
                   disabled={isAuthBusy}
                 >
                   <View style={styles.settingLeft}>
@@ -546,6 +633,7 @@ export function SettingsScreen() {
                 { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
               ]}
               onPress={() => void handleOpenPaywall()}
+              disabled={isPurchaseBusy}
             >
               <View style={styles.settingLeft}>
                 <SymbolIcon name="cart" size={22} color={theme.text} />
@@ -561,7 +649,11 @@ export function SettingsScreen() {
                   </Text>
                 </View>
               </View>
-              <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+              {isPurchaseBusy ? (
+                <ActivityIndicator color={theme.textSecondary} />
+              ) : (
+                <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+              )}
             </TouchableOpacity>
 
             {shouldShowPurchaseActions && (

@@ -85,6 +85,7 @@ export function useProviderAuth() {
   const { isFirebaseReady, signInWithCredential, signOut } = useAuth();
   const { t } = useLanguage();
   const [isAuthBusy, setIsAuthBusy] = useState(false);
+  const [activeAuthProvider, setActiveAuthProvider] = useState<"google" | "facebook" | "apple" | null>(null);
   const [isAppleAuthAvailable, setIsAppleAuthAvailable] = useState(false);
 
   useEffect(() => {
@@ -147,6 +148,7 @@ export function useProviderAuth() {
 
     try {
       setIsAuthBusy(true);
+      setActiveAuthProvider("google");
       const authSession = await loadAuthSessionModule();
       if (!authSession) {
         Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
@@ -214,6 +216,7 @@ export function useProviderAuth() {
       logger.error("Google sign-in failed", error);
       Alert.alert(t("authErrorTitle"), t("authErrorMessage"));
     } finally {
+      setActiveAuthProvider(null);
       setIsAuthBusy(false);
     }
   }, [isFirebaseReady, signInWithCredential, t]);
@@ -232,6 +235,7 @@ export function useProviderAuth() {
 
     try {
       setIsAuthBusy(true);
+      setActiveAuthProvider("facebook");
       const authSession = await loadAuthSessionModule();
       if (!authSession) {
         Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
@@ -267,6 +271,7 @@ export function useProviderAuth() {
       logger.error("Facebook sign-in failed", error);
       Alert.alert(t("authErrorTitle"), t("authErrorMessage"));
     } finally {
+      setActiveAuthProvider(null);
       setIsAuthBusy(false);
     }
   }, [getRedirectUri, isFirebaseReady, signInWithCredential, t]);
@@ -278,6 +283,7 @@ export function useProviderAuth() {
     }
     try {
       setIsAuthBusy(true);
+      setActiveAuthProvider("apple");
 
       const [appleAuthentication, crypto] = await Promise.all([
         loadAppleAuthenticationModule(),
@@ -326,6 +332,7 @@ export function useProviderAuth() {
       logger.error("Apple sign-in failed", error);
       Alert.alert(t("authErrorTitle"), t("authErrorMessage"));
     } finally {
+      setActiveAuthProvider(null);
       setIsAuthBusy(false);
     }
   }, [isAppleAuthAvailable, isFirebaseReady, signInWithCredential, t]);
@@ -340,6 +347,7 @@ export function useProviderAuth() {
   }, [signOut, t]);
 
   return {
+    activeAuthProvider,
     isAuthBusy,
     isAppleAuthAvailable,
     canUseAppleAuth: isFirebaseReady && Platform.OS === "ios" && isAppleAuthAvailable,
