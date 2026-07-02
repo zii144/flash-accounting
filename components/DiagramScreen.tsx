@@ -26,7 +26,7 @@ import { logger } from "@/utils/logger";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
 import { useFocusEffect } from "expo-router/react-navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   Platform,
   Pressable,
@@ -626,6 +626,9 @@ export function DiagramScreen() {
   const [activePicker, setActivePicker] = useState<"start" | "end" | null>(null);
   const [detailLabel, setDetailLabel] = useState<string | null>(null);
   const [editingConsumption, setEditingConsumption] = useState<Consumption | null>(null);
+  // Holds a record tapped in the detail sheet until that sheet finishes
+  // dismissing (iOS), so the editor sheet isn't presented mid-animation.
+  const pendingEditRef = useRef<Consumption | null>(null);
 
   const contentWidth = Math.max(280, width - 32);
   const pieSize = Math.min(260, contentWidth * 0.78);
@@ -748,11 +751,24 @@ export function DiagramScreen() {
 
   const handleCloseDetail = useCallback(() => {
     setDetailLabel(null);
+    // On iOS the editor open is deferred to here (the sheet's onDismiss) so we
+    // never present one pageSheet while another is still dismissing.
+    const pendingEdit = pendingEditRef.current;
+    pendingEditRef.current = null;
+    if (pendingEdit) {
+      setEditingConsumption(pendingEdit);
+    }
   }, []);
 
   const handleSelectRecord = useCallback((record: Consumption) => {
-    setDetailLabel(null);
-    setEditingConsumption(record);
+    if (Platform.OS === "ios") {
+      // Defer: close the detail sheet, open the editor once it has dismissed.
+      pendingEditRef.current = record;
+      setDetailLabel(null);
+    } else {
+      setDetailLabel(null);
+      setEditingConsumption(record);
+    }
   }, []);
 
   const handleEditClose = useCallback(() => {
