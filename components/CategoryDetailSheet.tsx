@@ -10,14 +10,16 @@ import {
   FlatList,
   type ListRenderItem,
   Modal,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
+// Insets are read here (in the parent tree) rather than via SafeAreaView, which
+// does not receive context inside a native modal presentation.
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface CategoryDetailSheetProps {
   visible: boolean;
@@ -40,6 +42,10 @@ export function CategoryDetailSheet({
 }: CategoryDetailSheetProps) {
   const { theme } = useTheme();
   const { t, resolvedLanguage } = useLanguage();
+  const insets = useSafeAreaInsets();
+
+  const rowBackground = theme.isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)";
+  const rowPressed = theme.isDark ? "rgba(255, 255, 255, 0.11)" : "rgba(0, 0, 0, 0.07)";
 
   const formatRecordDate = useCallback(
     (dateString: string) =>
@@ -57,14 +63,7 @@ export function CategoryDetailSheet({
         onPress={() => onSelectRecord(item)}
         style={({ pressed }) => [
           styles.row,
-          {
-            borderColor: theme.border,
-            backgroundColor: pressed
-              ? theme.isDark
-                ? "rgba(255, 255, 255, 0.08)"
-                : "rgba(0, 0, 0, 0.05)"
-              : "transparent",
-          },
+          { backgroundColor: pressed ? rowPressed : rowBackground },
         ]}
       >
         <View style={styles.rowText}>
@@ -81,98 +80,82 @@ export function CategoryDetailSheet({
         <SymbolIcon name="chevron-forward" size={16} color={theme.textSecondary} />
       </Pressable>
     ),
-    [formatRecordDate, onSelectRecord, t, theme],
+    [formatRecordDate, onSelectRecord, rowBackground, rowPressed, t, theme],
   );
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
-        <Animated.View
-          entering={FadeIn.duration(200)}
-          exiting={FadeOut.duration(150)}
-          style={[
-            styles.sheet,
-            {
-              backgroundColor: theme.isDark
-                ? "rgba(28, 28, 30, 0.98)"
-                : "rgba(255, 255, 255, 0.99)",
-            },
-          ]}
-        >
-          <SafeAreaView edges={["bottom"]} style={styles.sheetInner}>
-            <View style={styles.header}>
-              <View style={styles.headerText}>
-                <View style={styles.headerTitleRow}>
-                  <View style={[styles.swatch, { backgroundColor: swatchColor }]} />
-                  <Text numberOfLines={1} style={[styles.title, { color: theme.text }]}>
-                    {label ?? t("categoryTransactions")}
-                  </Text>
-                </View>
-                <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-                  {`$${formatCurrency(totalAmount, 0)} • ${records.length} ${t("items")}`}
-                </Text>
-              </View>
-              <TouchableOpacity
-                onPress={onClose}
-                style={styles.closeButton}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <SymbolIcon name="close" size={24} color={theme.text} />
-              </TouchableOpacity>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle={Platform.OS === "ios" ? "pageSheet" : "fullScreen"}
+      onRequestClose={onClose}
+      onDismiss={onClose}
+    >
+      <View style={[styles.sheet, { backgroundColor: theme.background }]}>
+        <View style={[styles.grabber, { backgroundColor: theme.border }]} />
+        <View style={styles.header}>
+          <View style={styles.headerText}>
+            <View style={styles.headerTitleRow}>
+              <View style={[styles.swatch, { backgroundColor: swatchColor }]} />
+              <Text numberOfLines={1} style={[styles.title, { color: theme.text }]}>
+                {label ?? t("categoryTransactions")}
+              </Text>
             </View>
+            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+              {`$${formatCurrency(totalAmount, 0)} • ${records.length} ${t("items")}`}
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={onClose}
+            style={[styles.closeButton, { backgroundColor: rowBackground }]}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <SymbolIcon name="close" size={20} color={theme.text} />
+          </TouchableOpacity>
+        </View>
 
-            <FlatList
-              data={records}
-              keyExtractor={(item) => item.id}
-              renderItem={renderItem}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.listContent}
-              ListEmptyComponent={
-                <GlassContainer intensity="light" style={styles.empty}>
-                  <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
-                    {t("noConsumptions")}
-                  </Text>
-                </GlassContainer>
-              }
-            />
-          </SafeAreaView>
-        </Animated.View>
+        <FlatList
+          data={records}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingBottom: Math.max(insets.bottom, 16) + 8 },
+          ]}
+          ListEmptyComponent={
+            <GlassContainer intensity="light" style={styles.empty}>
+              <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+                {t("noConsumptions")}
+              </Text>
+            </GlassContainer>
+          }
+        />
       </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  backdrop: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.35)",
-  },
   sheet: {
-    maxHeight: "80%",
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    borderCurve: "continuous",
-    overflow: "hidden",
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 8,
   },
-  sheetInner: {
-    paddingHorizontal: 18,
-    paddingTop: 18,
+  grabber: {
+    alignSelf: "center",
+    width: 40,
+    height: 5,
+    borderRadius: 3,
+    opacity: 0.6,
+    marginBottom: 14,
   },
   header: {
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
     gap: 12,
-    marginBottom: 12,
+    marginBottom: 14,
   },
   headerText: {
     flex: 1,
@@ -190,7 +173,7 @@ const styles = StyleSheet.create({
   },
   title: {
     flexShrink: 1,
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "800",
     letterSpacing: -0.4,
   },
@@ -200,22 +183,24 @@ const styles = StyleSheet.create({
     fontVariant: ["tabular-nums"],
   },
   closeButton: {
-    padding: 4,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
   },
   listContent: {
-    paddingBottom: 12,
     gap: 8,
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    minHeight: 52,
-    borderRadius: 14,
+    minHeight: 56,
+    borderRadius: 16,
     borderCurve: "continuous",
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
   rowText: {
     flex: 1,
