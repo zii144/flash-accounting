@@ -87,6 +87,16 @@ const RESOLVED_LANGUAGE_TO_REVENUECAT_LOCALE: Record<ResolvedLanguage, string> =
   fr: "fr_FR",
   de: "de_DE",
   ja: "ja",
+  hi: "hi",
+  pt: "pt_BR",
+  ru: "ru",
+  id: "id",
+  ko: "ko",
+  it: "it",
+  tr: "tr",
+  vi: "vi",
+  th: "th",
+  pl: "pl",
 };
 
 function getRevenueCatPaywallLocaleOverride(language: ResolvedLanguage): string | undefined {

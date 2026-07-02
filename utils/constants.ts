@@ -28,6 +28,16 @@ export const SUPPORTED_LANGUAGES = [
   "fr",
   "de",
   "ja",
+  "hi",
+  "pt",
+  "ru",
+  "id",
+  "ko",
+  "it",
+  "tr",
+  "vi",
+  "th",
+  "pl",
   "device",
 ] as const;
 
