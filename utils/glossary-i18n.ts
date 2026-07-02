@@ -94,7 +94,6 @@ export const GLOSSARY_TRANSLATION_ZH: Record<string, string> = {
 export const GLOSSARY_TRANSLATION_ES: Record<string, string> = {
   ...GLOSSARY_TRANSLATION_EN,
   unlabeled: "Sin etiqueta",
-  suggestedNames: "Nombres sugeridos",
   smartGlossaryTitle: "Glosario de etiquetas inteligentes",
   smartGlossarySubtitle: "Personaliza nombres y palabras clave",
   smartGlossaryIntro:
@@ -142,7 +141,6 @@ export const GLOSSARY_TRANSLATION_ES: Record<string, string> = {
 export const GLOSSARY_TRANSLATION_FR: Record<string, string> = {
   ...GLOSSARY_TRANSLATION_EN,
   unlabeled: "Sans libellé",
-  suggestedNames: "Noms suggérés",
   smartGlossaryTitle: "Glossaire d'étiquettes intelligentes",
   smartGlossarySubtitle: "Personnalisez noms et mots déclencheurs",
   smartGlossaryIntro:
@@ -190,7 +188,6 @@ export const GLOSSARY_TRANSLATION_FR: Record<string, string> = {
 export const GLOSSARY_TRANSLATION_DE: Record<string, string> = {
   ...GLOSSARY_TRANSLATION_EN,
   unlabeled: "Ohne Bezeichnung",
-  suggestedNames: "Vorgeschlagene Namen",
   smartGlossaryTitle: "Smart-Label-Glossar",
   smartGlossarySubtitle: "Namen und Triggerwörter anpassen",
   smartGlossaryIntro:
@@ -238,7 +235,6 @@ export const GLOSSARY_TRANSLATION_DE: Record<string, string> = {
 export const GLOSSARY_TRANSLATION_JA: Record<string, string> = {
   ...GLOSSARY_TRANSLATION_EN,
   unlabeled: "未分類",
-  suggestedNames: "候補名",
   smartGlossaryTitle: "スマートラベル用語集",
   smartGlossarySubtitle: "分類名とトリガー語をカスタマイズ",
   smartGlossaryIntro:
