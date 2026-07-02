@@ -4,6 +4,7 @@ import { TimeFilter } from "@/utils/constants";
 import { normalizeConsumptionRecord } from "@/utils/consumption-record";
 import {
   compareCalendarKeys,
+  getCustomRangeBounds,
   getLocalDaySqlExpression,
   getLocalMonthSqlExpression,
 } from "@/utils/date-utils";
@@ -35,6 +36,15 @@ export interface PaginatedGroupedResult {
   page: number;
   pageSize: number;
   hasMore: boolean;
+}
+
+/**
+ * Inclusive custom date range. When provided, it overrides the preset
+ * TimeFilter so callers can request an arbitrary span (e.g. cross-month).
+ */
+export interface CustomDateRange {
+  start: Date;
+  end: Date;
 }
 
 /**
@@ -377,11 +387,12 @@ export function useConsumptionStats() {
   const getFilteredConsumptions = useCallback(async (
     timeFilter: TimeFilter = "all",
     sortBy: "date" | "amount" = "date",
-    sortOrder: "ASC" | "DESC" = "DESC"
+    sortOrder: "ASC" | "DESC" = "DESC",
+    customRange: CustomDateRange | null = null
   ): Promise<Consumption[]> => {
     try {
       await ensureDatabaseInitialized();
-      const [whereClause, params] = buildTimeFilterClause(timeFilter);
+      const [whereClause, params] = buildTimeFilterClause(timeFilter, customRange);
       
       // Validate and sanitize sortBy and sortOrder to prevent SQL injection
       const validSortBy = sortBy === "date" || sortBy === "amount" ? sortBy : "date";
@@ -435,11 +446,23 @@ export function useConsumptionStats() {
  * Builds WHERE clause for time filtering
  * Returns tuple of [WHERE clause, params array]
  */
-function buildTimeFilterClause(timeFilter: TimeFilter): [string, (string | number)[]] {
+function buildTimeFilterClause(
+  timeFilter: TimeFilter,
+  customRange: CustomDateRange | null = null
+): [string, (string | number)[]] {
   const now = new Date();
   const conditions = ["deletedAt IS NULL"];
   const params: (string | number)[] = [];
-  
+
+  // A custom range takes precedence over the preset filter and covers the
+  // full span from the start day (inclusive) to the end day (inclusive).
+  if (customRange) {
+    const { startIso, endIso } = getCustomRangeBounds(customRange);
+    conditions.push("date >= ?", "date <= ?");
+    params.push(startIso, endIso);
+    return [`WHERE ${conditions.join(" AND ")}`, params];
+  }
+
   switch (timeFilter) {
     case "today": {
       const todayStart = new Date(now);

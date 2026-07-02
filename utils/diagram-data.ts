@@ -87,6 +87,33 @@ export function buildCategoryBreakdown(
     .sort((a, b) => b.amount - a.amount);
 }
 
+export type CategoryDetail = {
+  records: Consumption[];
+  total: number;
+};
+
+/**
+ * Collects the individual expense records that make up a single category in
+ * the breakdown, sorted largest-first, along with their combined total. Used
+ * by the diagram detail sheet when a chart segment is tapped.
+ */
+export function buildCategoryDetail(
+  records: Consumption[],
+  canonicalizeLabel: (description: string) => string,
+  label: string,
+): CategoryDetail {
+  const matching = records
+    .filter(
+      (record) =>
+        record.type === "expense" && canonicalizeLabel(record.description) === label,
+    )
+    .sort((a, b) => b.amount - a.amount);
+
+  const total = matching.reduce((sum, record) => sum + record.amount, 0);
+
+  return { records: matching, total };
+}
+
 export function buildTrendSeries(
   records: Consumption[],
   timeFilter: TimeFilter,
