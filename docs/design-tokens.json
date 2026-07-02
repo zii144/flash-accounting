@@ -1,0 +1,111 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "Flash Accounting Design System",
+  "version": "1.0.0",
+  "source": "Extracted from flash-accounting codebase (Expo / React Native, iOS-native glass aesthetic)",
+  "generated": "2026-06-30",
+  "principles": [
+    "iOS-native: mirrors Apple Human Interface conventions (grouped backgrounds, SF Symbols, system font).",
+    "Glass-first: translucent, blurred 'liquid glass' surfaces layered over content.",
+    "Continuous corners: all rounded shapes use continuous (squircle) curvature.",
+    "Adaptive: every color has a light and dark value, switched by the system color scheme."
+  ],
+  "color": {
+    "theme": {
+      "background":      { "light": "#F2F2F7", "dark": "#000000", "role": "App / screen background. iOS grouped background in light." },
+      "surface":         { "light": "#FFFFFF", "dark": "#1C1C1E", "role": "Cards, sheets, elevated containers." },
+      "foreground":      { "light": "#000000", "dark": "#FFFFFF", "role": "High-emphasis fills; inverse of background." },
+      "text":            { "light": "#000000", "dark": "#FFFFFF", "role": "Primary text." },
+      "textSecondary":   { "light": "#636366", "dark": "#98989D", "role": "Secondary / caption text." },
+      "border":          { "light": "#D1D1D6", "dark": "#333333", "role": "Dividers, control borders." },
+      "inputBackground": { "light": "#FFFFFF", "dark": "#1A1A1A", "role": "Text fields and inputs." }
+    },
+    "accent": {
+      "accent":      { "light": "#0A84FF", "dark": "#64D2FF", "role": "Primary action / interactive accent." },
+      "income":      { "light": "#30D158", "dark": "#32D74B", "role": "Positive amounts, income." },
+      "expense":     { "light": "#FF453A", "dark": "#FF6961", "role": "Negative amounts, expense." },
+      "destructive": { "light": "#FF3B30", "dark": "#FF3B30", "role": "Delete / destructive actions." }
+    },
+    "chartPalettes": {
+      "accentLight": ["#0A84FF","#30D158","#FF9F0A","#FF453A","#5E5CE6","#64D2FF","#FFD60A","#BF5AF2","#34C759","#FF375F","#8E8E93","#AC8E68"],
+      "accentDark":  ["#64D2FF","#32D74B","#FFB340","#FF6961","#7D7AFF","#5DE6FF","#FFE066","#D28CFF","#5EE38A","#FF6482","#AEAEB2","#C7A97D"],
+      "grayscale":   ["#E5E5EA","#D1D1D6","#AEAEB2","#8E8E93","#636366","#48484A","#3A3A3C","#2C2C2E","#1C1C1E"]
+    }
+  },
+  "typography": {
+    "fontFamily": "System (San Francisco on iOS). No custom fonts bundled.",
+    "weights": { "regular": 400, "medium": 500, "semibold": 600, "bold": 700, "heavy": 800 },
+    "scale": [
+      { "size": 30, "weight": 800, "letterSpacing": -0.8, "role": "Display / hero balance" },
+      { "size": 28, "weight": 800, "letterSpacing": -0.5, "role": "Screen title" },
+      { "size": 24, "weight": 700, "letterSpacing": -0.4, "role": "Section heading" },
+      { "size": 22, "weight": 700, "letterSpacing": -0.3, "role": "Card title" },
+      { "size": 20, "weight": 700, "letterSpacing": -0.2, "role": "Subtitle" },
+      { "size": 18, "weight": 600, "letterSpacing": 0,    "role": "Emphasis body" },
+      { "size": 17, "weight": 700, "letterSpacing": -0.3, "role": "List amount" },
+      { "size": 16, "weight": 600, "letterSpacing": 0,    "role": "Body (default)" },
+      { "size": 15, "weight": 500, "letterSpacing": 0,    "role": "Secondary body" },
+      { "size": 14, "weight": 600, "letterSpacing": 0.2,  "role": "Label" },
+      { "size": 13, "weight": 500, "letterSpacing": 0.2,  "role": "Caption" },
+      { "size": 12, "weight": 600, "letterSpacing": 0.4,  "role": "Footnote" },
+      { "size": 11, "weight": 600, "letterSpacing": 0.6,  "role": "Micro label (uppercase)" }
+    ],
+    "letterSpacingRule": "Negative tracking on large/display text (to -0.8); positive on small uppercase labels (to +0.6)."
+  },
+  "spacing": {
+    "unit": "pt",
+    "scale": [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 32],
+    "common": { "gap": [12, 8], "paddingHorizontal": [20, 16], "paddingVertical": [14, 12] }
+  },
+  "radii": {
+    "unit": "pt",
+    "cornerCurve": "continuous",
+    "values": [3, 4, 6, 8, 9, 12, 14, 16, 18, 20, 24, 26, 999],
+    "roles": {
+      "listRow": 12,
+      "button": 14,
+      "card": 16,
+      "largeCard": 24,
+      "pill": 999,
+      "iconButton": "size / 2"
+    }
+  },
+  "material": {
+    "name": "Liquid glass",
+    "primitive": "GlassContainer",
+    "implementation": "Native iOS glass effect when available; falls back to blur + translucent underlay (BlurView).",
+    "border": { "light": "rgba(0,0,0,0.08)", "dark": "rgba(255,255,255,0.12)", "width": "hairline" },
+    "lightShadow": "0 1px 3px rgba(0,0,0,0.06)",
+    "intensities": {
+      "clear":  { "blur": 35, "underlayLight": "rgba(255,255,255,0.58)", "underlayDark": "rgba(28,28,30,0.58)" },
+      "light":  { "blur": 45, "underlayLight": "rgba(255,255,255,0.74)", "underlayDark": "rgba(28,28,30,0.72)" },
+      "medium": { "blur": 70, "underlayLight": "rgba(255,255,255,0.88)", "underlayDark": "rgba(28,28,30,0.84)" },
+      "heavy":  { "blur": 90, "underlayLight": "rgba(255,255,255,0.96)", "underlayDark": "rgba(28,28,30,0.94)" }
+    }
+  },
+  "components": {
+    "GlassButton": {
+      "height": 52, "radius": 14, "paddingHorizontal": 16, "iconGap": 6,
+      "pressedOpacity": 0.82, "disabledOpacity": 0.45, "intensity": "medium"
+    },
+    "GlassIconButton": {
+      "defaultSize": 40, "radius": "size / 2", "pressedOpacity": 0.72, "intensity": "medium"
+    },
+    "ListRow": {
+      "background": "surface", "radius": 12, "paddingHorizontal": 16, "paddingVertical": 14,
+      "titleSize": 16, "titleWeight": 600, "subSize": 12, "subColor": "textSecondary",
+      "amountSize": 17, "amountWeight": 700, "amountLetterSpacing": -0.3
+    },
+    "Tag": {
+      "radius": 999, "paddingHorizontal": 14, "paddingVertical": 6, "fontSize": 13, "fontWeight": 600,
+      "incomeStyle": "income color on 18% tinted background",
+      "expenseStyle": "expense color on 18% tinted background"
+    }
+  },
+  "iconography": {
+    "system": "SF Symbols on iOS (Android equivalents mapped)",
+    "primitive": "SymbolIcon",
+    "defaultSize": 24,
+    "sample": ["dollarsign.circle","chart.bar","gearshape","xmark","chevron.left","chevron.right","arrow.up","arrow.down","cloud","arrow.clockwise","sparkles","cart","mic","calendar","trash","pencil"]
+  }
+}
