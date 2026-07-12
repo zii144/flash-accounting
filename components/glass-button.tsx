@@ -17,6 +17,7 @@ type GlassButtonProps = {
   contentStyle?: StyleProp<ViewStyle>;
   intensity?: GlassIntensity;
   accessibilityLabel?: string;
+  testID?: string;
 };
 
 export function GlassButton({
@@ -27,6 +28,7 @@ export function GlassButton({
   contentStyle,
   intensity = "medium",
   accessibilityLabel,
+  testID,
 }: GlassButtonProps) {
   const handlePress = () => {
     if (disabled || !onPress) {
@@ -46,6 +48,7 @@ export function GlassButton({
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
         accessibilityState={{ disabled }}
+        testID={testID}
         disabled={disabled}
         onPress={handlePress}
         style={({ pressed }) => [

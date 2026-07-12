@@ -180,8 +180,8 @@ Netflix、Spotify、iCloud、某健身 App……
 **深色模式**  
 跟著系統切換，夜間記帳也舒服。
 
-**多語言支援**  
-繁體中文、English、日本語、Español、Français、Deutsch
+**多語言支援（16 種語言）**  
+繁體中文、English、日本語、한국어、Español、Français、Deutsch、Italiano、Português、Русский、हिन्दी、Bahasa Indonesia、Tiếng Việt、ไทย、Türkçe、Polski
 
 ---
 

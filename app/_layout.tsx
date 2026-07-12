@@ -8,8 +8,16 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ConsumptionStorageProvider } from "@/hooks/useConsumptionStorage";
 import { initializeMonitoring } from "@/utils/monitoring";
 import { Stack } from "expo-router";
+import { LogBox } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+
+// Capture mode (App Store preview recording): hide the dev LogBox overlay so it never
+// appears in footage. Opt-in via `EXPO_PUBLIC_CAPTURE=1 npx expo start`. No effect on
+// normal dev or release builds. See captures/preview-kit/README.md.
+if (process.env.EXPO_PUBLIC_CAPTURE === "1") {
+  LogBox.ignoreAllLogs(true);
+}
 
 initializeMonitoring();
 

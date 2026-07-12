@@ -107,6 +107,7 @@ export function CategoryDetailSheet({
           </View>
           <TouchableOpacity
             onPress={onClose}
+            testID="category-detail-close"
             style={[styles.closeButton, { backgroundColor: rowBackground }]}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >

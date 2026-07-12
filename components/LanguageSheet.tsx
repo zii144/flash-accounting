@@ -56,6 +56,7 @@ export function LanguageSheet() {
             return (
               <TouchableOpacity
                 key={option.code}
+                testID={`lang-option-${option.code}`}
                 style={[
                   styles.optionRow,
                   index < languageOptions.length - 1 && {
@@ -104,6 +105,7 @@ export function LanguageSheet() {
             <TouchableOpacity
               style={[styles.filterButton, styles.filterButtonPrimary, { backgroundColor: theme.foreground }]}
               onPress={handleApply}
+              testID="language-confirm-button"
             >
               <Text style={[styles.filterButtonText, { color: theme.background }]}>
                 {t("confirm")}
