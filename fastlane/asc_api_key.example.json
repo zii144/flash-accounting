@@ -1,0 +1,6 @@
+{
+  "key_id": "REPLACE_ME_KEY_ID",
+  "issuer_id": "REPLACE_ME_ISSUER_ID",
+  "key": "-----BEGIN PRIVATE KEY-----\nREPLACE_ME_WITH_P8_CONTENTS\n-----END PRIVATE KEY-----",
+  "in_house": false
+}

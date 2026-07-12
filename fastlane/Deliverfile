@@ -1,0 +1,27 @@
+# fastlane deliver — pushes App Store text metadata only.
+#
+# Run it through the release script so the placeholder / key guards run first:
+#   npm run release:ios:metadata
+#
+# This intentionally uploads NO binary and NO screenshots. The app binary is
+# still archived and uploaded locally through Xcode (see RELEASE_IOS.md); this
+# only fills the text fields (name, subtitle, promotional text, description,
+# keywords, support URL) shown on the App Store Connect product page.
+
+app_identifier("com.zii.flash.accounting")
+
+# Auth: App Store Connect API key. Copy asc_api_key.example.json to
+# asc_api_key.json (git-ignored) and fill in key_id, issuer_id, and the
+# inline PEM `key` field (deliver does not accept key_filepath here).
+api_key_path("fastlane/asc_api_key.json")
+
+# Text only — the binary comes from the local Xcode archive, not from here.
+skip_binary_upload(true)
+skip_screenshots(true)
+skip_metadata(false)
+
+# Don't touch in-app purchase / pricing metadata from this flow.
+precheck_include_in_app_purchases(false)
+
+# Leave `force` unset: deliver shows an HTML preview and waits for your
+# confirmation. The release script passes --force when FORCE=1 for CI.

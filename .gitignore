@@ -48,3 +48,12 @@ captures/
 
 # generated seed output
 scripts/seed/output/*.json
+
+# fastlane — App Store Connect API key + transient run artifacts
+fastlane/asc_api_key.json
+fastlane/AuthKey_*.p8
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/review_information.local/
