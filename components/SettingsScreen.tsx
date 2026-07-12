@@ -6,6 +6,7 @@ import { usePro } from "@/contexts/ProContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useGlossary } from "@/contexts/GlossaryContext";
 import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
+import { useProviderAuth } from "@/hooks/useProviderAuth";
 import { getAppErrorCode } from "@/utils/app-error";
 import { FREE_LOCAL_RECORD_LIMIT } from "@/utils/constants";
 import { parseConsumptionsCsv } from "@/utils/csv-import";
@@ -13,21 +14,16 @@ import { buildConsumptionsCsv } from "@/utils/export";
 import { LOCALE_MAP } from "@/utils/formatting";
 import { getLanguageOptions } from "@/utils/language-options";
 import { logger } from "@/utils/logger";
-import {
-  getGoogleClientIdForPlatform,
-  getGoogleOAuthRedirectUri,
-  GOOGLE_OAUTH_DISCOVERY,
-} from "@/utils/google-oauth";
 import { seedDemoExpenses } from "@/utils/seed-data/seed-database";
 import { router } from "expo-router";
 import { SymbolIcon } from "@/components/symbol-icon";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { PAYWALL_RESULT } from "react-native-purchases-ui";
 import {
+  ActivityIndicator,
   Alert,
-  Platform,
   ScrollView,
   StyleSheet,
   Switch,
@@ -36,124 +32,22 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FacebookAuthProvider, GoogleAuthProvider, OAuthProvider } from "firebase/auth";
-import Svg, { Circle, Path } from "react-native-svg";
-
-type AppleAuthenticationModule = typeof import("expo-apple-authentication");
-type AuthSessionModule = typeof import("expo-auth-session");
-type CryptoModule = typeof import("expo-crypto");
-
-let appleAuthenticationModulePromise: Promise<AppleAuthenticationModule | null> | null = null;
-let authSessionModulePromise: Promise<AuthSessionModule | null> | null = null;
-let cryptoModulePromise: Promise<CryptoModule | null> | null = null;
-
-const FACEBOOK_DISCOVERY = {
-  authorizationEndpoint: "https://www.facebook.com/v6.0/dialog/oauth",
-};
-
-function GoogleLogo({ size = 22 }: { size?: number }) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 48 48">
-      <Path
-        fill="#FFC107"
-        d="M43.61 20.08H42V20H24v8h11.3c-1.65 4.66-6.08 8-11.3 8-6.63 0-12-5.37-12-12s5.37-12 12-12c3.06 0 5.84 1.15 7.96 3.04l5.66-5.66C34.05 6.05 29.27 4 24 4 12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20c0-1.34-.14-2.65-.39-3.92Z"
-      />
-      <Path
-        fill="#FF3D00"
-        d="m6.31 14.69 6.57 4.82C14.66 15.11 18.97 12 24 12c3.06 0 5.84 1.15 7.96 3.04l5.66-5.66C34.05 6.05 29.27 4 24 4 16.32 4 9.66 8.34 6.31 14.69Z"
-      />
-      <Path
-        fill="#4CAF50"
-        d="M24 44c5.17 0 9.86-1.98 13.41-5.2l-6.19-5.24C29.14 35.14 26.55 36 24 36c-5.2 0-9.61-3.31-11.28-7.94l-6.52 5.02C9.91 40.56 16.18 44 24 44Z"
-      />
-      <Path
-        fill="#1976D2"
-        d="M43.61 20.08H42V20H24v8h11.3a12.04 12.04 0 0 1-4.11 5.56l.01-.01 6.19 5.24C36.96 39.19 44 34 44 24c0-1.34-.14-2.65-.39-3.92Z"
-      />
-    </Svg>
-  );
-}
-
-function FacebookLogo({ size = 22 }: { size?: number }) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 48 48">
-      <Circle cx="24" cy="24" r="22" fill="#1877F2" />
-      <Path
-        fill="#FFFFFF"
-        d="M30.1 25.4 31 19.6h-5.6v-3.8c0-1.6.78-3.15 3.29-3.15h2.55V7.7S28.93 7.3 26.72 7.3c-4.62 0-7.64 2.8-7.64 7.86v4.44h-5.14v5.8h5.14V39.4c1.03.16 2.08.24 3.16.24s2.13-.08 3.16-.24V25.4h4.7Z"
-      />
-    </Svg>
-  );
-}
-
-async function loadAppleAuthenticationModule(): Promise<AppleAuthenticationModule | null> {
-  if (!appleAuthenticationModulePromise) {
-    appleAuthenticationModulePromise = import("expo-apple-authentication")
-      .then((module) => module)
-      .catch((error) => {
-        logger.debug("Apple authentication module unavailable", {
-          error: error instanceof Error ? error.message : String(error),
-        });
-        return null;
-      });
-  }
-
-  return appleAuthenticationModulePromise;
-}
-
-async function loadAuthSessionModule(): Promise<AuthSessionModule | null> {
-  if (!authSessionModulePromise) {
-    authSessionModulePromise = import("expo-auth-session")
-      .then((module) => module)
-      .catch((error) => {
-        logger.debug("Expo auth session module unavailable", {
-          error: error instanceof Error ? error.message : String(error),
-        });
-        return null;
-      });
-  }
-
-  return authSessionModulePromise;
-}
-
-async function loadCryptoModule(): Promise<CryptoModule | null> {
-  if (!cryptoModulePromise) {
-    cryptoModulePromise = import("expo-crypto")
-      .then((module) => module)
-      .catch((error) => {
-        logger.debug("Expo crypto module unavailable", {
-          error: error instanceof Error ? error.message : String(error),
-        });
-        return null;
-      });
-  }
-
-  return cryptoModulePromise;
-}
-
-function randomNonce(length: number = 32): string {
-  const charset = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-._";
-  let result = "";
-  for (let i = 0; i < length; i += 1) {
-    result += charset[Math.floor(Math.random() * charset.length)];
-  }
-  return result;
-}
-
-function normalizeEnvValue(value?: string): string | undefined {
-  return value && value.trim().length > 0 ? value : undefined;
-}
-
-function getFacebookAppId(): string | undefined {
-  return normalizeEnvValue(process.env.EXPO_PUBLIC_FACEBOOK_APP_ID);
-}
 
 export function SettingsScreen() {
   const { theme } = useTheme();
   const { language, resolvedLanguage, t } = useLanguage();
   const { isAccentPaletteEnabled, setAccentPaletteEnabled } = useDiagramAppearance();
   const { activeEntryCount } = useGlossary();
-  const { user, isSignedIn, isFirebaseReady, signInWithCredential, signOut } = useAuth();
+  const { user, isSignedIn, isFirebaseReady } = useAuth();
+  const {
+    activeAuthProvider,
+    canUseAppleAuth,
+    handleSignInApple,
+    handleSignInFacebook,
+    handleSignInGoogle,
+    handleSignOut,
+    isAuthBusy,
+  } = useProviderAuth();
   const {
     enableProDebug,
     hasUnlimitedLocal,
@@ -179,15 +73,16 @@ export function SettingsScreen() {
   } = useConsumptionStorage();
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
-  const [isAuthBusy, setIsAuthBusy] = useState(false);
-  const [isAppleAuthAvailable, setIsAppleAuthAvailable] = useState(false);
+  const [isAccountHelpRequested, setIsAccountHelpRequested] = useState(false);
   const languages = useMemo(() => getLanguageOptions(t), [t]);
   const currentLanguageLabel =
     languages.find((option) => option.code === language)?.name ?? t("device");
-  const showAppleSignIn = isFirebaseReady && Platform.OS === "ios" && isAppleAuthAvailable;
   const showAuthOptions = isFirebaseReady && !isSignedIn;
-  const showAuthSection = isSignedIn || showAuthOptions;
-  const showCloudSection = cloudEnabled || (isPurchaseConfigured && (isSignedIn || showAuthOptions));
+  const needsAccountForActivePro = isPro && !isSignedIn;
+  const shouldPromptForAccount = isAccountHelpRequested && !isSignedIn;
+  const showAuthSection =
+    isSignedIn || (showAuthOptions && (needsAccountForActivePro || shouldPromptForAccount));
+  const showCloudSection = cloudEnabled || isPro || (isPurchaseConfigured && isSignedIn);
   const shouldShowPurchaseActions = showCloudSection && !cloudEnabled && !isPro && isPurchaseConfigured;
   const syncPrimaryTitle = syncSnapshot.hasPendingLocalChanges
     ? t("cloudSyncRetryCta")
@@ -201,6 +96,46 @@ export function SettingsScreen() {
       : storagePlanId === "plus"
         ? t("storagePlanCurrentPlus")
         : t("storagePlanCurrentBasic");
+  const authStatusDetail = useMemo(() => {
+    if (isSignedIn) {
+      return user?.email || user?.displayName || user?.uid || t("authStatusSignedIn");
+    }
+
+    if (isAuthBusy) {
+      const providerLabel =
+        activeAuthProvider === "google"
+          ? "Google"
+          : activeAuthProvider === "facebook"
+            ? "Facebook"
+            : activeAuthProvider === "apple"
+              ? "Apple"
+              : null;
+
+      return providerLabel
+        ? t("authSigningInWithProvider").replace("{provider}", providerLabel)
+        : t("authSigningIn");
+    }
+
+    if (needsAccountForActivePro) {
+      return t("authRequiredForProCloud");
+    }
+
+    if (shouldPromptForAccount) {
+      return t("authRequiredBeforeSubscription");
+    }
+
+    return t("authOptionalNote");
+  }, [
+    activeAuthProvider,
+    isAuthBusy,
+    isSignedIn,
+    needsAccountForActivePro,
+    shouldPromptForAccount,
+    t,
+    user?.displayName,
+    user?.email,
+    user?.uid,
+  ]);
 
   const handlePurchaseError = useCallback(
     (error: unknown, context: string) => {
@@ -221,34 +156,6 @@ export function SettingsScreen() {
     },
     [t]
   );
-
-  useEffect(() => {
-    if (Platform.OS !== "ios" || !isFirebaseReady) {
-      return;
-    }
-
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const appleAuthentication = await loadAppleAuthenticationModule();
-        if (!appleAuthentication) {
-          return;
-        }
-
-        const available = await appleAuthentication.isAvailableAsync();
-        if (!cancelled) {
-          setIsAppleAuthAvailable(available);
-        }
-      } catch (error) {
-        logger.error("Failed to check Apple auth availability", error);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isFirebaseReady]);
 
   const handleBack = useCallback(() => {
     router.back();
@@ -372,232 +279,9 @@ export function SettingsScreen() {
     ]);
   }, [clearAll, t]);
 
-  const getRedirectUri = useCallback(
-    (authSession: AuthSessionModule) =>
-      authSession.makeRedirectUri({
-        scheme: "flashaccounting",
-        path: "auth",
-      }),
-    []
-  );
-
-  const handleSignInGoogle = useCallback(async () => {
-    if (!isFirebaseReady) {
-      Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
-      return;
-    }
-
-    const clientId = getGoogleClientIdForPlatform(Platform.OS);
-    if (!clientId) {
-      Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
-      return;
-    }
-
-    if (
-      Platform.OS === "android" &&
-      !normalizeEnvValue(process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID)
-    ) {
-      Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
-      return;
-    }
-
-    try {
-      setIsAuthBusy(true);
-      const authSession = await loadAuthSessionModule();
-      if (!authSession) {
-        Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
-        return;
-      }
-
-      const redirectUri = getGoogleOAuthRedirectUri(clientId, Platform.OS, authSession);
-      const useAuthorizationCode = Platform.OS !== "web";
-
-      const request = await authSession.loadAsync(
-        {
-          clientId,
-          redirectUri,
-          responseType: useAuthorizationCode
-            ? authSession.ResponseType.Code
-            : authSession.ResponseType.Token,
-          scopes: ["openid", "profile", "email"],
-          state: randomNonce(),
-          usePKCE: useAuthorizationCode,
-          prompt: authSession.Prompt.SelectAccount,
-        },
-        GOOGLE_OAUTH_DISCOVERY
-      );
-      const result = await request.promptAsync(GOOGLE_OAUTH_DISCOVERY);
-
-      if (result.type === "cancel" || result.type === "dismiss") {
-        return;
-      }
-
-      if (result.type !== "success") {
-        throw new Error("GOOGLE_AUTH_FAILED");
-      }
-
-      let accessToken = result.params.access_token as string | undefined;
-      let idToken = result.params.id_token as string | undefined;
-
-      if (useAuthorizationCode) {
-        const authCode = result.params.code;
-        if (!authCode) {
-          throw new Error("GOOGLE_CODE_MISSING");
-        }
-        if (!request.codeVerifier) {
-          throw new Error("GOOGLE_CODE_VERIFIER_MISSING");
-        }
-
-        const exchangeRequest = new authSession.AccessTokenRequest({
-          clientId,
-          redirectUri,
-          code: authCode,
-          extraParams: {
-            code_verifier: request.codeVerifier,
-          },
-        });
-        const tokens = await exchangeRequest.performAsync(GOOGLE_OAUTH_DISCOVERY);
-        accessToken = tokens.accessToken;
-        idToken = tokens.idToken;
-      }
-
-      if (!accessToken && !idToken) {
-        throw new Error("GOOGLE_TOKEN_MISSING");
-      }
-
-      await signInWithCredential(GoogleAuthProvider.credential(idToken ?? null, accessToken));
-    } catch (error) {
-      logger.error("Google sign-in failed", error);
-      Alert.alert(t("authErrorTitle"), t("authErrorMessage"));
-    } finally {
-      setIsAuthBusy(false);
-    }
-  }, [isFirebaseReady, signInWithCredential, t]);
-
-  const handleSignInFacebook = useCallback(async () => {
-    if (!isFirebaseReady) {
-      Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
-      return;
-    }
-
-    const appId = getFacebookAppId();
-    if (!appId) {
-      Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
-      return;
-    }
-
-    try {
-      setIsAuthBusy(true);
-      const authSession = await loadAuthSessionModule();
-      if (!authSession) {
-        Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
-        return;
-      }
-
-      const request = await authSession.loadAsync(
-        {
-          clientId: appId,
-          redirectUri: getRedirectUri(authSession),
-          responseType: authSession.ResponseType.Token,
-          scopes: ["public_profile", "email"],
-          state: randomNonce(),
-          usePKCE: false,
-          extraParams: {
-            display: "popup",
-          },
-        },
-        FACEBOOK_DISCOVERY
-      );
-      const result = await request.promptAsync(FACEBOOK_DISCOVERY);
-
-      if (result.type === "cancel" || result.type === "dismiss") {
-        return;
-      }
-
-      if (result.type !== "success" || !result.params.access_token) {
-        throw new Error("FACEBOOK_AUTH_FAILED");
-      }
-
-      await signInWithCredential(FacebookAuthProvider.credential(result.params.access_token));
-    } catch (error) {
-      logger.error("Facebook sign-in failed", error);
-      Alert.alert(t("authErrorTitle"), t("authErrorMessage"));
-    } finally {
-      setIsAuthBusy(false);
-    }
-  }, [getRedirectUri, isFirebaseReady, signInWithCredential, t]);
-
-  const handleSignInApple = useCallback(async () => {
-    if (!isFirebaseReady || !isAppleAuthAvailable) {
-      Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
-      return;
-    }
-    try {
-      setIsAuthBusy(true);
-
-      const [appleAuthentication, crypto] = await Promise.all([
-        loadAppleAuthenticationModule(),
-        loadCryptoModule(),
-      ]);
-
-      if (!appleAuthentication || !crypto) {
-        Alert.alert(t("authNotConfiguredTitle"), t("authNotConfiguredMessage"));
-        return;
-      }
-
-      const nonce = randomNonce();
-      const hashedNonce = await crypto.digestStringAsync(
-        crypto.CryptoDigestAlgorithm.SHA256,
-        nonce
-      );
-
-      const appleCredential = await appleAuthentication.signInAsync({
-        requestedScopes: [
-          appleAuthentication.AppleAuthenticationScope.FULL_NAME,
-          appleAuthentication.AppleAuthenticationScope.EMAIL,
-        ],
-        nonce: hashedNonce,
-      });
-
-      if (!appleCredential.identityToken) {
-        throw new Error("APPLE_IDENTITY_TOKEN_MISSING");
-      }
-
-      const provider = new OAuthProvider("apple.com");
-      const credential = provider.credential({
-        idToken: appleCredential.identityToken,
-        rawNonce: nonce,
-      });
-
-      await signInWithCredential(credential);
-    } catch (error) {
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "code" in error &&
-        (error as { code?: string }).code === "ERR_REQUEST_CANCELED"
-      ) {
-        return;
-      }
-      logger.error("Apple sign-in failed", error);
-      Alert.alert(t("authErrorTitle"), t("authErrorMessage"));
-    } finally {
-      setIsAuthBusy(false);
-    }
-  }, [isAppleAuthAvailable, isFirebaseReady, signInWithCredential, t]);
-
-  const handleSignOut = useCallback(async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      logger.error("Sign out failed", error);
-      Alert.alert(t("authErrorTitle"), t("authErrorMessage"));
-    }
-  }, [signOut, t]);
-
   const handleOpenPaywall = useCallback(async () => {
     try {
-      const result = await presentPaywall();
+      const { result, storagePlanId: purchasedPlanId } = await presentPaywall();
 
       if (result === PAYWALL_RESULT.ERROR) {
         Alert.alert(t("iapErrorTitle"), t("iapErrorMessage"));
@@ -606,11 +290,34 @@ export function SettingsScreen() {
 
       if (result === PAYWALL_RESULT.NOT_PRESENTED) {
         Alert.alert(t("iapNotReadyTitle"), t("iapPackageUnavailableMessage"));
+        return;
+      }
+
+      if (result === PAYWALL_RESULT.PURCHASED || result === PAYWALL_RESULT.RESTORED) {
+        if (purchasedPlanId === "pro") {
+          if (isSignedIn) {
+            Alert.alert(t("iapPurchaseSuccessTitle"), t("iapPurchaseSuccessProMessage"));
+          } else if (isFirebaseReady) {
+            setIsAccountHelpRequested(true);
+            Alert.alert(t("iapPurchaseSuccessTitle"), t("iapPurchaseSuccessProSignInMessage"));
+          } else {
+            Alert.alert(t("iapPurchaseSuccessTitle"), t("iapPurchaseSuccessMessage"));
+          }
+          return;
+        }
+
+        if (purchasedPlanId === "plus") {
+          setIsAccountHelpRequested(false);
+          Alert.alert(t("iapPurchaseSuccessTitle"), t("iapPurchaseSuccessPlusMessage"));
+          return;
+        }
+
+        Alert.alert(t("iapPurchaseSuccessTitle"), t("iapPurchaseSuccessMessage"));
       }
     } catch (error) {
       handlePurchaseError(error, "paywall");
     }
-  }, [handlePurchaseError, presentPaywall, t]);
+  }, [handlePurchaseError, isFirebaseReady, isSignedIn, presentPaywall, t]);
 
   const handleRestorePro = useCallback(async () => {
     try {
@@ -619,6 +326,11 @@ export function SettingsScreen() {
       handlePurchaseError(error, "restore");
     }
   }, [handlePurchaseError, restorePurchases]);
+
+  const handleSignOutFromSettings = useCallback(async () => {
+    await handleSignOut();
+    setIsAccountHelpRequested(false);
+  }, [handleSignOut]);
 
   const handleSyncLocal = useCallback(() => {
     Alert.alert(t("cloudSyncTitle"), t("cloudSyncSyncConfirm"), [
@@ -764,15 +476,16 @@ export function SettingsScreen() {
                     </Text>
                     {isSignedIn ? (
                       <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                        {user?.email || user?.displayName || user?.uid}
+                        {authStatusDetail}
                       </Text>
                     ) : (
                       <Text style={[styles.settingValue, { color: theme.textSecondary }]}>
-                        {t("authOptionalNote")}
+                        {authStatusDetail}
                       </Text>
                     )}
                   </View>
                 </View>
+                {isAuthBusy ? <ActivityIndicator color={theme.textSecondary} /> : null}
               </View>
 
               {!isSignedIn ? (
@@ -786,12 +499,16 @@ export function SettingsScreen() {
                     disabled={isAuthBusy}
                   >
                     <View style={styles.settingLeft}>
-                      <GoogleLogo />
+                      <SymbolIcon name="person-circle" size={22} color={theme.text} />
                       <Text style={[styles.settingText, { color: theme.text }]}>
                         {t("authContinueGoogle")}
                       </Text>
                     </View>
-                    <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                    {activeAuthProvider === "google" ? (
+                      <ActivityIndicator color={theme.textSecondary} />
+                    ) : (
+                      <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                    )}
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -803,22 +520,26 @@ export function SettingsScreen() {
                     disabled={isAuthBusy}
                   >
                     <View style={styles.settingLeft}>
-                      <FacebookLogo />
+                      <SymbolIcon name="person-circle" size={22} color={theme.text} />
                       <Text style={[styles.settingText, { color: theme.text }]}>
                         {t("authContinueFacebook")}
                       </Text>
                     </View>
-                    <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                    {activeAuthProvider === "facebook" ? (
+                      <ActivityIndicator color={theme.textSecondary} />
+                    ) : (
+                      <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                    )}
                   </TouchableOpacity>
 
-                  {showAppleSignIn ? (
+                  {canUseAppleAuth ? (
                     <TouchableOpacity
                       style={[
                         styles.settingItem,
                         { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
                       ]}
                       onPress={handleSignInApple}
-                      disabled={isAuthBusy || !isAppleAuthAvailable}
+                      disabled={isAuthBusy || !canUseAppleAuth}
                     >
                       <View style={styles.settingLeft}>
                         <SymbolIcon name="apple-logo" size={22} color={theme.text} />
@@ -826,7 +547,11 @@ export function SettingsScreen() {
                           {t("authContinueApple")}
                         </Text>
                       </View>
-                      <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                      {activeAuthProvider === "apple" ? (
+                        <ActivityIndicator color={theme.textSecondary} />
+                      ) : (
+                        <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+                      )}
                     </TouchableOpacity>
                   ) : null}
                 </>
@@ -836,7 +561,7 @@ export function SettingsScreen() {
                     styles.settingItem,
                     { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
                   ]}
-                  onPress={handleSignOut}
+                  onPress={() => void handleSignOutFromSettings()}
                   disabled={isAuthBusy}
                 >
                   <View style={styles.settingLeft}>
@@ -908,6 +633,7 @@ export function SettingsScreen() {
                 { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },
               ]}
               onPress={() => void handleOpenPaywall()}
+              disabled={isPurchaseBusy}
             >
               <View style={styles.settingLeft}>
                 <SymbolIcon name="cart" size={22} color={theme.text} />
@@ -923,7 +649,11 @@ export function SettingsScreen() {
                   </Text>
                 </View>
               </View>
-              <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+              {isPurchaseBusy ? (
+                <ActivityIndicator color={theme.textSecondary} />
+              ) : (
+                <SymbolIcon name="chevron-forward" size={18} color={theme.textSecondary} />
+              )}
             </TouchableOpacity>
 
             {shouldShowPurchaseActions && (

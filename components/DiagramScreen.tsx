@@ -1,3 +1,5 @@
+import { CategoryDetailSheet } from "@/components/CategoryDetailSheet";
+import { EditConsumptionModal } from "@/components/EditConsumptionModal";
 import { GlassContainer } from "@/components/GlassContainer";
 import { GlassIconButton } from "@/components/glass-icon-button";
 import { SymbolIcon } from "@/components/symbol-icon";
@@ -5,28 +7,34 @@ import { useDiagramAppearance } from "@/contexts/DiagramAppearanceContext";
 import { useGlossary } from "@/contexts/GlossaryContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useConsumptionStats } from "@/hooks/useConsumptionStats";
+import { useConsumptionStats, type CustomDateRange } from "@/hooks/useConsumptionStats";
+import { useConsumptionStorage } from "@/hooks/useConsumptionStorage";
 import type { Consumption } from "@/types/consumption";
 import type { TimeFilter } from "@/utils/constants";
 import { TIME_FILTERS } from "@/utils/constants";
+import { normalizeDateRange } from "@/utils/date-utils";
 import {
   buildCategoryBreakdown,
+  buildCategoryDetail,
   buildDiagramSummary,
   buildTrendSeries,
   type CategoryDatum,
   type TrendDatum,
 } from "@/utils/diagram-data";
-import { formatCurrency } from "@/utils/formatting";
+import { formatCurrency, LOCALE_MAP } from "@/utils/formatting";
 import { logger } from "@/utils/logger";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
 import { useFocusEffect } from "expo-router/react-navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Switch,
   Text,
+  TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
@@ -354,12 +362,14 @@ function TreemapDiagram({
   height,
   emptyLabel,
   useAccentPalette,
+  onSelect,
 }: {
   data: CategoryDatum[];
   width: number;
   height: number;
   emptyLabel: string;
   useAccentPalette: boolean;
+  onSelect: (label: string) => void;
 }) {
   const { theme } = useTheme();
   const visibleData = data.slice(0, 9);
@@ -422,8 +432,9 @@ function TreemapDiagram({
   return (
     <View style={[styles.treemap, { height }]}>
       {rects.map((rect, index) => (
-        <View
+        <Pressable
           key={rect.datum.label}
+          onPress={() => onSelect(rect.datum.label)}
           style={[
             styles.treemapTile,
             {
@@ -457,7 +468,7 @@ function TreemapDiagram({
               </Text>
             </>
           ) : null}
-        </View>
+        </Pressable>
       ))}
     </View>
   );
@@ -600,11 +611,24 @@ export function DiagramScreen() {
   const { isAccentPaletteEnabled, setAccentPaletteEnabled } = useDiagramAppearance();
   const { canonicalizeLabel, isReady } = useGlossary();
   const { getFilteredConsumptions } = useConsumptionStats();
+  const { updateConsumption, deleteConsumption } = useConsumptionStorage();
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("month");
   const [mode, setMode] = useState<DiagramMode>("pie");
   const [records, setRecords] = useState<Consumption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategoryLabel, setSelectedCategoryLabel] = useState<string | null>(null);
+  const [isCustomRange, setIsCustomRange] = useState(false);
+  const [customRange, setCustomRange] = useState<CustomDateRange>(() => {
+    const end = new Date();
+    const start = new Date(end.getFullYear(), end.getMonth() - 1, 1);
+    return { start, end };
+  });
+  const [activePicker, setActivePicker] = useState<"start" | "end" | null>(null);
+  const [detailLabel, setDetailLabel] = useState<string | null>(null);
+  const [editingConsumption, setEditingConsumption] = useState<Consumption | null>(null);
+  // Holds a record tapped in the detail sheet until that sheet finishes
+  // dismissing (iOS), so the editor sheet isn't presented mid-animation.
+  const pendingEditRef = useRef<Consumption | null>(null);
 
   const contentWidth = Math.max(280, width - 32);
   const pieSize = Math.min(260, contentWidth * 0.78);
@@ -652,10 +676,12 @@ export function DiagramScreen() {
     [categoryData, effectiveSelectedCategoryLabel],
   );
 
+  const activeRange = isCustomRange ? customRange : null;
+
   const loadRecords = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await getFilteredConsumptions(timeFilter, "date", "ASC");
+      const data = await getFilteredConsumptions(timeFilter, "date", "ASC", activeRange);
       setRecords(data);
     } catch (error) {
       logger.error("Failed to load diagram data", error, { timeFilter });
@@ -663,7 +689,7 @@ export function DiagramScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [getFilteredConsumptions, timeFilter]);
+  }, [activeRange, getFilteredConsumptions, timeFilter]);
 
   useFocusEffect(
     useCallback(() => {
@@ -676,10 +702,104 @@ export function DiagramScreen() {
   }, []);
 
   const handleCategorySelect = useCallback((label: string) => {
-    setSelectedCategoryLabel(
-      effectiveSelectedCategoryLabel === label ? OVERVIEW_SELECTION : label,
-    );
-  }, [effectiveSelectedCategoryLabel]);
+    setSelectedCategoryLabel(label);
+    setDetailLabel(label);
+  }, []);
+
+  const handleSelectPresetFilter = useCallback((filter: TimeFilter) => {
+    setIsCustomRange(false);
+    setActivePicker(null);
+    setTimeFilter(filter);
+  }, []);
+
+  const handleToggleCustomRange = useCallback(() => {
+    setIsCustomRange((current) => {
+      const next = !current;
+      setActivePicker(null);
+      return next;
+    });
+  }, []);
+
+  const handleRangeChange = useCallback(
+    (which: "start" | "end", nextDate?: Date) => {
+      if (Platform.OS !== "ios") {
+        setActivePicker(null);
+      }
+      if (!nextDate) {
+        return;
+      }
+      setCustomRange((current) => normalizeDateRange(which, nextDate, current));
+    },
+    [],
+  );
+
+  const { records: detailRecords, total: detailTotal } = useMemo(() => {
+    if (!detailLabel || !isReady) {
+      return { records: [] as Consumption[], total: 0 };
+    }
+    return buildCategoryDetail(records, canonicalizeLabel, detailLabel);
+  }, [canonicalizeLabel, detailLabel, isReady, records]);
+
+  const detailIndex = detailLabel
+    ? categoryData.findIndex((datum) => datum.label === detailLabel)
+    : -1;
+  const detailSwatchColor = getPieColor(
+    detailIndex >= 0 ? detailIndex : 0,
+    theme.isDark,
+    isAccentPaletteEnabled,
+  );
+
+  const handleCloseDetail = useCallback(() => {
+    setDetailLabel(null);
+    // On iOS the editor open is deferred to here (the sheet's onDismiss) so we
+    // never present one pageSheet while another is still dismissing.
+    const pendingEdit = pendingEditRef.current;
+    pendingEditRef.current = null;
+    if (pendingEdit) {
+      setEditingConsumption(pendingEdit);
+    }
+  }, []);
+
+  const handleSelectRecord = useCallback((record: Consumption) => {
+    if (Platform.OS === "ios") {
+      // Defer: close the detail sheet, open the editor once it has dismissed.
+      pendingEditRef.current = record;
+      setDetailLabel(null);
+    } else {
+      setDetailLabel(null);
+      setEditingConsumption(record);
+    }
+  }, []);
+
+  const handleEditClose = useCallback(() => {
+    setEditingConsumption(null);
+  }, []);
+
+  const handleEditSave = useCallback(
+    async (consumption: Consumption) => {
+      await updateConsumption(consumption);
+      await loadRecords();
+    },
+    [loadRecords, updateConsumption],
+  );
+
+  const handleEditDelete = useCallback(
+    async (id: string) => {
+      await deleteConsumption(id);
+      await loadRecords();
+    },
+    [deleteConsumption, loadRecords],
+  );
+
+  const formatRangeBound = useCallback(
+    (date: Date) =>
+      date.toLocaleDateString(LOCALE_MAP[resolvedLanguage] || "en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }),
+    [resolvedLanguage],
+  );
 
   const modeOptions = useMemo(
     () => [
@@ -726,11 +846,11 @@ export function DiagramScreen() {
           contentContainerStyle={styles.filterRow}
         >
           {TIME_FILTERS.map((filter) => {
-            const selected = filter === timeFilter;
+            const selected = !isCustomRange && filter === timeFilter;
             return (
               <Pressable
                 key={filter}
-                onPress={() => setTimeFilter(filter)}
+                onPress={() => handleSelectPresetFilter(filter)}
                 style={[
                   styles.filterChip,
                   { borderColor: theme.border },
@@ -748,7 +868,83 @@ export function DiagramScreen() {
               </Pressable>
             );
           })}
+          <Pressable
+            onPress={handleToggleCustomRange}
+            style={[
+              styles.filterChip,
+              styles.customChip,
+              { borderColor: theme.border },
+              isCustomRange && { backgroundColor: theme.foreground },
+            ]}
+          >
+            <SymbolIcon
+              name="calendar-outline"
+              size={14}
+              color={isCustomRange ? theme.background : theme.text}
+            />
+            <Text
+              style={[
+                styles.filterText,
+                { color: isCustomRange ? theme.background : theme.text },
+              ]}
+            >
+              {t("customRange")}
+            </Text>
+          </Pressable>
         </ScrollView>
+
+        {isCustomRange ? (
+          <GlassContainer intensity="light" style={styles.rangeCard}>
+            <View style={styles.rangeRow}>
+              <TouchableOpacity
+                style={styles.rangeField}
+                activeOpacity={0.7}
+                onPress={() => setActivePicker(activePicker === "start" ? null : "start")}
+              >
+                <Text style={[styles.rangeLabel, { color: theme.textSecondary }]}>
+                  {t("startDate")}
+                </Text>
+                <Text style={[styles.rangeValue, { color: theme.text }]}>
+                  {formatRangeBound(customRange.start)}
+                </Text>
+              </TouchableOpacity>
+              <SymbolIcon name="chevron-forward" size={16} color={theme.textSecondary} />
+              <TouchableOpacity
+                style={styles.rangeField}
+                activeOpacity={0.7}
+                onPress={() => setActivePicker(activePicker === "end" ? null : "end")}
+              >
+                <Text style={[styles.rangeLabel, { color: theme.textSecondary }]}>
+                  {t("endDate")}
+                </Text>
+                <Text style={[styles.rangeValue, { color: theme.text }]}>
+                  {formatRangeBound(customRange.end)}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            {activePicker && Platform.OS !== "web" ? (
+              <View style={styles.rangePickerWrapper}>
+                <DateTimePicker
+                  value={activePicker === "start" ? customRange.start : customRange.end}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "spinner" : "default"}
+                  maximumDate={new Date()}
+                  onChange={(_event, nextDate) => handleRangeChange(activePicker, nextDate)}
+                />
+                {Platform.OS === "ios" ? (
+                  <TouchableOpacity
+                    style={[styles.rangeDone, { backgroundColor: theme.foreground }]}
+                    onPress={() => setActivePicker(null)}
+                  >
+                    <Text style={[styles.rangeDoneText, { color: theme.background }]}>
+                      {t("confirm")}
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+            ) : null}
+          </GlassContainer>
+        ) : null}
 
         <Animated.View entering={FadeIn.duration(260)}>
           <GlassContainer intensity="light" style={styles.chartPanel}>
@@ -797,6 +993,7 @@ export function DiagramScreen() {
                   height={Math.max(260, Math.min(420, width * 0.88))}
                   emptyLabel={t("noData")}
                   useAccentPalette={isAccentPaletteEnabled}
+                  onSelect={handleCategorySelect}
                 />
               ) : mode === "bar" ? (
                 <BarDiagram data={trendData} width={contentWidth - 36} height={trendHeight} />
@@ -926,6 +1123,24 @@ export function DiagramScreen() {
           ) : null}
         </GlassContainer>
       </ScrollView>
+
+      <CategoryDetailSheet
+        visible={detailLabel !== null}
+        label={detailLabel}
+        records={detailRecords}
+        totalAmount={detailTotal}
+        swatchColor={detailSwatchColor}
+        onClose={handleCloseDetail}
+        onSelectRecord={handleSelectRecord}
+      />
+
+      <EditConsumptionModal
+        visible={editingConsumption !== null}
+        consumption={editingConsumption}
+        onClose={handleEditClose}
+        onSave={handleEditSave}
+        onDelete={handleEditDelete}
+      />
     </SafeAreaView>
   );
 }
@@ -989,6 +1204,49 @@ const styles = StyleSheet.create({
   filterText: {
     fontSize: 13,
     fontWeight: "600",
+  },
+  customChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  rangeCard: {
+    borderRadius: 18,
+    borderCurve: "continuous",
+    padding: 14,
+    gap: 12,
+  },
+  rangeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  rangeField: {
+    flex: 1,
+    gap: 2,
+  },
+  rangeLabel: {
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  rangeValue: {
+    fontSize: 15,
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
+  },
+  rangePickerWrapper: {
+    alignItems: "center",
+  },
+  rangeDone: {
+    marginTop: 8,
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderCurve: "continuous",
+  },
+  rangeDoneText: {
+    fontSize: 15,
+    fontWeight: "700",
   },
   chartPanel: {
     borderRadius: 24,

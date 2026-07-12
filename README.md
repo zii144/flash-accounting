@@ -1,15 +1,16 @@
 # Flash Accounting
 
-Flash Accounting is a local-first mobile accounting app built with Expo and React Native. It lets users record income and expenses quickly, review spending through statistics and diagrams, export records, and optionally unlock cloud sync through a paid storage plan.
+Flash Accounting (App Store name: **Black White Accounting** / 黑白記帳) is a local-first mobile accounting app built with Expo and React Native. It lets users record income and expenses quickly, review spending through statistics and diagrams, export records, and optionally unlock cloud sync through a paid storage plan.
 
 ## Current Capabilities
 
 - Add, edit, delete, and page through income and expense records
 - SQLite-backed local storage with a free local record limit
 - Statistics tab with time filters, sort modes, grouped daily history, and net totals
-- Diagram tab for visual spending summaries
-- CSV export for recorded transactions
-- Device, English, Traditional Chinese, Spanish, French, German, and Japanese language modes
+- Diagram tab with pie, treemap, bar, and line chart modes, tap-to-detail category breakdowns, and custom date ranges
+- CSV import and export for records
+- Speech-to-text dictation for descriptions (iOS keyboard dictation; Web Speech API on web)
+- 16 UI languages — English, Traditional Chinese, Spanish, French, German, Japanese, Hindi, Portuguese, Russian, Indonesian, Korean, Italian, Turkish, Vietnamese, Thai, and Polish — plus a Device (follow-system) option
 - Automatic light and dark themes
 - Settings flows for language, glossary terms, auth, purchases, export, and sync recovery
 - Firebase auth and Firestore sync foundation for signed-in Pro users
@@ -35,11 +36,11 @@ The app is usable without sign-in. Auth, cloud sync, purchases, and crash report
 
 ### Prerequisites
 
-- Node.js 18 or newer
+- Node.js 20.19.4 or newer (required by Expo SDK 56)
 - npm
-- Xcode and iOS Simulator for iOS development on macOS
+- Xcode and iOS Simulator for iOS development and local App Store releases on macOS
 - Android Studio and an emulator for Android development
-- EAS CLI for cloud builds and store submission
+- EAS CLI for Android cloud builds and optional iOS simulator builds
 
 ### Install
 
@@ -81,9 +82,13 @@ npm run build:ios:sim        # EAS iOS simulator build
 npm run build:android:dev    # EAS Android development build
 npm run build:ios:prod       # EAS iOS production build
 npm run build:android:prod   # EAS Android production build
-npm run submit:ios:prod      # Submit iOS production build
 npm run submit:android:prod  # Submit Android production build
 npm run verify:ios:env       # Check iOS release environment setup
+npm run release:ios:check    # Pre-archive checks (deps, typecheck, tests, env)
+npm run release:ios:bump     # Bump iOS build number in app.json and Info.plist
+npm run release:ios:archive  # Create a local Release .xcarchive
+npm run release:ios:upload   # Export and upload archive to App Store Connect
+npm run release:ios:testflight  # Full local pipeline: check → archive → upload
 ```
 
 ## Project Structure
@@ -100,8 +105,10 @@ contexts/                    # Theme, language, auth, Pro, diagram, and glossary
 hooks/                       # Storage, statistics, and speech-recognition hooks
 types/                       # Shared TypeScript types
 utils/                       # Database, sync, export, validation, env, Firebase, RevenueCat, and formatting helpers
-docs/                        # Firebase, IAP, Sentry, and current caveat documentation
-scripts/                     # Repo and seed scripts
+docs/                        # Firebase, IAP, Sentry, design-system, roadmap, and caveat docs
+scripts/                     # Repo, seed, and release scripts
+captures/preview-kit/        # Maestro-driven iOS Simulator pipeline for App Store preview videos (16 languages)
+ios/                         # Checked-in native iOS project (bundle ID com.zii.flash.accounting)
 tests/                       # Node test runner unit tests
 ```
 
@@ -150,6 +157,10 @@ See the setup guides for details:
 - `docs/IAP.md`
 - `docs/SENTRY.md`
 - `docs/CURRENT_CAVEATS_AND_NEXT_PERIOD.md`
+- `docs/ROADMAP.md` — product roadmap and current status
+- `docs/DESIGN_SYSTEM.md` — design tokens and UI primitives
+- `RELEASE_IOS.md` — local iOS archive, upload, and TestFlight workflow
+- `captures/preview-kit/README.md` — Maestro pipeline that generates the App Store preview videos
 
 ## Auth, Sync, and Plans
 
@@ -178,19 +189,42 @@ Validation logic lives in `utils/validation.ts`.
 
 ## Production Builds
 
+### iOS (local Xcode)
+
+iOS production archives and App Store Connect uploads are done locally through Xcode, not EAS. The repo includes a checked-in `ios/` project and a release script that wraps the common steps.
+
+Quick path to TestFlight:
+
 ```bash
-npm run build:ios:prod
-npm run build:android:prod
+npm run release:ios:testflight
 ```
 
-Store submission:
+Individual steps:
 
 ```bash
-npm run submit:ios:prod
+npm run release:ios:check
+npm run release:ios:bump
+npm run release:ios:archive
+npm run release:ios:upload
+```
+
+See `RELEASE_IOS.md` for the full checklist, versioning rules, QA steps, and troubleshooting.
+
+EAS iOS scripts remain available for simulator or cloud builds when needed:
+
+```bash
+npm run build:ios:sim
+npm run build:ios:prod
+```
+
+### Android (EAS)
+
+```bash
+npm run build:android:prod
 npm run submit:android:prod
 ```
 
-Before validating production-only behavior, confirm Firebase, RevenueCat, Sentry, OAuth provider setup, native URL schemes, App Store Connect products, and RevenueCat offerings are configured for the target environment.
+Before validating production-only behavior, confirm Firebase, RevenueCat, Sentry, OAuth provider setup, native URL schemes, App Store Connect products, and RevenueCat offerings are configured for the target environment. For iOS releases, run `npm run verify:ios:env` before archiving.
 
 ## Troubleshooting
 

@@ -5,7 +5,6 @@ import { Consumption, ConsumptionType } from "@/types/consumption";
 import { formatAmountInput, LOCALE_MAP, parseAmountInput } from "@/utils/formatting";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { SymbolIcon } from "@/components/symbol-icon";
-import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import React, { useCallback, useEffect, useState } from "react";
 import {
     Alert,
@@ -13,13 +12,14 @@ import {
     KeyboardAvoidingView,
     Modal,
     Platform,
+    ScrollView,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
     View,
 } from "react-native";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface EditConsumptionModalProps {
   visible: boolean;
@@ -38,22 +38,13 @@ export function EditConsumptionModal({
 }: EditConsumptionModalProps) {
   const { theme } = useTheme();
   const { t, resolvedLanguage } = useLanguage();
+  const insets = useSafeAreaInsets();
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<ConsumptionType>("expense");
   const [logDate, setLogDate] = useState<Date>(() => new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isGlassAvailable] = useState(() => {
-    if (Platform.OS === "ios") {
-      try {
-        return isLiquidGlassAvailable();
-      } catch {
-        return false;
-      }
-    }
-    return false;
-  });
 
   // Initialize form when consumption changes
   useEffect(() => {
@@ -158,60 +149,36 @@ export function EditConsumptionModal({
   return (
     <Modal
       visible={visible}
-      transparent
       animationType="slide"
+      presentationStyle={Platform.OS === "ios" ? "pageSheet" : "fullScreen"}
       onRequestClose={handleClose}
+      onDismiss={handleClose}
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.modalOverlay}
+        style={[styles.sheet, { backgroundColor: theme.background }]}
       >
-        {isGlassAvailable ? (
+        <View style={[styles.grabber, { backgroundColor: theme.border }]} />
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: theme.text }]}>
+            {t("editEntry") || "Edit Entry"}
+          </Text>
           <TouchableOpacity
-            style={StyleSheet.absoluteFill}
-            activeOpacity={1}
             onPress={handleClose}
+            style={styles.closeButton}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <GlassView
-              glassEffectStyle="regular"
-              style={styles.blurBackdrop}
-              isInteractive={false}
-            />
+            <SymbolIcon name="close" size={24} color={theme.text} />
           </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={styles.backdrop}
-            activeOpacity={1}
-            onPress={handleClose}
-          />
-        )}
-        <Animated.View
-          entering={FadeIn.duration(200)}
-          exiting={FadeOut.duration(150)}
-          style={[
-            styles.modalContent,
-            {
-              backgroundColor: theme.isDark
-                ? "rgba(28, 28, 30, 0.95)"
-                : "rgba(255, 255, 255, 0.98)",
-            },
-          ]}
-        >
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={[styles.title, { color: theme.text }]}>
-              {t("editEntry") || "Edit Entry"}
-            </Text>
-            <TouchableOpacity
-              onPress={handleClose}
-              style={styles.closeButton}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <SymbolIcon name="close" size={24} color={theme.text} />
-            </TouchableOpacity>
-          </View>
+        </View>
 
-          <View style={styles.content}>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom, 16) + 16 }]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
             {/* Amount Input */}
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: theme.textSecondary }]}>
@@ -427,36 +394,27 @@ export function EditConsumptionModal({
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </Animated.View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  modalOverlay: {
+  sheet: {
     flex: 1,
-    justifyContent: "flex-end",
+    paddingTop: 8,
   },
-  backdrop: {
-    ...StyleSheet.absoluteFill,
+  grabber: {
+    alignSelf: "center",
+    width: 40,
+    height: 5,
+    borderRadius: 3,
+    opacity: 0.6,
+    marginBottom: 6,
   },
-  blurBackdrop: {
-    ...StyleSheet.absoluteFill,
-  },
-  modalContent: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: -4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 16,
+  scroll: {
+    flex: 1,
   },
   header: {
     flexDirection: "row",

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Flash Accounting · Design System</title>
+<style>
+  :root {
+    /* Light theme tokens (contexts/ThemeContext.tsx) */
+    --background: #F2F2F7;
+    --surface: #FFFFFF;
+    --foreground: #000000;
+    --border: #D1D1D6;
+    --input-background: #FFFFFF;
+    --text: #000000;
+    --text-secondary: #636366;
+
+    /* Semantic accents (extracted from screens) */
+    --accent: #0A84FF;
+    --income: #30D158;
+    --expense: #FF453A;
+    --destructive: #FF3B30;
+
+    /* Glass */
+    --glass-underlay: rgba(255,255,255,0.88);
+    --glass-border: rgba(0,0,0,0.08);
+    --glass-shadow: 0 1px 3px rgba(0,0,0,0.06);
+
+    --code-bg: rgba(0,0,0,0.05);
+    --hairline: rgba(0,0,0,0.10);
+    --stage: linear-gradient(135deg, #0A84FF 0%, #5E5CE6 45%, #BF5AF2 100%);
+
+    --radius-card: 16px;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  [data-theme="dark"] {
+    --background: #000000;
+    --surface: #1C1C1E;
+    --foreground: #FFFFFF;
+    --border: #333333;
+    --input-background: #1A1A1A;
+    --text: #FFFFFF;
+    --text-secondary: #98989D;
+
+    --accent: #64D2FF;
+    --income: #32D74B;
+    --expense: #FF6961;
+    --destructive: #FF3B30;
+
+    --glass-underlay: rgba(28,28,30,0.84);
+    --glass-border: rgba(255,255,255,0.12);
+    --glass-shadow: none;
+
+    --code-bg: rgba(255,255,255,0.08);
+    --hairline: rgba(255,255,255,0.12);
+    --stage: linear-gradient(135deg, #0A2540 0%, #3A2D5E 45%, #5A2A6E 100%);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--background);
+    color: var(--text);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    transition: background .25s ease, color .25s ease;
+    padding-bottom: 80px;
+  }
+
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+  /* Header */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    background: var(--glass-underlay);
+    border-bottom: 1px solid var(--hairline);
+  }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; padding-bottom: 16px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand .mark {
+    width: 38px; height: 38px; border-radius: 12px;
+    background: var(--stage);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 800; font-size: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  }
+  .brand h1 { font-size: 17px; font-weight: 700; margin: 0; letter-spacing: -0.2px; }
+  .brand p { font-size: 12px; margin: 0; color: var(--text-secondary); letter-spacing: 0.2px; }
+
+  .toggle {
+    appearance: none; border: 1px solid var(--glass-border);
+    background: var(--surface); color: var(--text);
+    border-radius: 999px; height: 40px; padding: 0 16px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    transition: opacity .15s ease;
+  }
+  .toggle:active { opacity: 0.72; }
+
+  /* Hero */
+  .hero { padding: 48px 0 24px; }
+  .hero h2 { font-size: 30px; font-weight: 800; letter-spacing: -0.8px; margin: 0 0 8px; }
+  .hero p { font-size: 16px; color: var(--text-secondary); margin: 0; max-width: 620px; }
+
+  /* Sections */
+  section { padding: 28px 0; border-top: 1px solid var(--hairline); }
+  .section-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; }
+  .section-head h3 { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; margin: 0; }
+  .section-head .kicker { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.6px; }
+  .note { font-size: 13px; color: var(--text-secondary); margin: -8px 0 18px; }
+
+  /* Color grid */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  .swatch {
+    border-radius: var(--radius-card); overflow: hidden;
+    border: 1px solid var(--hairline);
+    background: var(--surface);
+  }
+  .swatch .chip { height: 70px; border-bottom: 1px solid var(--hairline); }
+  .swatch .meta { padding: 10px 12px; }
+  .swatch .name { font-size: 13px; font-weight: 600; }
+  .swatch .val { font-size: 12px; color: var(--text-secondary); font-family: ui-monospace, "SF Mono", Menlo, monospace; margin-top: 2px; }
+
+  /* Palette strips */
+  .palette { display: flex; border-radius: 12px; overflow: hidden; border: 1px solid var(--hairline); margin-bottom: 8px; }
+  .palette .cell { flex: 1; height: 44px; position: relative; }
+  .palette-label { font-size: 13px; font-weight: 600; margin: 14px 0 6px; }
+
+  /* Type scale */
+  .type-row { display: flex; align-items: baseline; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--hairline); }
+  .type-row .tag { width: 64px; flex: none; font-size: 12px; color: var(--text-secondary); font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .type-row .sample { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .weights { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 14px; }
+  .weights span { font-size: 20px; }
+
+  /* Spacing */
+  .space-row { display: flex; align-items: center; gap: 14px; padding: 6px 0; }
+  .space-row .bar { background: var(--accent); height: 16px; border-radius: 4px; }
+  .space-row .lbl { font-size: 13px; font-family: ui-monospace, "SF Mono", Menlo, monospace; color: var(--text-secondary); width: 40px; }
+
+  /* Radii */
+  .radii { display: flex; flex-wrap: wrap; gap: 18px; }
+  .radii .box { width: 84px; text-align: center; }
+  .radii .box .sq { height: 64px; background: var(--stage); border: 1px solid var(--glass-border); }
+  .radii .box .lbl { font-size: 12px; color: var(--text-secondary); margin-top: 6px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+  /* Glass stage */
+  .stage {
+    background: var(--stage);
+    border-radius: 20px; padding: 28px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 16px;
+  }
+  .glass {
+    border-radius: var(--radius-card);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    padding: 18px 16px; color: var(--text);
+    background: var(--glass-underlay);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    backdrop-filter: blur(20px) saturate(140%);
+  }
+  .glass .gname { font-size: 14px; font-weight: 700; }
+  .glass .gmeta { font-size: 12px; color: var(--text-secondary); margin-top: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .g-clear { background: color-mix(in srgb, var(--glass-underlay) 65%, transparent); }
+  .g-light { background: color-mix(in srgb, var(--glass-underlay) 84%, transparent); }
+  .g-heavy { background: var(--surface); }
+
+  /* Component demos */
+  .demo { background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-card); padding: 22px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+  .btn {
+    border: 1px solid var(--glass-border);
+    background: var(--glass-underlay);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border-radius: 14px; height: 52px; padding: 0 16px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: 16px; font-weight: 600; color: var(--text); cursor: pointer;
+  }
+  .btn:active { opacity: 0.82; }
+  .btn.disabled { opacity: 0.45; cursor: default; }
+  .btn.primary { background: var(--accent); color: #fff; border-color: transparent; }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 20px;
+    border: 1px solid var(--glass-border); background: var(--glass-underlay);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;
+  }
+  .icon-btn:active { opacity: 0.72; }
+  .pill { border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 600; }
+  .pill.income { background: color-mix(in srgb, var(--income) 18%, transparent); color: var(--income); }
+  .pill.expense { background: color-mix(in srgb, var(--expense) 18%, transparent); color: var(--expense); }
+
+  .card-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .record {
+    background: var(--surface); border: 1px solid var(--hairline);
+    border-radius: 12px; padding: 14px 16px; min-width: 220px; flex: 1;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .record .l { display: flex; align-items: center; gap: 12px; }
+  .record .dot { width: 34px; height: 34px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .record .title { font-size: 16px; font-weight: 600; }
+  .record .sub { font-size: 12px; color: var(--text-secondary); }
+  .record .amt { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+
+  /* Icons */
+  .icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px,1fr)); gap: 12px; }
+  .icons .i { background: var(--surface); border: 1px solid var(--hairline); border-radius: 12px; padding: 14px 8px; text-align: center; }
+  .icons .i .gly { font-size: 22px; }
+  .icons .i .nm { font-size: 11px; color: var(--text-secondary); margin-top: 8px; font-family: ui-monospace, "SF Mono", Menlo, monospace; word-break: break-word; }
+
+  code { background: var(--code-bg); border-radius: 6px; padding: 2px 6px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; }
+  footer { padding: 40px 0 0; font-size: 13px; color: var(--text-secondary); }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="mark">$</div>
+      <div>
+        <h1>Flash Accounting</h1>
+        <p>Design System · extracted from the app</p>
+      </div>
+    </div>
+    <button class="toggle" id="themeToggle" aria-label="Toggle theme">
+      <span id="toggleIcon">◐</span><span id="toggleLabel">Dark</span>
+    </button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <h2>An iOS-native, glass-first system</h2>
+    <p>This reference documents the design tokens and component patterns currently used in the app — colors, typography, spacing, corner radii, the liquid-glass material, and core controls. Values are pulled directly from <code>contexts/ThemeContext.tsx</code> and the component styles. Flip the toggle to see the dark theme.</p>
+  </div>
+
+  <!-- FOUNDATIONS: COLOR -->
+  <section>
+    <div class="section-head"><span class="kicker">Foundations</span><h3>Theme colors</h3></div>
+    <p class="note">Seven semantic surface/text roles, defined per theme in <code>ThemeContext.tsx</code>. These adapt automatically to the system light/dark setting.</p>
+    <div class="swatches" id="themeSwatches"></div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="kicker">Foundations</span><h3>Accent &amp; status</h3></div>
+    <p class="note">Used for actions, income/expense framing, and destructive actions. Tuned brighter in dark mode for contrast.</p>
+    <div class="swatches" id="accentSwatches"></div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="kicker">Foundations</span><h3>Chart palettes</h3></div>
+    <p class="note">From <code>DiagramScreen.tsx</code> — three ordered palettes for pie/category charts.</p>
+    <div class="palette-label">Accent palette (light)</div>
+    <div class="palette" id="palLight"></div>
+    <div class="palette-label">Accent palette (dark)</div>
+    <div class="palette" id="palDark"></div>
+    <div class="palette-label">Grayscale palette</div>
+    <div class="palette" id="palGray"></div>
+  </section>
+
+  <!-- TYPOGRAPHY -->
+  <section>
+    <div class="section-head"><span class="kicker">Foundations</span><h3>Typography</h3></div>
+    <p class="note">System font (San Francisco on iOS) — no custom fonts are bundled. Sizes below are the ones actually in use, ranked by frequency.</p>
+    <div id="typeScale"></div>
+    <div class="palette-label" style="margin-top:22px;">Weights in use</div>
+    <div class="weights">
+      <span style="font-weight:400">400 Regular</span>
+      <span style="font-weight:500">500 Medium</span>
+      <span style="font-weight:600">600 Semibold</span>
+      <span style="font-weight:700">700 Bold</span>
+      <span style="font-weight:800">800 Heavy</span>
+    </div>
+    <p class="note" style="margin-top:18px;">Letter-spacing is applied negatively on large/display text (down to <code>-0.8</code>) and positively on small uppercase labels (up to <code>0.6</code>).</p>
+  </section>
+
+  <!-- SPACING -->
+  <section>
+    <div class="section-head"><span class="kicker">Foundations</span><h3>Spacing</h3></div>
+    <p class="note">A loosely 2-based scale. <code>gap: 12</code>, <code>gap: 8</code>, and <code>paddingHorizontal: 20</code> dominate layouts.</p>
+    <div id="spacingScale"></div>
+  </section>
+
+  <!-- RADII -->
+  <section>
+    <div class="section-head"><span class="kicker">Foundations</span><h3>Corner radius</h3></div>
+    <p class="note">Continuous (squircle) curves throughout via <code>borderCurve: "continuous"</code>. Key roles: buttons <code>14</code>, cards/glass <code>16</code>, list rows <code>12</code>, large cards <code>24</code>, pills <code>999</code>.</p>
+    <div class="radii" id="radiiRow"></div>
+  </section>
+
+  <!-- GLASS MATERIAL -->
+  <section>
+    <div class="section-head"><span class="kicker">Material</span><h3>Liquid glass</h3></div>
+    <p class="note">The <code>GlassContainer</code> primitive renders four intensities. On supported iOS it uses the native glass effect; elsewhere it falls back to a blur + translucent underlay. Underlay opacity and blur intensity per level shown below.</p>
+    <div class="stage">
+      <div class="glass g-clear"><div class="gname">Clear</div><div class="gmeta">underlay .58 · blur 35</div></div>
+      <div class="glass g-light"><div class="gname">Light</div><div class="gmeta">underlay .74 · blur 45</div></div>
+      <div class="glass"><div class="gname">Medium</div><div class="gmeta">underlay .88 · blur 70</div></div>
+      <div class="glass g-heavy"><div class="gname">Heavy</div><div class="gmeta">underlay .96 · blur 90</div></div>
+    </div>
+    <p class="note" style="margin-top:14px;">Hairline border (<code>StyleSheet.hairlineWidth</code>): <code>rgba(0,0,0,0.08)</code> light / <code>rgba(255,255,255,0.12)</code> dark. Light theme adds a soft fallback shadow <code>0 1px 3px rgba(0,0,0,0.06)</code>.</p>
+  </section>
+
+  <!-- COMPONENTS -->
+  <section>
+    <div class="section-head"><span class="kicker">Components</span><h3>Buttons</h3></div>
+    <p class="note"><code>GlassButton</code>: height 52, radius 14, paddingH 16, icon gap 6, pressed opacity 0.82, disabled 0.45. <code>GlassIconButton</code>: default 40×40, fully rounded, pressed 0.72.</p>
+    <div class="demo">
+      <button class="btn">Add expense</button>
+      <button class="btn primary">Save</button>
+      <button class="btn disabled">Disabled</button>
+      <div class="icon-btn" title="40×40">＋</div>
+      <div class="icon-btn" title="40×40">⤓</div>
+      <div class="icon-btn" title="40×40">⚙</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="kicker">Components</span><h3>Records &amp; tags</h3></div>
+    <p class="note">List rows use radius 12 on <code>surface</code>. Income/expense are distinguished by accent color and direction.</p>
+    <div class="card-row">
+      <div class="record">
+        <div class="l">
+          <div class="dot" style="background:color-mix(in srgb, var(--income) 18%, transparent); color:var(--income);">↑</div>
+          <div><div class="title">Salary</div><div class="sub">Income · Jun 28</div></div>
+        </div>
+        <div class="amt" style="color:var(--income)">+2,400</div>
+      </div>
+      <div class="record">
+        <div class="l">
+          <div class="dot" style="background:color-mix(in srgb, var(--expense) 18%, transparent); color:var(--expense);">↓</div>
+          <div><div class="title">Groceries</div><div class="sub">Expense · Jun 29</div></div>
+        </div>
+        <div class="amt" style="color:var(--expense)">−86.40</div>
+      </div>
+    </div>
+    <div class="demo" style="margin-top:14px;">
+      <span class="pill income">Income</span>
+      <span class="pill expense">Expense</span>
+    </div>
+  </section>
+
+  <!-- ICONOGRAPHY -->
+  <section>
+    <div class="section-head"><span class="kicker">Foundations</span><h3>Iconography</h3></div>
+    <p class="note">SF Symbols on iOS (with Android equivalents) via <code>SymbolIcon</code>, default size 24. ~44 named icons in <code>utils/app-icons.ts</code>. A representative sample:</p>
+    <div class="icons" id="iconGrid"></div>
+  </section>
+
+  <footer>
+    Generated from the flash-accounting codebase on 2026-06-30 · tokens sourced from
+    <code>contexts/ThemeContext.tsx</code>, <code>components/GlassContainer.tsx</code>,
+    <code>components/glass-button.tsx</code>, <code>components/DiagramScreen.tsx</code>, and screen styles.
+  </footer>
+</div>
+
+<script>
+  // ---- Theme toggle ----
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  const icon = document.getElementById('toggleIcon');
+  const label = document.getElementById('toggleLabel');
+  btn.addEventListener('click', () => {
+    const dark = root.getAttribute('data-theme') === 'dark';
+    root.setAttribute('data-theme', dark ? 'light' : 'dark');
+    label.textContent = dark ? 'Dark' : 'Light';
+    icon.textContent = dark ? '◐' : '◑';
+  });
+
+  // ---- Theme color swatches ----
+  const themeColors = [
+    ['background', '#F2F2F7', '#000000'],
+    ['surface', '#FFFFFF', '#1C1C1E'],
+    ['foreground', '#000000', '#FFFFFF'],
+    ['text', '#000000', '#FFFFFF'],
+    ['textSecondary', '#636366', '#98989D'],
+    ['border', '#D1D1D6', '#333333'],
+    ['inputBackground', '#FFFFFF', '#1A1A1A'],
+  ];
+  const accentColors = [
+    ['accent', '#0A84FF', '#64D2FF'],
+    ['income', '#30D158', '#32D74B'],
+    ['expense', '#FF453A', '#FF6961'],
+    ['destructive', '#FF3B30', '#FF3B30'],
+  ];
+  function renderSwatches(id, data) {
+    const host = document.getElementById(id);
+    host.innerHTML = data.map(([name, l, d]) => `
+      <div class="swatch">
+        <div class="chip" style="background:${l}; box-shadow: inset 0 0 0 9999px var(--sw-${name}-overlay, transparent);"
+             data-l="${l}" data-d="${d}"></div>
+        <div class="meta">
+          <div class="name">${name}</div>
+          <div class="val sw-val" data-l="${l}" data-d="${d}">${l}</div>
+        </div>
+      </div>`).join('');
+  }
+  renderSwatches('themeSwatches', themeColors);
+  renderSwatches('accentSwatches', accentColors);
+
+  // Update swatch chips + values when theme flips
+  function paintSwatches() {
+    const dark = root.getAttribute('data-theme') === 'dark';
+    document.querySelectorAll('.chip').forEach(c => {
+      c.style.background = dark ? c.dataset.d : c.dataset.l;
+    });
+    document.querySelectorAll('.sw-val').forEach(v => {
+      v.textContent = dark ? v.dataset.d : v.dataset.l;
+    });
+  }
+  paintSwatches();
+  btn.addEventListener('click', paintSwatches);
+
+  // ---- Palettes ----
+  const palLight = ["#0A84FF","#30D158","#FF9F0A","#FF453A","#5E5CE6","#64D2FF","#FFD60A","#BF5AF2","#34C759","#FF375F","#8E8E93","#AC8E68"];
+  const palDark  = ["#64D2FF","#32D74B","#FFB340","#FF6961","#7D7AFF","#5DE6FF","#FFE066","#D28CFF","#5EE38A","#FF6482","#AEAEB2","#C7A97D"];
+  const palGray  = ["#E5E5EA","#D1D1D6","#AEAEB2","#8E8E93","#636366","#48484A","#3A3A3C","#2C2C2E","#1C1C1E"];
+  function renderPalette(id, arr) {
+    document.getElementById(id).innerHTML = arr.map(c =>
+      `<div class="cell" style="background:${c}" title="${c}"></div>`).join('');
+  }
+  renderPalette('palLight', palLight);
+  renderPalette('palDark', palDark);
+  renderPalette('palGray', palGray);
+
+  // ---- Type scale ----
+  const sizes = [
+    [30, 'Display / hero balance', 800, -0.8],
+    [28, 'Screen title', 800, -0.5],
+    [24, 'Section heading', 700, -0.4],
+    [22, 'Card title', 700, -0.3],
+    [20, 'Subtitle', 700, -0.2],
+    [18, 'Emphasis body', 600, 0],
+    [17, 'List amount', 700, -0.3],
+    [16, 'Body (default)', 600, 0],
+    [15, 'Secondary body', 500, 0],
+    [14, 'Label', 600, 0.2],
+    [13, 'Caption', 500, 0.2],
+    [12, 'Footnote', 600, 0.4],
+    [11, 'Micro label', 600, 0.6],
+  ];
+  document.getElementById('typeScale').innerHTML = sizes.map(([s, role, w, ls]) => `
+    <div class="type-row">
+      <div class="tag">${s}px</div>
+      <div class="sample" style="font-size:${s}px; font-weight:${w}; letter-spacing:${ls}px;">${role}</div>
+    </div>`).join('');
+
+  // ---- Spacing ----
+  const spaces = [2,4,6,8,10,12,14,16,18,20,32];
+  document.getElementById('spacingScale').innerHTML = spaces.map(s => `
+    <div class="space-row">
+      <div class="lbl">${s}</div>
+      <div class="bar" style="width:${s * 6}px"></div>
+    </div>`).join('');
+
+  // ---- Radii ----
+  const radii = [6,12,14,16,20,24,999];
+  document.getElementById('radiiRow').innerHTML = radii.map(r => `
+    <div class="box">
+      <div class="sq" style="border-radius:${r === 999 ? 999 : r}px"></div>
+      <div class="lbl">${r === 999 ? 'pill' : r + 'px'}</div>
+    </div>`).join('');
+
+  // ---- Icons (representative sample with glyph stand-ins) ----
+  const icons = [
+    ['◉','accounting'],['▦','statistics'],['⚙','settings'],['✕','close'],
+    ['↑','arrow-up'],['↓','arrow-down'],['✎','pencil'],['🗑','trash'],
+    ['☁','cloud'],['⤒','cloud-upload'],['⤓','cloud-download'],['↻','refresh'],
+    ['✦','sparkles'],['🛒','cart'],['🎤','mic'],['🌐','language'],
+    ['📅','calendar'],['📈','trending-up'],['📉','trending-down'],['⊕','add-circle'],
+    ['⊖','remove-circle'],['⌖','scan'],['◌','circle'],['⊘','alert-circle'],
+  ];
+  document.getElementById('iconGrid').innerHTML = icons.map(([g,n]) => `
+    <div class="i"><div class="gly">${g}</div><div class="nm">${n}</div></div>`).join('');
+</script>
+</body>
+</html>

@@ -3,7 +3,23 @@
  */
 import { toDisplayDate } from "./date-utils";
 
-export type ResolvedLanguage = "en" | "zh" | "es" | "fr" | "de" | "ja";
+export type ResolvedLanguage =
+  | "en"
+  | "zh"
+  | "es"
+  | "fr"
+  | "de"
+  | "ja"
+  | "hi"
+  | "pt"
+  | "ru"
+  | "id"
+  | "ko"
+  | "it"
+  | "tr"
+  | "vi"
+  | "th"
+  | "pl";
 
 /**
  * Locale mapping for date/time formatting
@@ -15,6 +31,16 @@ export const LOCALE_MAP: Record<ResolvedLanguage, string> = {
   fr: "fr-FR",
   de: "de-DE",
   ja: "ja-JP",
+  hi: "hi-IN",
+  pt: "pt-BR",
+  ru: "ru-RU",
+  id: "id-ID",
+  ko: "ko-KR",
+  it: "it-IT",
+  tr: "tr-TR",
+  vi: "vi-VN",
+  th: "th-TH",
+  pl: "pl-PL",
 };
 
 /**

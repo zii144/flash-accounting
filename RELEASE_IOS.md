@@ -76,6 +76,23 @@ npm run verify:ios:env
 
 ## Every Release Checklist
 
+Use the streamlined CLI for most steps:
+
+```bash
+npm run release:ios:testflight   # check → archive → upload to App Store Connect
+```
+
+Individual commands:
+
+```bash
+npm run release:ios:check      # deps, typecheck, tests, env verification
+npm run release:ios:bump         # increment build number in app.json + Info.plist
+npm run release:ios:archive      # xcodebuild Release archive
+npm run release:ios:upload       # export + upload latest archive to TestFlight
+```
+
+Manual Xcode archive remains supported (see step 6 below) if you prefer Organizer.
+
 ### 1. Start Clean
 
 Review local changes and make sure the release branch contains only intentional work:

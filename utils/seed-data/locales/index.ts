@@ -6,7 +6,9 @@ import { JA_SEED_LOCALE } from "./ja";
 import { ZH_SEED_LOCALE } from "./zh";
 import type { SeedLocale, SeedLocaleDefinition } from "../types";
 
-export const SEED_LOCALE_DEFINITIONS: Record<SeedLocale, SeedLocaleDefinition> = {
+// Demo-seed data is a dev tool and only ships for the original locales.
+// Languages without a definition fall back to the English merchant set.
+export const SEED_LOCALE_DEFINITIONS: Partial<Record<SeedLocale, SeedLocaleDefinition>> = {
   en: EN_SEED_LOCALE,
   zh: ZH_SEED_LOCALE,
   es: ES_SEED_LOCALE,
@@ -16,5 +18,5 @@ export const SEED_LOCALE_DEFINITIONS: Record<SeedLocale, SeedLocaleDefinition> =
 };
 
 export function getSeedLocaleDefinition(locale: SeedLocale): SeedLocaleDefinition {
-  return SEED_LOCALE_DEFINITIONS[locale];
+  return SEED_LOCALE_DEFINITIONS[locale] ?? EN_SEED_LOCALE;
 }

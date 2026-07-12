@@ -26,6 +26,11 @@ import {
 
 export type { ProPlan, StoragePlanId };
 
+type PaywallPresentationResult = {
+  result: PAYWALL_RESULT;
+  storagePlanId: StoragePlanId | null;
+};
+
 type ProContextValue = {
   storagePlanId: StoragePlanId;
   isPro: boolean;
@@ -43,7 +48,7 @@ type ProContextValue = {
   recommendedPlusPrice: string;
   purchasePro: (plan: ProPlan) => Promise<void>;
   purchasePlus: () => Promise<void>;
-  presentPaywall: () => Promise<PAYWALL_RESULT>;
+  presentPaywall: () => Promise<PaywallPresentationResult>;
   restorePurchases: () => Promise<void>;
   refreshEntitlements: () => Promise<void>;
   enableProDebug: () => Promise<void>;
@@ -154,18 +159,23 @@ export function ProProvider({ children }: { children: React.ReactNode }) {
     setIsBusy(true);
     try {
       const result = await presentRevenueCatPaywall(preferredPaywallLocale);
+      let nextStoragePlanId: StoragePlanId | null = null;
 
       if (result === PAYWALL_RESULT.PURCHASED || result === PAYWALL_RESULT.RESTORED) {
         const nextState = await fetchRevenueCatState();
         setCustomerInfo(nextState.customerInfo);
         setOffering(nextState.offering);
+        nextStoragePlanId = resolveStoragePlan(nextState.customerInfo, {
+          proEntitlementId: config?.proEntitlementId ?? "cloud_sync_pro",
+          plusEntitlementId: config?.plusEntitlementId ?? "local_unlimited",
+        });
       }
 
-      return result;
+      return { result, storagePlanId: nextStoragePlanId };
     } finally {
       setIsBusy(false);
     }
-  }, [preferredPaywallLocale]);
+  }, [config?.plusEntitlementId, config?.proEntitlementId, preferredPaywallLocale]);
 
   const refreshEntitlements = useCallback(async () => {
     await syncRevenueCatState();
