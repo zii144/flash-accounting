@@ -844,6 +844,7 @@ export function SettingsScreen() {
             </View>
 
             <TouchableOpacity
+              testID="settings-language-row"
               style={[styles.settingItem, { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth }]}
               onPress={handleLanguagePress}
             >
@@ -919,6 +920,7 @@ export function SettingsScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
+                testID="seed-demo-button"
                 style={[
                   styles.settingItem,
                   { borderTopColor: theme.border, borderTopWidth: StyleSheet.hairlineWidth },

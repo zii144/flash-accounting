@@ -298,7 +298,8 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
                 value={amount}
                 onChangeText={handleAmountChange}
                 keyboardType="decimal-pad"
-                autoFocus
+                autoFocus={process.env.EXPO_PUBLIC_CAPTURE !== "1"}
+                testID="amount-input"
               />
               {amountError ? (
                 <Text style={[styles.errorText, { color: theme.foreground }]}>
@@ -321,6 +322,7 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
                   placeholderTextColor={theme.textSecondary}
                   value={description}
                   onChangeText={handleDescriptionChange}
+                  testID="description-input"
                   returnKeyType="done"
                   onSubmitEditing={() => {
                     const numericAmount = parseAmountInput(amount);
@@ -427,6 +429,7 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
               disabled={isSubmitDisabled}
               contentStyle={styles.submitButtonContent}
               accessibilityLabel={t("addExpense")}
+              testID="add-expense-button"
             >
               <View style={styles.submitIconSlot}>
                 <SymbolIcon
@@ -455,6 +458,7 @@ export function ConsumptionForm({ onSubmit, history = [] }: ConsumptionFormProps
               disabled={isSubmitDisabled}
               contentStyle={styles.submitButtonContent}
               accessibilityLabel={t("addIncome")}
+              testID="add-income-button"
             >
               <View style={styles.submitIconSlot}>
                 <SymbolIcon

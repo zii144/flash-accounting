@@ -1,6 +1,6 @@
 # Current caveats and next development period
 
-Last updated: 2026-04-27
+Last updated: 2026-07-11 (originally 2026-04-27)
 
 This document describes the **actual current state** of the codebase, the main caveats that still exist, and a recommended plan for the next development period.
 
@@ -14,8 +14,9 @@ Use this document as the source of truth for implementation status. Some higher-
 - Add / edit / delete records
 - Paginated accounting history
 - Statistics screen with time filters, sort modes, grouped daily history, and net totals
-- CSV export
-- Language selection and localization
+- Diagram screen with pie/treemap/bar/line chart modes, tap-to-detail category breakdowns, and custom date ranges
+- CSV import and export
+- Language selection and localization (16 languages plus a device/system option)
 - Dark / light theme support
 - Error boundary and basic structured logging
 - Free local storage limit (`500` records)
@@ -28,25 +29,25 @@ Use this document as the source of truth for implementation status. Some higher-
 - Purchase and restore entry points in Settings
 - Apple sign-in path in Settings
 
-### Implemented in architecture, but not active in the current local-safe build
+### Provider sign-in status
 
-- Google sign-in
-- Facebook sign-in
+- Apple sign-in — live (iOS, native module)
+- Google sign-in — live via native OAuth redirect (authorization code + PKCE through `expo-auth-session`)
+- Facebook sign-in — wired through the same safely-loaded flow but still gated behind runtime availability checks
 
-These two were intentionally disabled in the current `Settings` screen implementation because the local development build hit a hard import crash through `expo-auth-session` -> `expo-crypto`. The app now favors a stable local-safe build over partially wired provider UI.
+Google was previously disabled after a local build hit a hard import crash through `expo-auth-session` -> `expo-crypto`; that path has since been resolved and Google sign-in ships. Facebook is the only provider not yet enabled end-to-end.
 
-### Implemented only on web
+### Voice / dictation
 
-- Voice input via Web Speech API
-
-There is no native iOS / Android speech recognition implementation yet.
+- iOS system-keyboard dictation is supported in the description field (mic/speech permissions declared in `app.json`; `utils/dictation-text.ts` normalizes the placeholder text).
+- The in-app `useSpeechRecognition` hook (Web Speech API) is still web-only; there is no in-app native iOS/Android speech-recognition implementation yet.
 
 ## 2. Current caveats
 
 ### 2.1 Auth caveats
 
-- `AuthContext` supports Firebase credential sign-in and sign-out, but only Apple is currently exposed in the `Settings` UI when the native modules and Firebase config are available.
-- Google and Facebook auth are exposed in Settings through safely loaded `expo-auth-session` flows. They still require the matching OAuth client IDs / app ID and provider console setup.
+- `AuthContext` supports Firebase credential sign-in and sign-out; Apple and Google sign-in are exposed in the `Settings` UI when the native modules and Firebase config are available.
+- Google sign-in is live via `expo-auth-session` (native OAuth redirect); Facebook is wired through the same safely-loaded flow but still gated. Both require the matching OAuth client IDs / app ID and provider console setup.
 - Apple sign-in is iOS-only and requires native modules to be present in the local development build.
 - If Firebase env values are missing, auth degrades gracefully to a signed-out local-only experience.
 - Firebase auth persistence is kept simple. There is no explicit custom persistence strategy yet.

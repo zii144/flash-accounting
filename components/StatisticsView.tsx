@@ -279,6 +279,7 @@ export function StatisticsView() {
           size={40}
           onPress={handleSettingsPress}
           accessibilityLabel={t("settings")}
+          testID="settings-button"
         >
           <SymbolIcon name="settings" size={20} color={theme.text} />
         </GlassIconButton>
@@ -422,6 +423,7 @@ export function StatisticsView() {
                 {TIME_FILTERS.map((filter) => (
                   <TouchableOpacity
                     key={filter}
+                    testID={`stat-time-${filter}`}
                     style={[
                       styles.filterButton,
                       timeFilter === filter && {

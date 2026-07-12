@@ -13,6 +13,7 @@ type GlassIconButtonProps = {
   size?: number;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
+  testID?: string;
 };
 
 export function GlassIconButton({
@@ -21,6 +22,7 @@ export function GlassIconButton({
   size = 40,
   style,
   accessibilityLabel,
+  testID,
 }: GlassIconButtonProps) {
   const radius = size / 2;
 
@@ -41,6 +43,7 @@ export function GlassIconButton({
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
+        testID={testID}
         onPress={() => {
           onPress?.();
         }}

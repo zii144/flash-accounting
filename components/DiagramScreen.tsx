@@ -183,6 +183,7 @@ function SegmentControl<T extends string>({
         return (
           <Pressable
             key={option.value}
+            testID={`diagram-mode-${option.value}`}
             onPress={() => onChange(option.value)}
             style={[
               styles.segmentButton,
@@ -828,6 +829,7 @@ export function DiagramScreen() {
           size={40}
           onPress={handleSettingsPress}
           accessibilityLabel={t("settings")}
+          testID="settings-button"
         >
           <SymbolIcon name="settings" size={20} color={theme.text} />
         </GlassIconButton>
@@ -1081,6 +1083,7 @@ export function DiagramScreen() {
             return (
               <Pressable
                 key={datum.label}
+                testID={`legend-row-${index}`}
                 onPress={() => handleCategorySelect(datum.label)}
                 style={[
                   styles.legendRow,
