@@ -6,7 +6,8 @@
 # This intentionally uploads NO binary and NO screenshots. The app binary is
 # still archived and uploaded locally through Xcode (see RELEASE_IOS.md); this
 # only fills the text fields (name, subtitle, promotional text, description,
-# keywords, support URL) shown on the App Store Connect product page.
+# keywords, support/marketing/privacy URLs) shown on the App Store Connect
+# product page. The URLs point at the landing site (website/).
 
 app_identifier("com.zii.flash.accounting")
 
