@@ -76,6 +76,7 @@ npm run web                  # Start the web target
 npm run lint                 # Run Expo ESLint
 npm run typecheck            # Run TypeScript without emitting files
 npm test                     # Run unit tests
+npm run test:e2e             # Maestro smoke test on the iOS Simulator (needs dev client + Metro)
 npm run seed:expenses        # Seed default sample records
 npm run seed:expenses:all    # Seed all localized sample records
 npm run build:ios:sim        # EAS iOS simulator build
@@ -108,6 +109,7 @@ utils/                       # Database, sync, export, validation, env, Firebase
 docs/                        # Firebase, IAP, Sentry, design-system, roadmap, and caveat docs
 scripts/                     # Repo, seed, and release scripts
 captures/preview-kit/        # Maestro-driven iOS Simulator pipeline for App Store preview videos (16 languages)
+.maestro/                    # Maestro E2E smoke flow (npm run test:e2e)
 ios/                         # Checked-in native iOS project (bundle ID com.zii.flash.accounting)
 tests/                       # Node test runner unit tests
 ```
