@@ -110,6 +110,7 @@ scripts/                     # Repo, seed, and release scripts
 captures/preview-kit/        # Maestro-driven iOS Simulator pipeline for App Store preview videos (16 languages)
 ios/                         # Checked-in native iOS project (bundle ID com.zii.flash.accounting)
 tests/                       # Node test runner unit tests
+website/                     # Vite landing site (marketing, privacy policy, terms, support) — see website/README.md
 ```
 
 ## Configuration
@@ -161,6 +162,8 @@ See the setup guides for details:
 - `docs/DESIGN_SYSTEM.md` — design tokens and UI primitives
 - `RELEASE_IOS.md` — local iOS archive, upload, and TestFlight workflow
 - `captures/preview-kit/README.md` — Maestro pipeline that generates the App Store preview videos
+- `fastlane/README.md` — App Store text-metadata automation (name, description, keywords, URLs)
+- `website/README.md` — landing site (GitHub Pages) hosting the marketing page, privacy policy, terms, and support/FAQ
 
 ## Auth, Sync, and Plans
 
