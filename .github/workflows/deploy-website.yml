@@ -2,7 +2,8 @@ name: Deploy website
 
 # Builds website/ (which pulls its copy from fastlane/metadata) and publishes
 # it to GitHub Pages at https://zii144.github.io/flash-accounting/.
-# One-time setup: repo Settings → Pages → Source: GitHub Actions.
+# Requires: repo Settings → Pages → Source: GitHub Actions (public repos, or a
+# plan that includes private Pages).
 on:
   push:
     branches:
@@ -35,6 +36,9 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: website/package-lock.json
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
       - name: Install dependencies
         run: npm ci
