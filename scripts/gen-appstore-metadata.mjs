@@ -13,9 +13,14 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const METADATA_DIR = join(ROOT, "fastlane", "metadata");
 const FORCE = process.argv.includes("--force");
 
-// A support URL is required by Apple. Keep this a real HTTPS URL — the
-// release script refuses to push while REPLACE_ME remains anywhere in metadata.
-const SUPPORT_URL = "https://github.com/zii144/flash-accounting/issues";
+// Public pages served by the landing site (website/ — deployed to GitHub Pages
+// by .github/workflows/deploy-website.yml). Apple requires the support and
+// privacy URLs to be public HTTPS pages (precheck GETs them), and the release
+// script refuses to push while REPLACE_ME remains anywhere in metadata.
+const WEBSITE_BASE = "https://zii144.github.io/flash-accounting";
+const SUPPORT_URL = `${WEBSITE_BASE}/support.html`;
+const MARKETING_URL = `${WEBSITE_BASE}/`;
+const PRIVACY_URL = `${WEBSITE_BASE}/privacy.html`;
 
 const LANG_LIST =
   "English, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Italiano, Português, Русский, हिन्दी, Bahasa Indonesia, Tiếng Việt, ไทย, Türkçe, Polski";
@@ -830,7 +835,11 @@ for (const { asc, copy } of LOCALES) {
   for (const field of PER_LOCALE_FILES) {
     write(join(METADATA_DIR, asc, `${field}.txt`), copy[field]);
   }
+  // URL fields point at the landing site (locale-independent; the site
+  // localizes itself). deliver reads these per locale.
   write(join(METADATA_DIR, asc, "support_url.txt"), SUPPORT_URL);
+  write(join(METADATA_DIR, asc, "marketing_url.txt"), MARKETING_URL);
+  write(join(METADATA_DIR, asc, "privacy_url.txt"), PRIVACY_URL);
 }
 
 for (const [file, value] of Object.entries(GLOBAL_FILES)) {

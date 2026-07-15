@@ -1,0 +1,628 @@
+{
+  "locales": {
+    "en": {
+      "asc": "en-US",
+      "label": "English",
+      "name": "Black White Accounting",
+      "subtitle": "Frictionless expense tracker",
+      "promo": "No big buys this month — so why is your balance down? Log any expense in three seconds. Minimal, private, never nagging.",
+      "hook": "Where did the money go?",
+      "features": [
+        {
+          "title": "Frictionless logging",
+          "body": "Amount, description, done — in about three seconds. No complicated categories, no nagging reminders, no cluttered screen you want to close the moment it opens."
+        },
+        {
+          "title": "Catch the spending you never notice",
+          "body": "Small purchases are the easiest to overlook. Log them and see exactly how much quietly leaked out this month."
+        },
+        {
+          "title": "See the subscription trap",
+          "body": "Record recurring charges as expenses and let the monthly summary surface the subscriptions you forgot you were paying for."
+        },
+        {
+          "title": "Private by default",
+          "body": "Works offline. Your data is stored on your device."
+        },
+        {
+          "title": "Simple statistics",
+          "body": "By day, month, week, or year — your spending patterns at a glance."
+        },
+        {
+          "title": "Dark mode",
+          "body": "Follows your system appearance, easy on the eyes at night."
+        },
+        {
+          "title": "Optional Pro",
+          "body": "Unlock cloud sync to back up your ledger and keep it when you switch phones."
+        }
+      ],
+      "shots": "en"
+    },
+    "zh-Hant": {
+      "asc": "zh-Hant",
+      "label": "繁體中文",
+      "name": "黑白記帳",
+      "subtitle": "零摩擦記帳，追蹤無感消費",
+      "promo": "這個月沒大買，戶頭怎麼變少？小額支出、訂閱扣款——無感漏財才是元兇。三秒記一筆，極簡不煩你。Pro 雲端同步，換機不丟帳。",
+      "hook": "錢去哪了？",
+      "features": [
+        {
+          "title": "零摩擦記帳",
+          "body": "金額、描述，三秒完成。沒有複雜分類、沒有惱人提醒、沒有打開就想關的介面。"
+        },
+        {
+          "title": "追蹤無感消費",
+          "body": "小額支出最容易被忽略。記下來，統計頁一眼看清本月無感漏財總額。"
+        },
+        {
+          "title": "訂閱陷阱，看得見",
+          "body": "把固定訂閱記成支出，每月統計幫你揪出訂閱疲勞的寄生蟲。"
+        },
+        {
+          "title": "隱私優先，資料永遠在你手上",
+          "body": "離線可用，只於本機儲存。"
+        },
+        {
+          "title": "極簡統計",
+          "body": "按日、按月、本週、本年——支出模式一目了然。"
+        },
+        {
+          "title": "深色模式",
+          "body": "跟著系統切換，夜間記帳也舒服。"
+        },
+        {
+          "title": "Pro 進階",
+          "body": "解鎖雲端同步，備份帳本，換手機也不丟資料。"
+        }
+      ],
+      "shots": "zh"
+    },
+    "ja": {
+      "asc": "ja",
+      "label": "日本語",
+      "name": "白黒家計簿",
+      "subtitle": "ストレスフリー家計管理",
+      "promo": "大きな買い物はないのに、残高が減る？小さな支出とサブスクを3秒で記録。シンプル・端末内保存・催促なし。",
+      "hook": "お金はどこへ消えた？",
+      "features": [
+        {
+          "title": "ストレスフリーな記録",
+          "body": "金額と内容を入れて完了——約3秒。複雑なカテゴリも、しつこいリマインダーも、開いた瞬間に閉じたくなる画面もありません。"
+        },
+        {
+          "title": "気づかない支出を見える化",
+          "body": "少額ほど見落とされがち。記録すれば、今月どれだけ静かに減ったかがはっきりわかります。"
+        },
+        {
+          "title": "サブスクの罠を把握",
+          "body": "定期課金を支出として残し、月次サマリーで「払い続けていた」サブスクを見つけます。"
+        },
+        {
+          "title": "プライバシー優先",
+          "body": "オフラインで使えます。データは端末内に保存。"
+        },
+        {
+          "title": "シンプルな統計",
+          "body": "日・週・月・年——支出の傾向が一目でわかります。"
+        },
+        {
+          "title": "ダークモード",
+          "body": "システム設定に追従。夜の記録も目にやさしい。"
+        },
+        {
+          "title": "オプションの Pro",
+          "body": "クラウド同期で家計をバックアップ。機種変更後も安心。"
+        }
+      ],
+      "shots": "ja"
+    },
+    "ko": {
+      "asc": "ko",
+      "label": "한국어",
+      "name": "흑백가계부",
+      "subtitle": "마찰 없는 지출 기록",
+      "promo": "큰 지출은 없는데 잔고가 줄었다? 커피·배달·구독을 3초 만에 기록. 미니멀, 기기 저장, 잔소리 없음.",
+      "hook": "돈은 어디로 갔을까요?",
+      "features": [
+        {
+          "title": "마찰 없는 기록",
+          "body": "금액과 내용만 입력하면 끝——약 3초. 복잡한 카테고리도, 성가신 알림도, 열자마자 끄고 싶은 화면도 없습니다."
+        },
+        {
+          "title": "놓치기 쉬운 소비를 포착",
+          "body": "소액일수록 잊기 쉽습니다. 기록하면 이번 달 조용히 빠져나간 금액을 바로 볼 수 있습니다."
+        },
+        {
+          "title": "구독 함정을 확인",
+          "body": "정기 결제를 지출로 남기고, 월별 요약으로 잊고 있던 구독을 찾아냅니다."
+        },
+        {
+          "title": "기본은 프라이빗",
+          "body": "오프라인에서도 사용. 데이터는 기기에 저장됩니다."
+        },
+        {
+          "title": "간단한 통계",
+          "body": "일·주·월·년——소비 패턴을 한눈에."
+        },
+        {
+          "title": "다크 모드",
+          "body": "시스템 설정을 따릅니다. 밤에도 눈이 편합니다."
+        },
+        {
+          "title": "선택적 Pro",
+          "body": "클라우드 동기화로 장부를 백업하고, 기기를 바꿔도 유지합니다."
+        }
+      ],
+      "shots": "en"
+    },
+    "es": {
+      "asc": "es-ES",
+      "label": "Español",
+      "name": "Contabilidad B/N",
+      "subtitle": "Gastos sin fricción",
+      "promo": "¿Sin grandes compras y el saldo baja? Anota cualquier gasto en tres segundos. Mínima, privada y sin avisos molestos.",
+      "hook": "¿A dónde se fue el dinero?",
+      "features": [
+        {
+          "title": "Registro sin fricción",
+          "body": "Importe, descripción y listo — en unos tres segundos. Sin categorías complicadas, sin recordatorios molestos, sin una pantalla que quieras cerrar al abrirla."
+        },
+        {
+          "title": "Detecta lo que no notas",
+          "body": "Los gastos pequeños son los más fáciles de pasar por alto. Anótalos y verás cuánto se filtró en silencio este mes."
+        },
+        {
+          "title": "La trampa de las suscripciones",
+          "body": "Registra cargos recurrentes como gastos y deja que el resumen mensual muestre las suscripciones que seguías pagando sin darte cuenta."
+        },
+        {
+          "title": "Privacidad por defecto",
+          "body": "Funciona sin conexión. Tus datos se guardan en el dispositivo."
+        },
+        {
+          "title": "Estadísticas simples",
+          "body": "Por día, semana, mes o año: tus patrones de gasto de un vistazo."
+        },
+        {
+          "title": "Modo oscuro",
+          "body": "Sigue la apariencia del sistema; cómodo de noche."
+        },
+        {
+          "title": "Pro opcional",
+          "body": "Desbloquea la sincronización en la nube para respaldar tu libro y conservarlo al cambiar de móvil."
+        }
+      ],
+      "shots": "es"
+    },
+    "fr": {
+      "asc": "fr-FR",
+      "label": "Français",
+      "name": "Compta Noir & Blanc",
+      "subtitle": "Dépenses sans friction",
+      "promo": "Pas de gros achats, et pourtant le solde baisse ? Notez une dépense en trois secondes. Minimal, privé, sans relances.",
+      "hook": "Où est passé l'argent ?",
+      "features": [
+        {
+          "title": "Saisie sans friction",
+          "body": "Montant, description, terminé — en environ trois secondes. Pas de catégories complexes, pas de rappels collants, pas d'écran qu'on a envie de fermer aussitôt ouvert."
+        },
+        {
+          "title": "Repérez ce que vous ne voyez pas",
+          "body": "Les petits achats passent le plus facilement. Notez-les et voyez exactement ce qui s'est échappé ce mois-ci."
+        },
+        {
+          "title": "Le piège des abonnements",
+          "body": "Enregistrez les prélèvements récurrents et laissez le résumé mensuel faire apparaître les abonnements que vous payiez encore sans y penser."
+        },
+        {
+          "title": "Privé par défaut",
+          "body": "Fonctionne hors ligne. Vos données restent sur l'appareil."
+        },
+        {
+          "title": "Statistiques simples",
+          "body": "Par jour, semaine, mois ou année — vos habitudes de dépense d'un coup d'œil."
+        },
+        {
+          "title": "Mode sombre",
+          "body": "Suit l'apparence du système, agréable la nuit."
+        },
+        {
+          "title": "Pro en option",
+          "body": "Débloquez la synchro cloud pour sauvegarder votre livre et le garder en changeant de téléphone."
+        }
+      ],
+      "shots": "fr"
+    },
+    "de": {
+      "asc": "de-DE",
+      "label": "Deutsch",
+      "name": "SchwarzWeiß Finanzen",
+      "subtitle": "Ausgaben ohne Reibung",
+      "promo": "Keine großen Käufe — und doch weniger Guthaben? Jede Ausgabe in drei Sekunden. Minimal, privat, ohne Nörgeln.",
+      "hook": "Wohin ist das Geld?",
+      "features": [
+        {
+          "title": "Reibungsloses Erfassen",
+          "body": "Betrag, Beschreibung, fertig — in etwa drei Sekunden. Keine komplizierten Kategorien, keine nervigen Erinnerungen, kein Bildschirm, den du sofort schließen willst."
+        },
+        {
+          "title": "Erkenne Ausgaben, die du übersiehst",
+          "body": "Kleine Käufe vergisst man am leichtesten. Erfasse sie und sieh, wie viel diesen Monat still verschwunden ist."
+        },
+        {
+          "title": "Die Abo-Falle sehen",
+          "body": "Trage wiederkehrende Kosten als Ausgaben ein — die Monatsübersicht zeigt Abos, die du noch zahlst, ohne es zu merken."
+        },
+        {
+          "title": "Privat standardmäßig",
+          "body": "Funktioniert offline. Deine Daten bleiben auf dem Gerät."
+        },
+        {
+          "title": "Einfache Statistiken",
+          "body": "Nach Tag, Woche, Monat oder Jahr — deine Muster auf einen Blick."
+        },
+        {
+          "title": "Dunkelmodus",
+          "body": "Folgt dem Systemdesign, angenehm nachts."
+        },
+        {
+          "title": "Optionales Pro",
+          "body": "Schalte Cloud-Sync frei, um dein Buch zu sichern und beim Handywechsel zu behalten."
+        }
+      ],
+      "shots": "de"
+    },
+    "it": {
+      "asc": "it",
+      "label": "Italiano",
+      "name": "Conti Bianco Nero",
+      "subtitle": "Spese senza attrito",
+      "promo": "Niente grandi acquisti e il saldo scende? Registra una spesa in tre secondi. Minimale, privata, senza sollecitazioni.",
+      "hook": "Dove sono finiti i soldi?",
+      "features": [
+        {
+          "title": "Registrazione senza attrito",
+          "body": "Importo, descrizione, fatto — in circa tre secondi. Niente categorie complicate, niente promemoria insistenti, niente schermata da chiudere appena aperta."
+        },
+        {
+          "title": "Scova ciò che non noti",
+          "body": "Le piccole spese sono le più facili da perdere. Registrale e vedi quanto è filtrato via in silenzio questo mese."
+        },
+        {
+          "title": "La trappola degli abbonamenti",
+          "body": "Segna i costi ricorrenti come spese e lascia che il riepilogo mensile mostri gli abbonamenti che stavi ancora pagando."
+        },
+        {
+          "title": "Privata di default",
+          "body": "Funziona offline. I dati restano sul dispositivo."
+        },
+        {
+          "title": "Statistiche semplici",
+          "body": "Per giorno, settimana, mese o anno — i tuoi pattern a colpo d'occhio."
+        },
+        {
+          "title": "Modalità scura",
+          "body": "Segue l'aspetto di sistema, comoda di notte."
+        },
+        {
+          "title": "Pro opzionale",
+          "body": "Sblocca la sync cloud per eseguire il backup del registro e tenerlo cambiando telefono."
+        }
+      ],
+      "shots": "en"
+    },
+    "pt": {
+      "asc": "pt-BR",
+      "label": "Português",
+      "name": "Conta Preto e Branco",
+      "subtitle": "Gastos sem atrito",
+      "promo": "Sem grandes compras e o saldo caiu? Lance qualquer gasto em três segundos. Minimalista, privada e sem cobranças.",
+      "hook": "Para onde foi o dinheiro?",
+      "features": [
+        {
+          "title": "Lançamento sem atrito",
+          "body": "Valor, descrição, pronto — em cerca de três segundos. Sem categorias complicadas, sem lembretes chatos, sem tela que dá vontade de fechar na hora."
+        },
+        {
+          "title": "Pegue o que você não nota",
+          "body": "Gastos pequenos são os mais fáceis de ignorar. Lance-os e veja quanto vazou em silêncio neste mês."
+        },
+        {
+          "title": "A armadilha das assinaturas",
+          "body": "Registre cobranças recorrentes como gastos e deixe o resumo mensal mostrar as assinaturas que você ainda pagava."
+        },
+        {
+          "title": "Privada por padrão",
+          "body": "Funciona offline. Seus dados ficam no aparelho."
+        },
+        {
+          "title": "Estatísticas simples",
+          "body": "Por dia, semana, mês ou ano — seus padrões de gasto de um olhar."
+        },
+        {
+          "title": "Modo escuro",
+          "body": "Segue a aparência do sistema; confortável à noite."
+        },
+        {
+          "title": "Pro opcional",
+          "body": "Desbloqueie a sincronização na nuvem para fazer backup do livro e mantê-lo ao trocar de celular."
+        }
+      ],
+      "shots": "en"
+    },
+    "ru": {
+      "asc": "ru",
+      "label": "Русский",
+      "name": "Чёрно-белый учёт",
+      "subtitle": "Расходы без трения",
+      "promo": "Крупных покупок нет, а баланс тает? Любой расход за три секунды. Минимум, на устройстве, без напоминаний.",
+      "hook": "Куда ушли деньги?",
+      "features": [
+        {
+          "title": "Запись без трения",
+          "body": "Сумма, описание — готово примерно за три секунды. Без сложных категорий, навязчивых напоминаний и экрана, который хочется закрыть сразу."
+        },
+        {
+          "title": "Ловите то, что не замечаете",
+          "body": "Мелкие траты проще всего упустить. Запишите их и увидите, сколько тихо утекло за месяц."
+        },
+        {
+          "title": "Ловушка подписок",
+          "body": "Фиксируйте регулярные списания как расходы — месячная сводка покажет подписки, которые вы всё ещё оплачивали."
+        },
+        {
+          "title": "Приватность по умолчанию",
+          "body": "Работает офлайн. Данные хранятся на устройстве."
+        },
+        {
+          "title": "Простая статистика",
+          "body": "По дням, неделям, месяцам или годам — ваши привычки с первого взгляда."
+        },
+        {
+          "title": "Тёмная тема",
+          "body": "Следует системному оформлению, комфортна ночью."
+        },
+        {
+          "title": "Опциональный Pro",
+          "body": "Откройте облачную синхронизацию, чтобы сохранить книгу и не потерять её при смене телефона."
+        }
+      ],
+      "shots": "en"
+    },
+    "hi": {
+      "asc": "hi",
+      "label": "हिन्दी",
+      "name": "ब्लैक व्हाइट हिसाब",
+      "subtitle": "बिना झंझट खर्च ट्रैक",
+      "promo": "बड़ी खरीद नहीं, फिर भी बैलेंस घटा? कोई भी खर्च तीन सेकंड में लिखें। सरल, निजी, बिना परेशान किए।",
+      "hook": "पैसे कहाँ गए?",
+      "features": [
+        {
+          "title": "बिना झंझट रिकॉर्ड",
+          "body": "राशि, विवरण, हो गया — लगभग तीन सेकंड में। जटिल श्रेणियाँ नहीं, परेशान करने वाले रिमाइंडर नहीं, खोलते ही बंद करने वाला स्क्रीन नहीं।"
+        },
+        {
+          "title": "जो नज़र नहीं आता, उसे पकड़ें",
+          "body": "छोटे खर्च सबसे आसानी से छूटते हैं। लिखें और देखें कि इस महीने चुपचाप कितना निकल गया।"
+        },
+        {
+          "title": "सब्सक्रिप्शन का जाल",
+          "body": "आवर्ती कटौती को खर्च के रूप में रखें — मासिक सारांश उन सब्सक्रिप्शन को दिखाएगा जो आप भूलकर भी चुका रहे थे।"
+        },
+        {
+          "title": "डिफ़ॉल्ट रूप से निजी",
+          "body": "ऑफ़लाइन काम करता है। डेटा आपके डिवाइस पर रहता है।"
+        },
+        {
+          "title": "सरल आँकड़े",
+          "body": "दिन, सप्ताह, महीने या साल — खर्च की आदतें एक नज़र में।"
+        },
+        {
+          "title": "डार्क मोड",
+          "body": "सिस्टम दिखावट के अनुसार; रात में आँखों के अनुकूल।"
+        },
+        {
+          "title": "वैकल्पिक Pro",
+          "body": "क्लाउड सिंक से बही का बैकअप लें और फ़ोन बदलने पर भी रखें।"
+        }
+      ],
+      "shots": "en"
+    },
+    "id": {
+      "asc": "id",
+      "label": "Bahasa Indonesia",
+      "name": "Akuntansi Hitam Putih",
+      "subtitle": "Catat belanja tanpa ribet",
+      "promo": "Tak ada belanja besar, saldo tetap turun? Catat pengeluaran dalam tiga detik. Minimal, privat, tanpa mengganggu.",
+      "hook": "Uang pergi ke mana?",
+      "features": [
+        {
+          "title": "Pencatatan tanpa gesekan",
+          "body": "Jumlah, deskripsi, selesai — sekitar tiga detik. Tanpa kategori rumit, tanpa pengingat mengganggu, tanpa layar yang ingin langsung ditutup."
+        },
+        {
+          "title": "Tangkap yang tak sempat kamu sadari",
+          "body": "Belanja kecil paling mudah terlewat. Catat dan lihat berapa yang diam-diam bocor bulan ini."
+        },
+        {
+          "title": "Jebakan langganan",
+          "body": "Catat tagihan berulang sebagai pengeluaran — ringkasan bulanan menampilkan langganan yang masih kamu bayar tanpa sadar."
+        },
+        {
+          "title": "Privat secara bawaan",
+          "body": "Bisa offline. Datamu disimpan di perangkat."
+        },
+        {
+          "title": "Statistik sederhana",
+          "body": "Per hari, minggu, bulan, atau tahun — pola belanja sekilas."
+        },
+        {
+          "title": "Mode gelap",
+          "body": "Mengikuti tampilan sistem, nyaman di malam hari."
+        },
+        {
+          "title": "Pro opsional",
+          "body": "Buka sinkronisasi cloud untuk cadangkan buku dan tetap aman saat ganti ponsel."
+        }
+      ],
+      "shots": "en"
+    },
+    "vi": {
+      "asc": "vi",
+      "label": "Tiếng Việt",
+      "name": "Sổ Đen Trắng",
+      "subtitle": "Ghi chi tiêu không ma sát",
+      "promo": "Không mua lớn mà số dư vẫn giảm? Ghi mọi khoản trong ba giây. Tối giản, riêng tư, không làm phiền.",
+      "hook": "Tiền đi đâu rồi?",
+      "features": [
+        {
+          "title": "Ghi nhanh không ma sát",
+          "body": "Số tiền, mô tả, xong — khoảng ba giây. Không danh mục phức tạp, không nhắc nhở dai dẳng, không màn hình muốn đóng ngay khi mở."
+        },
+        {
+          "title": "Bắt được khoản bạn không để ý",
+          "body": "Chi nhỏ dễ bị bỏ qua nhất. Ghi lại để thấy tháng này đã “rò” bao nhiêu trong im lặng."
+        },
+        {
+          "title": "Bẫy đăng ký",
+          "body": "Ghi các khoản định kỳ thành chi tiêu — tóm tắt tháng sẽ lộ những gói bạn vẫn đang trả mà quên."
+        },
+        {
+          "title": "Riêng tư mặc định",
+          "body": "Dùng offline được. Dữ liệu lưu trên máy."
+        },
+        {
+          "title": "Thống kê đơn giản",
+          "body": "Theo ngày, tuần, tháng hoặc năm — thói quen chi tiêu nhìn một cái là rõ."
+        },
+        {
+          "title": "Chế độ tối",
+          "body": "Theo giao diện hệ thống, dễ chịu về đêm."
+        },
+        {
+          "title": "Pro tùy chọn",
+          "body": "Mở đồng bộ đám mây để sao lưu sổ và giữ khi đổi máy."
+        }
+      ],
+      "shots": "en"
+    },
+    "th": {
+      "asc": "th",
+      "label": "ไทย",
+      "name": "บัญชีขาวดำ",
+      "subtitle": "จดรายจ่ายไร้แรงเสียดทาน",
+      "promo": "ไม่ได้ซื้อของใหญ่ ทำไมยอดลด? จดรายจ่ายในสามวินาที มินิมอล ส่วนตัว ไม่กวนใจ",
+      "hook": "เงินหายไปไหน?",
+      "features": [
+        {
+          "title": "จดเร็วไร้แรงเสียดทาน",
+          "body": "จำนวน คำอธิบาย เสร็จ — ประมาณสามวินาที ไม่มีหมวดซับซ้อน ไม่มีการเตือนกวนใจ ไม่มีหน้าจอที่อยากปิดทันทีที่เปิด"
+        },
+        {
+          "title": "จับรายจ่ายที่มองไม่เห็น",
+          "body": "ของเล็กมักหลุดง่ายที่สุด จดไว้แล้วดูว่าเดือนนี้รั่วไหลเงียบ ๆ ไปเท่าไร"
+        },
+        {
+          "title": "กับดักสมาชิก",
+          "body": "บันทึกค่าใช้จ่ายซ้ำเป็นรายจ่าย ให้สรุปรายเดือนโชว์สมาชิกที่คุณยังจ่ายอยู่โดยไม่รู้ตัว"
+        },
+        {
+          "title": "ความเป็นส่วนตัวเป็นค่าเริ่มต้น",
+          "body": "ใช้แบบออฟไลน์ได้ ข้อมูลเก็บในเครื่อง"
+        },
+        {
+          "title": "สถิติเรียบง่าย",
+          "body": "รายวัน สัปดาห์ เดือน หรือปี — รูปแบบการใช้จ่ายเห็นชัดในพริบตา"
+        },
+        {
+          "title": "โหมดมืด",
+          "body": "ตามระบบ ใช้ง่ายตอนกลางคืน"
+        },
+        {
+          "title": "Pro เสริม",
+          "body": "ปลดล็อกซิงก์คลาวด์ สำรองสมุดบัญชี และเก็บไว้เมื่อเปลี่ยนมือถือ"
+        }
+      ],
+      "shots": "en"
+    },
+    "tr": {
+      "asc": "tr",
+      "label": "Türkçe",
+      "name": "Siyah Beyaz Muhasebe",
+      "subtitle": "Sürtünmesiz harcama takibi",
+      "promo": "Büyük alışveriş yok ama bakiye düştü? Her harcamayı üç saniyede kaydet. Sade, özel, rahatsız etmez.",
+      "hook": "Para nereye gitti?",
+      "features": [
+        {
+          "title": "Sürtünmesiz kayıt",
+          "body": "Tutar, açıklama, bitti — yaklaşık üç saniyede. Karmaşık kategoriler yok, rahatsız edici hatırlatmalar yok, açar açmaz kapatmak istediğiniz ekran yok."
+        },
+        {
+          "title": "Fark etmediğin harcamaları yakala",
+          "body": "Küçük alışverişler en kolay gözden kaçar. Kaydet ve bu ay sessizce ne kadar sızdığını gör."
+        },
+        {
+          "title": "Abonelik tuzağı",
+          "body": "Tekrarlayan ücretleri gider olarak yaz; aylık özet, hâlâ ödediğin abonelikleri ortaya çıkarır."
+        },
+        {
+          "title": "Varsayılan olarak özel",
+          "body": "Çevrimdışı çalışır. Verilerin cihazda kalır."
+        },
+        {
+          "title": "Basit istatistikler",
+          "body": "Gün, hafta, ay veya yıl — harcama alışkanlıkların bir bakışta."
+        },
+        {
+          "title": "Karanlık mod",
+          "body": "Sistem görünümünü izler; geceleri göz yormaz."
+        },
+        {
+          "title": "İsteğe bağlı Pro",
+          "body": "Bulut senkronu ile defterini yedekle, telefon değiştirince de koru."
+        }
+      ],
+      "shots": "en"
+    },
+    "pl": {
+      "asc": "pl",
+      "label": "Polski",
+      "name": "Czarno-białe finanse",
+      "subtitle": "Wydatki bez tarcia",
+      "promo": "Bez dużych zakupów, a saldo spada? Zapisz wydatek w trzy sekundy. Minimalnie, prywatnie, bez nękania.",
+      "hook": "Gdzie podziały się pieniądze?",
+      "features": [
+        {
+          "title": "Zapis bez tarcia",
+          "body": "Kwota, opis, gotowe — w około trzy sekundy. Bez skomplikowanych kategorii, bez natrętnych przypomnień, bez ekranu, który chcesz zamknąć zaraz po otwarciu."
+        },
+        {
+          "title": "Złap to, czego nie zauważasz",
+          "body": "Małe zakupy najłatwiej przeoczyć. Zapisz je i zobacz, ile w tym miesiącu cicho „wyciekało”."
+        },
+        {
+          "title": "Pułapka subskrypcji",
+          "body": "Zapisuj cykliczne opłaty jako wydatki — miesięczne podsumowanie pokaże subskrypcje, które wciąż płaciłeś."
+        },
+        {
+          "title": "Prywatność domyślnie",
+          "body": "Działa offline. Dane zostają na urządzeniu."
+        },
+        {
+          "title": "Proste statystyki",
+          "body": "Dzień, tydzień, miesiąc lub rok — wzorce wydatków w jednym rzucie oka."
+        },
+        {
+          "title": "Tryb ciemny",
+          "body": "Podąża za wyglądem systemu; wygodny w nocy."
+        },
+        {
+          "title": "Opcjonalne Pro",
+          "body": "Odblokuj synchronizację w chmurze, by zrobić kopię księgi i zachować ją przy zmianie telefonu."
+        }
+      ],
+      "shots": "en"
+    }
+  }
+}

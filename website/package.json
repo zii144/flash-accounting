@@ -1,0 +1,17 @@
+{
+  "name": "flash-accounting-website",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync-content.mjs",
+    "assets": "bash scripts/prepare-assets.sh",
+    "dev": "npm run sync && vite",
+    "build": "npm run sync && tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "vite": "^8.1.4"
+  }
+}
