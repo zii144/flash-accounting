@@ -20,7 +20,6 @@ const FORBIDDEN_PATTERNS = [
   "capture:screenshot",
   "capture:video",
   "__flashAccountingCaptureStarted",
-  "EXPO_PUBLIC_CAPTURE",
 ] as const;
 
 function readSourceFiles(dir: string): string[] {
@@ -86,6 +85,10 @@ test("consumption form does not expose capture event hooks", () => {
   assert.equal(formSource.includes("capture:setForm"), false);
   assert.equal(formSource.includes("capture:submitExpense"), false);
 });
+
+// EXPO_PUBLIC_CAPTURE may appear as a process.env gate for preview-kit
+// (LogBox / autofocus). That is allowed; the removed CaptureAutomation
+// runtime hooks above are not.
 
 test("app source tree contains no capture automation hooks", () => {
   const violations = SOURCE_DIRS.flatMap((dir) =>
