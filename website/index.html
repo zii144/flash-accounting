@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Frictionless expense tracker. Log any expense in three seconds. Minimal, private, never nagging." />
+    <link rel="icon" href="./favicon.png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+    <title>Black White Accounting — Frictionless expense tracker</title>
+  </head>
+  <body>
+    <div class="page-glow" aria-hidden="true"></div>
+
+    <header class="nav">
+      <div class="container nav-inner">
+        <a class="brand" href="./">
+          <img src="./icon-192.png" alt="" width="32" height="32" />
+          <span data-brand-name>Black White Accounting</span>
+        </a>
+        <nav class="nav-links">
+          <a href="#features" data-nav-features>Features</a>
+          <a href="#screenshots" data-nav-shots>Screenshots</a>
+          <a href="#languages" data-nav-langs>Languages</a>
+          <a href="./support.html" data-nav-support>Support</a>
+        </nav>
+        <select class="lang-select" data-lang-select aria-label="Language"></select>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero-stage">
+        <div class="hero-atmosphere" aria-hidden="true">
+          <span class="orb orb-a"></span>
+          <span class="orb orb-b"></span>
+          <span class="grid-fade"></span>
+        </div>
+        <div class="container hero">
+          <div class="hero-copy reveal">
+            <p class="brand-lockup" data-brand-name>Black White Accounting</p>
+            <h1 data-hero-hook>Where did the money go?</h1>
+            <p class="subtitle" data-hero-subtitle>Frictionless expense tracker</p>
+            <p class="promo" data-hero-promo>
+              No big buys this month — so why is your balance down? Log any
+              expense in three seconds. Minimal, private, never nagging.
+            </p>
+            <div data-store-badge></div>
+          </div>
+          <div class="hero-visual reveal" data-reveal-delay="120">
+            <div class="phone-orbit" aria-hidden="true"></div>
+            <div class="phone float-phone">
+              <img
+                data-hero-shot
+                src="./shots/en-accounting.png"
+                alt="Black White Accounting main screen"
+                width="520"
+                height="1130"
+                fetchpriority="high"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="container">
+          <h2 class="section-title reveal" data-title-features>Features</h2>
+          <div class="features-grid" data-features-grid></div>
+        </div>
+      </section>
+
+      <section id="screenshots" class="shots-section">
+        <div class="container">
+          <h2 class="section-title reveal" data-title-shots>Screenshots</h2>
+          <div class="shots-row">
+            <div class="phone float-shot reveal" data-reveal-delay="0" style="--float-delay: 0s">
+              <img data-shot="accounting" src="./shots/en-accounting.png" alt="Accounting tab" loading="lazy" width="520" height="1130" />
+            </div>
+            <div class="phone float-shot reveal" data-reveal-delay="100" style="--float-delay: -2.2s; --tilt: -4deg">
+              <img data-shot="statistics" src="./shots/en-statistics.png" alt="Statistics tab" loading="lazy" width="520" height="1130" />
+            </div>
+            <div class="phone float-shot reveal" data-reveal-delay="200" style="--float-delay: -4.1s; --tilt: 5deg">
+              <img data-shot="settings" src="./shots/en-settings.png" alt="Settings screen" loading="lazy" width="520" height="1130" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="languages">
+        <div class="container">
+          <h2 class="section-title reveal" data-title-langs>Languages</h2>
+          <div class="langs-grid reveal" data-langs-grid data-reveal-delay="80"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-links">
+          <a href="./privacy.html" data-footer-privacy>Privacy Policy</a>
+          <a href="./terms.html" data-footer-terms>Terms &amp; Conditions</a>
+          <a href="./support.html" data-footer-support>Support</a>
+        </div>
+        <p>
+          <span data-footer-contact>Contact</span>:
+          <a data-contact-mail href="#">&nbsp;</a>
+        </p>
+        <p data-footer-copyright>© 2026 zii. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
