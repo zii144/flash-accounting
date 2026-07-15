@@ -45,9 +45,11 @@ only — uses `sips`; results are committed, so CI doesn't need it).
 
 `.github/workflows/deploy-website.yml` builds and publishes `website/dist` to
 GitHub Pages (https://zii144.github.io/flash-accounting/) on every push to
-`main` that touches `website/**` or `fastlane/metadata/**`. One-time setup:
-repo **Settings → Pages → Source: GitHub Actions** (requires the repo to be
-public, or a plan with private Pages).
+`main` that touches `website/**` or `fastlane/metadata/**`.
+
+One-time setup (already done for this repo): **Settings → Pages → Source:
+GitHub Actions**. GitHub Pages on the free plan requires a **public**
+repository (private Pages needs a paid plan).
 
 Hosting somewhere else? Set the base path at build time:
 
