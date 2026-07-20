@@ -83,7 +83,9 @@ Triggers on `push` to `main` filtered to `website/**`, `fastlane/metadata/**`, o
 `workflow_dispatch`. `permissions: contents:read, pages:write, id-token:write`; `concurrency: pages,
 cancel-in-progress`. **build** job (Node 22): `configure-pages` → `npm ci` + `npm run build` in `website/` →
 `upload-pages-artifact` from `website/dist`. **deploy** job: `deploy-pages`. Target
-**https://zii144.github.io/flash-accounting/** — the same site backing the store's support/marketing/privacy URLs.
+**https://zii144.github.io/flash-accounting/**. (Since 2026-07-20 the store's support/marketing/privacy URLs point
+at the separate `flash-accounting-landing-page` repo's Pages deployment,
+https://zii144.github.io/flash-accounting-landing-page/ — see `scripts/gen-appstore-metadata.mjs`.)
 
 ## Release command cheatsheet
 

@@ -86,10 +86,15 @@ GitHub Pages.
   `public/` images from the app icon + captured screenshots (committed, so CI needn't run it).
 - **Pages**: `index.html` (localized landing), `privacy.html`/`terms.html`/`support.html` (EN + 繁中; `support` is a
   FAQ covering data storage, CSV backup/restore, cancelling Pro, cloud-sync recovery, changing language, the free
-  record limit). These URLs are referenced by the Fastlane metadata — don't rename without regenerating.
+  record limit).
 - **Deploy**: `.github/workflows/deploy-website.yml` (see [12](12-build-release-cicd.md)) → GitHub Pages at
   **https://zii144.github.io/flash-accounting/**. Post-launch checklist: set `APP_STORE_URL` in `src/config.ts` when
   the app goes live. (Per memory: the app is not yet live as of 2026-07-15, so the badge shows "coming soon".)
+- **Store URLs moved (2026-07-20)**: the Fastlane metadata `marketing_url`/`privacy_url`/`support_url` now point at
+  the separate Next.js landing repo `flash-accounting-landing-page`, deployed to GitHub Pages at
+  **https://zii144.github.io/flash-accounting-landing-page/** (`/privacy/`, `/terms/`, `/data/`, `/support/`).
+  `scripts/gen-appstore-metadata.mjs` (`WEBSITE_BASE`) is the source of truth for those URLs; this `website/`
+  sub-project remains deployed but no longer backs the store links.
 
 ## How it all stays in sync
 
