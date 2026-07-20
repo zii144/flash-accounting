@@ -13,14 +13,15 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const METADATA_DIR = join(ROOT, "fastlane", "metadata");
 const FORCE = process.argv.includes("--force");
 
-// Public pages served by the landing site (website/ — deployed to GitHub Pages
-// by .github/workflows/deploy-website.yml). Apple requires the support and
-// privacy URLs to be public HTTPS pages (precheck GETs them), and the release
-// script refuses to push while REPLACE_ME remains anywhere in metadata.
-const WEBSITE_BASE = "https://zii144.github.io/flash-accounting";
-const SUPPORT_URL = `${WEBSITE_BASE}/support.html`;
+// Public pages served by the landing site (the flash-accounting-landing-page
+// repo — deployed to GitHub Pages by its own deploy workflow). Apple requires
+// the support and privacy URLs to be public HTTPS pages (precheck GETs them),
+// and the release script refuses to push while REPLACE_ME remains anywhere in
+// metadata.
+const WEBSITE_BASE = "https://zii144.github.io/flash-accounting-landing-page";
+const SUPPORT_URL = `${WEBSITE_BASE}/support/`;
 const MARKETING_URL = `${WEBSITE_BASE}/`;
-const PRIVACY_URL = `${WEBSITE_BASE}/privacy.html`;
+const PRIVACY_URL = `${WEBSITE_BASE}/privacy/`;
 
 const LANG_LIST =
   "English, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Italiano, Português, Русский, हिन्दी, Bahasa Indonesia, Tiếng Việt, ไทย, Türkçe, Polski";
