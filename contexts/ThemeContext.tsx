@@ -1,16 +1,27 @@
+import { destructiveHue, neutral } from "@/theme/tokens";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useColorScheme } from "react-native";
 
 type ColorScheme = "light" | "dark";
 
+/**
+ * The SEMANTIC token layer — the adaptive contract every component consumes via
+ * `useTheme()`. Each role maps to a primitive token (see @/theme/tokens) resolved for
+ * the active color scheme. Add a role here (never a raw hex in a component) whenever a
+ * new meaning needs its own light/dark pair.
+ *
+ * Identity note: this is a monochrome-first system. `destructive` is the only hue in the
+ * chrome; income/expense are not roles here — they live only in the chart palettes.
+ */
 export interface Theme {
-  background: string;
-  surface: string;
-  foreground: string;
-  border: string;
-  inputBackground: string;
-  text: string;
-  textSecondary: string;
+  background: string; // App / screen background
+  surface: string; // Cards, sheets, elevated containers
+  foreground: string; // High-emphasis fills; inverse of background (active/selected)
+  border: string; // Dividers, hairline control borders
+  inputBackground: string; // Text fields and inputs
+  text: string; // Primary text
+  textSecondary: string; // Secondary / caption text
+  destructive: string; // Delete / destructive actions — the one reserved hue
   isDark: boolean;
   fadeGradient: readonly [string, string, string, string];
 }
@@ -22,36 +33,38 @@ interface ThemeContextType {
 
 const lightTheme: Theme = {
   // iOS grouped background — gives glass cards room to read as elevated layers
-  background: "#F2F2F7",
-  surface: "#FFFFFF",
-  foreground: "#000000",
-  border: "#D1D1D6",
-  inputBackground: "#FFFFFF",
-  text: "#000000",
-  textSecondary: "#636366",
+  background: neutral.gray50,
+  surface: neutral.white,
+  foreground: neutral.black,
+  border: neutral.gray200,
+  inputBackground: neutral.white,
+  text: neutral.black,
+  textSecondary: neutral.gray500,
+  destructive: destructiveHue.light,
   isDark: false,
   fadeGradient: [
     "rgba(242, 242, 247, 0)",
     "rgba(242, 242, 247, 0.35)",
     "rgba(242, 242, 247, 0.75)",
-    "#F2F2F7",
+    neutral.gray50,
   ],
 };
 
 const darkTheme: Theme = {
-  background: "#000000",
-  surface: "#1C1C1E",
-  foreground: "#FFFFFF",
-  border: "#333333",
-  inputBackground: "#1A1A1A",
-  text: "#FFFFFF",
-  textSecondary: "#98989D",
+  background: neutral.black,
+  surface: neutral.gray900,
+  foreground: neutral.white,
+  border: neutral.gray750,
+  inputBackground: neutral.gray950,
+  text: neutral.white,
+  textSecondary: neutral.gray350,
+  destructive: destructiveHue.dark,
   isDark: true,
   fadeGradient: [
     "rgba(0, 0, 0, 0)",
     "rgba(0, 0, 0, 0.3)",
     "rgba(0, 0, 0, 0.7)",
-    "#000000",
+    neutral.black,
   ],
 };
 
