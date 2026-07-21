@@ -878,12 +878,12 @@ export function SettingsScreen() {
               onPress={handleClearHistory}
             >
               <View style={styles.settingLeft}>
-                <SymbolIcon name="trash" size={22} color="#FF3B30" />
-                <Text style={[styles.settingText, { color: "#FF3B30" }]}>
+                <SymbolIcon name="trash" size={22} color={theme.destructive} />
+                <Text style={[styles.settingText, { color: theme.destructive }]}>
                   {t("clearHistory")}
                 </Text>
               </View>
-              <SymbolIcon name="chevron-forward" size={18} color="#FF3B30" />
+              <SymbolIcon name="chevron-forward" size={18} color={theme.destructive} />
             </TouchableOpacity>
           </GlassContainer>
 
