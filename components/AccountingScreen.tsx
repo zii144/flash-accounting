@@ -2,7 +2,9 @@ import { ConsumptionForm } from "@/components/ConsumptionForm";
 import { ConsumptionItem } from "@/components/ConsumptionItem";
 import { EditConsumptionModal } from "@/components/EditConsumptionModal";
 import { GlassIconButton } from "@/components/glass-icon-button";
+import { Screen } from "@/components/screen";
 import { SymbolIcon } from "@/components/symbol-icon";
+import { Text } from "@/components/text";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePro } from "@/contexts/ProContext";
@@ -24,12 +26,9 @@ import {
     FlatList,
     ListRenderItem,
     Platform,
-    StatusBar,
     StyleSheet,
-    Text,
     View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const PAGE_SIZE = 5;
 
@@ -248,41 +247,44 @@ export function AccountingScreen() {
     () =>
       !isLoading && !isLoadingMore ? (
         <View style={styles.emptyContainer}>
-          <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
+          <Text variant="body" weight="regular" color="textSecondary" style={styles.emptyText}>
             {t("noConsumptionsYet")}
           </Text>
-          <Text style={[styles.emptySubtext, { color: theme.textSecondary }]}>
+          <Text variant="label" weight="regular" color="textSecondary">
             {t("addFirstExpense")}
           </Text>
         </View>
       ) : null,
-    [isLoading, isLoadingMore, t, theme.textSecondary]
+    [isLoading, isLoadingMore, t]
   );
 
   return (
-    <SafeAreaView edges={["top"]} style={[styles.container, { backgroundColor: theme.background }]}>
-      <StatusBar barStyle={theme.isDark ? "light-content" : "dark-content"} />
-
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <Text style={[styles.title, { color: theme.text }]}>{t("flashAccounting")}</Text>
-          <GlassIconButton
-            size={40}
-            onPress={handleSettingsPress}
-            accessibilityLabel={t("settings")}
-            testID="settings-button"
-          >
-            <SymbolIcon name="settings" size={20} color={theme.text} />
-          </GlassIconButton>
-        </View>
+    <Screen
+      title={t("flashAccounting")}
+      titleWeight="bold"
+      headerRight={
+        <GlassIconButton
+          size={40}
+          onPress={handleSettingsPress}
+          accessibilityLabel={t("settings")}
+          testID="settings-button"
+        >
+          <SymbolIcon name="settings" size={20} color={theme.text} />
+        </GlassIconButton>
+      }
+      headerSubtitle={
         <Text
           selectable
-          style={[styles.total, { color: theme.textSecondary, fontVariant: ["tabular-nums"] }]}
+          variant="bodyEmphasis"
+          weight="medium"
+          color="textSecondary"
+          tabularNums
+          style={styles.total}
         >
           {t("total")}: {totalAmount}
         </Text>
-      </View>
-
+      }
+    >
       <ConsumptionForm onSubmit={handleSubmit} history={consumptions} />
 
       <View style={styles.listWrapper}>
@@ -310,7 +312,7 @@ export function AccountingScreen() {
           ListFooterComponent={
             isLoadingMore ? (
               <View style={styles.loadingFooter}>
-                <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
+                <Text variant="label" weight="regular" color="textSecondary">
                   {t("loading") || "Loading..."}
                 </Text>
               </View>
@@ -331,36 +333,13 @@ export function AccountingScreen() {
         onSave={handleEditSave}
         onDelete={handleDelete}
       />
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 24,
-    alignItems: "flex-start",
-  },
-  headerTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    letterSpacing: -0.5,
-    flex: 1,
-  },
   total: {
-    fontSize: 18,
-    fontWeight: "500",
+    // typography via <Text variant="bodyEmphasis" weight="medium">
     alignSelf: "flex-start",
   },
   listWrapper: {
@@ -386,17 +365,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   emptyText: {
-    fontSize: 16,
     marginBottom: 8,
-  },
-  emptySubtext: {
-    fontSize: 14,
   },
   loadingFooter: {
     paddingVertical: 20,
     alignItems: "center",
-  },
-  loadingText: {
-    fontSize: 14,
   },
 });

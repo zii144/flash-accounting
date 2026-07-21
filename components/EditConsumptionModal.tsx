@@ -373,8 +373,8 @@ export function EditConsumptionModal({
                 ]}
                 onPress={handleDelete}
               >
-                <SymbolIcon name="trash" size={18} color="#FF3B30" />
-                <Text style={styles.deleteButtonText}>
+                <SymbolIcon name="trash" size={18} color={theme.destructive} />
+                <Text style={[styles.deleteButtonText, { color: theme.destructive }]}>
                   {t("delete")}
                 </Text>
               </TouchableOpacity>
@@ -523,7 +523,7 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#FF3B30",
+    // color applied inline from theme.destructive
   },
   saveButton: {
     flex: 1,
