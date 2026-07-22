@@ -32,7 +32,9 @@
     "release:ios:upload": "bash scripts/release-ios.sh upload",
     "release:ios:testflight": "bash scripts/release-ios.sh testflight",
     "release:ios:metadata": "bash scripts/release-ios.sh metadata",
+    "release:ios:screenshots": "bash scripts/release-ios.sh screenshots",
     "appstore:metadata:gen": "node scripts/gen-appstore-metadata.mjs",
+    "appstore:screenshots:gen": "node scripts/gen-appstore-screenshots.mjs",
     "submit:android:prod": "eas submit --platform android --profile production"
   },
   "dependencies": {
