@@ -18,6 +18,44 @@ update `metadata.lastUpdated`, update the Document Control block date, and add a
 
 ---
 
+## [1.1.0] — 2026-07-22
+
+**Author:** Zii — developer & architecture manager.
+**Describes:** app v1.0.4 (build 13) — unchanged app version; this release documents subsystems added since v1.0.0
+(the design-system foundation and release/website tooling), `main` branch.
+
+MINOR bump: substantive new sections added (design-system foundation) and material fact corrections; no described
+capability was removed. Reconciliation pass after PRs #9 (design-system foundation) and #10 (store
+metadata/screenshots/website).
+
+### Changed
+
+- **`references/08-design-system.md` — substantially rewritten.** Now documents the **two-layer token model**
+  (`theme/tokens.ts` primitive → `contexts/ThemeContext.tsx` semantic `Theme`), the **monochrome-first** identity
+  (hue reserved to destructive + opt-in accent chart palette; `accent`/`income`/`expense` no longer chrome roles),
+  the `<Text>` and `<Screen>` primitives, the `docs/design-system/` golden-standard governance docs (README + color/
+  typography/spacing-layout), the now-**adaptive `destructive` role** (light `#FF3B30` / dark `#FF453A`), and an
+  explicit **migration-status** section (only `AccountingScreen` fully migrated). Flags the legacy
+  `docs/DESIGN_SYSTEM.md` / `design-tokens.json` / `design-system.html` as stale (pre-monochrome).
+- **`references/09-ui-components.md`** — added a Design-system primitives section (`<Text>`/`<Screen>`); noted
+  `AccountingScreen` as fully migrated; recorded the LanguageSheet/GlossarySheet `edges={["top","bottom"]}` safe-area
+  fix (`accc06f`) and SettingsScreen's Danger action moving to `theme.destructive` (`9370a84`).
+- **`references/12-build-release-cicd.md`** — documented the new **`screenshots`** release subcommand (`release:ios:screenshots`); **rewrote the secrets section**: the ASC `.p8` + `asc_api_key.json` are now git-ignored and absent from git history (the v1.0.0 "committed to the repo" finding no longer holds for the current tree).
+- **`references/13-external-tooling.md`** — added the `scripts/gen-appstore-screenshots.mjs` layout generator; added a **"there are TWO marketing sites"** section distinguishing the in-repo Vite `website/` (`/flash-accounting/`, not store-linked, monochrome-redesigned in `38f59f4`) from the separate untracked Next.js `flash-accounting-landing-page/` (`/flash-accounting-landing-page/`, the **live** store target); noted the native-authored 16-locale metadata refresh (`0994ef2`).
+- **`references/01-product-overview.md`** — updated the "black and white" identity paragraph to reflect the codified whole-chrome monochrome-first system.
+- **`references/15-roadmap-and-caveats.md`** — added the design-system foundation as **in progress**; corrected the security finding; added a new tooling finding (root `tsconfig.json` sweeps in the embedded `flash-accounting-landing-page/`, breaking local `typecheck`/`release:ios:check`); noted `SettingsModal.tsx` holds the last raw `#FF3B30`.
+- **`SKILL.md`** — bumped to v1.1.0 / 2026-07-22; updated the overview paragraph, repo layout (`theme/`, `docs/design-system/`, `flash-accounting-landing-page/`), quick facts (design system, two sites, local typecheck caveat), and commands (screenshots generation).
+
+### Findings recorded this pass (verify independently)
+
+- ✅ The v1.0.0 headline secret-leak finding is **not reproducible** in the current tree/history — the ASC signing key is git-ignored and untracked. Remote-history rotation only prudent if it was ever pushed.
+- ⚠️ New: the untracked embedded `flash-accounting-landing-page/` Next.js project breaks the app's root `npm run typecheck` (246 phantom errors) and thus `release:ios:check`; CI is unaffected. Suggested fix: exclude it in `tsconfig.json`.
+- Quality gates verified passing on `main` at authoring time: `npm test` → 63/63, `npm run lint` clean (root typecheck fails only due to the embedded folder above).
+
+_No application source code was modified by this blueprint update — it is documentation only._
+
+---
+
 ## [1.0.0] — 2026-07-16
 
 **Author:** Zii — developer & architecture manager.

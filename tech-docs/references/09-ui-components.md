@@ -1,9 +1,24 @@
 # 09 — UI Components
 
-`components/` holds the view layer: glass primitives, building blocks, four screens, and two sheet/modal
-patterns. Files split by convention: **PascalCase** for feature components/screens (`AccountingScreen.tsx`),
-**kebab-case** for low-level primitives (`glass-button.tsx`, `symbol-icon.tsx`). See [14](14-conventions-and-agent-skills.md)
-for conventions and [08](08-design-system.md) for the tokens these realize.
+`components/` holds the view layer: design-system + glass primitives, building blocks, four screens, and two
+sheet/modal patterns. Files split by convention: **PascalCase** for feature components/screens
+(`AccountingScreen.tsx`), **kebab-case** for low-level primitives (`glass-button.tsx`, `symbol-icon.tsx`,
+`text.tsx`, `screen.tsx`). See [14](14-conventions-and-agent-skills.md) for conventions and
+[08](08-design-system.md) for the tokens these realize.
+
+## Design-system primitives (PR #9)
+
+- **`<Text>` — `components/text.tsx`** — "the ONLY sanctioned way to render text." Wraps RN `Text`; props `variant`
+  (13-role `typeScale`, default `body`), `weight` (separate axis), `color` (`text`/`textSecondary`/`destructive`/
+  `foreground`/`background`/`inherit`), `tabularNums` (auto for `amount`), `uppercase` (auto for `micro`);
+  Dynamic-Type capped at 1.4×. Screens should never import RN `Text` directly.
+- **`<Screen>` — `components/screen.tsx`** — "the standard route shell": owns the `SafeAreaView` frame (`edges`
+  default `["top"]`), background, status-bar style, and the shared header (`title` via `<Text variant="title">`,
+  `titleWeight`, `headerRight`, `headerSubtitle`, `padded`). New routes compose it instead of hand-building
+  `SafeAreaView` + header.
+
+**Adoption is early** — only `AccountingScreen` is fully migrated onto these; ~13 components still import RN `Text`
+directly. See the migration status in [08](08-design-system.md).
 
 ## Glass primitives
 
@@ -43,8 +58,10 @@ Props `name: AppIconName`, `size` (24), `color` (as `tintColor`). Registry in `u
 ## Screens
 
 ### AccountingScreen — `components/AccountingScreen.tsx`
-Home/ledger tab. `SafeAreaView edges={["top"]}` → header (app-name title 28/700 + settings `GlassIconButton` +
-"Total: $X" line) → `ConsumptionForm` → a `FlatList` of `ConsumptionItem`s with a bottom `LinearGradient` fade
+Home/ledger tab. **The one screen fully migrated to the DS primitives** (commit `af57d0f`, "pixel-preserving
+proof"): composes `<Screen title headerRight headerSubtitle>` (no hand-built SafeAreaView/StatusBar/header) and
+routes all text through `<Text variant/weight/color>`; its `StyleSheet` is now layout-only. Renders header (app-name
+title + settings `GlassIconButton` + "Total: $X" line) → `ConsumptionForm` → a `FlatList` of `ConsumptionItem`s with a bottom `LinearGradient` fade
 (`theme.fadeGradient`). Paginated (`PAGE_SIZE = 5`) with generation-guarded loads, `onEndReached` infinite scroll,
 fixed row height 88, `useFocusEffect` reload. Net total via `useConsumptionStats().getStats("all")`. Hosts
 `EditConsumptionModal`. Optimistic delete.
@@ -72,7 +89,7 @@ The largest screen (~1,200 lines); consumes essentially every context/hook. A `S
 sign-out via `useProviderAuth`), **Storage** (cloud sync status, local-limit meter, upgrade/paywall via
 `usePro().presentPaywall`, restore, sync up/pull down), **Data** (CSV export via `expo-file-system` +
 `expo-sharing`, CSV import, Smart Glossary link), **Appearance** (diagram palette Switch, language row →
-`/select-language`), **Danger** (clear history, `#FF3B30`), and a `__DEV__`-only **Developer** section (toggle
+`/select-language`), **Danger** (clear history, `theme.destructive` — migrated off the raw `#FF3B30` in commit `9370a84`), and a `__DEV__`-only **Developer** section (toggle
 Pro, seed ~150 demo expenses). Content width-capped at `maxWidth: 720`.
 
 ## Sheets & modals — two patterns
@@ -92,8 +109,9 @@ Pro, seed ~150 demo expenses). Content width-capped at `maxWidth: 720`.
 - **GlossarySheet** (`/glossary`) — the Smart Glossary manager; sectioned glass lists (built-in vs custom), same
   floating heavy-glass bottom bar, plus the nested editor modal.
 
-Shared idioms: selective `SafeAreaView` edges; manual grabber view; floating bottom action bar as heavy glass;
-selected states invert to `theme.foreground` bg + `theme.background` text; hairline `theme.border` dividers.
+Shared idioms: selective `SafeAreaView` edges (LanguageSheet + GlossarySheet use `edges={["top","bottom"]}` so the
+header clears the status bar / notch — commit `accc06f`); manual grabber view; floating bottom action bar as heavy
+glass; selected states invert to `theme.foreground` bg + `theme.background` text; hairline `theme.border` dividers.
 
 ## Charts — react-native-svg (all inside DiagramScreen.tsx)
 

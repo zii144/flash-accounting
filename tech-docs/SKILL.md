@@ -6,13 +6,13 @@ description: >-
   local-first, offline-capable personal expense tracker with optional Pro cloud
   sync. Use this skill to understand, reproduce, extend, or audit the app: its
   tech stack, layered architecture, SQLite⇄Firestore sync engine, on-device
-  "smart" heuristics, 16-language i18n, liquid-glass design system, RevenueCat
-  monetization, Firebase auth, testing approach, and the local iOS / EAS / Fastlane
-  / Maestro release toolchain.
+  "smart" heuristics, 16-language i18n, monochrome-first liquid-glass design system
+  (two-layer design tokens), RevenueCat monetization, Firebase auth, testing approach,
+  and the local iOS / EAS / Fastlane / Maestro release toolchain.
 license: Reference documentation for a private project. All rights reserved.
 metadata:
-  version: 1.0.0
-  status: Initial release
+  version: 1.1.0
+  status: Design-system foundation + release-tooling update
   describesApp: v1.0.4 (build 13)
   maintainer: Zii — developer & architecture manager
   author: Zii
@@ -20,7 +20,7 @@ metadata:
   appStoreName: Black White Accounting (黑白記帳)
   bundleId: com.zii.flash.accounting
   created: 2026-07-16
-  lastUpdated: 2026-07-16
+  lastUpdated: 2026-07-22
   sourceCommit: main
 ---
 
@@ -30,11 +30,11 @@ metadata:
 >
 > | Field | Value |
 > |---|---|
-> | Blueprint version | **v1.0.0** |
-> | Status | Initial release |
-> | Date | **2026-07-16** |
+> | Blueprint version | **v1.1.0** |
+> | Status | Design-system foundation + release-tooling update |
+> | Date | **2026-07-22** |
 > | Author / maintainer | **Zii** — developer & architecture manager |
-> | Describes app | v1.0.4 (build 13) — Expo SDK 56 / RN 0.85 / React 19 |
+> | Describes app | v1.0.4 (build 13) — Expo SDK 56 / RN 0.85 / React 19, now incl. the monochrome design-system foundation |
 > | Scope | This `SKILL.md` and every file under `references/` are versioned together as one set. |
 > | Change history | See [`CHANGELOG.md`](CHANGELOG.md) |
 >
@@ -60,7 +60,10 @@ works fully offline with no account. Statistics and diagram screens visualize sp
 (pie / treemap / bar / line charts) with time filters and tap-to-detail category
 breakdowns. Free-text descriptions are auto-categorized by an **on-device heuristic
 glossary engine** (no LLM/ML — see the note below). The app ships in **16 languages**
-plus a follow-system option, uses an iOS-native **"liquid glass"** design language, and
+plus a follow-system option, and uses a **monochrome-first, iOS-native "liquid glass"**
+design language now codified as a two-layer token system (`theme/tokens.ts` → `ThemeContext`)
+governed by golden-standard docs under `docs/design-system/` (see
+[`references/08-design-system.md`](references/08-design-system.md)). It
 monetizes through **RevenueCat**: Basic (free, 500-record local cap) / Plus (lifetime,
 unlimited local) / Pro (subscription, **Firestore cloud sync** for signed-in users).
 Auth is **Firebase** (Apple + Google OAuth). iOS ships via a **local Xcode + Fastlane**
@@ -112,22 +115,26 @@ app/            # expo-router routes (thin wrappers around components/)
   (tabs)/       # Accounting, Statistics, Diagram (native tabs; _layout.web.tsx for web)
   settings.tsx  glossary.tsx  select-language.tsx  index.tsx (redirect)
 components/     # screens + view components + glass UI primitives + sheets/modals
+                # + <Text>/<Screen> design-system primitives (text.tsx, screen.tsx)
 contexts/       # Theme, Language, DiagramAppearance, Glossary, Auth, Pro
+theme/          # tokens.ts — Layer-1 primitive design tokens (monochrome-first), source of truth
 hooks/          # useConsumptionStorage (data engine), useConsumptionStats, useProviderAuth, useSpeechRecognition
 utils/          # db/db-schema, cloud/, sync, firebase, revenuecat*, ledger, validation,
                 # glossary-*, smart-consumption, diagram-data, formatting, date-utils, monitoring, seed-data/
 types/          # Consumption, Glossary domain types
-tests/          # node:test + tsx unit tests (13 files)
-docs/           # design system, Firebase/IAP/Sentry setup, roadmap, caveats
+tests/          # node:test + tsx unit tests (13 files, 63 cases)
+docs/           # design-system/ (golden-standard governance), Firebase/IAP/Sentry setup, roadmap, caveats
 plan/           # pricing + Pro 1+1 entitlement product plans
-scripts/        # release-ios.sh, verify-ios-env.sh, gen-appstore-metadata.mjs, seed/
+scripts/        # release-ios.sh, verify-ios-env.sh, gen-appstore-metadata.mjs, gen-appstore-screenshots.mjs, seed/
 fastlane/       # App Store text-metadata automation (deliver), 16 locales
 .maestro/       # E2E smoke flow (npm run test:e2e)
 captures/preview-kit/   # Maestro + ffmpeg App Store preview-video pipeline (16 langs)
-website/        # Vite marketing site → GitHub Pages
+website/        # Vite marketing site → GitHub Pages (/flash-accounting/)
 ios/  android/  # checked-in native projects (bundle id com.zii.flash.accounting)
 .agents/skills/ # Expo authoring skills for AI coding agents (not runtime)
 .github/workflows/  # quality.yml (lint/typecheck/test), deploy-website.yml (Pages)
+flash-accounting-landing-page/  # SEPARATE untracked Next.js repo — the LIVE store-linked site
+                #   (/flash-accounting-landing-page/); not part of this repo. See references/13.
 ```
 
 ## Quick facts
@@ -137,8 +144,11 @@ ios/  android/  # checked-in native projects (bundle id com.zii.flash.accounting
 - **Runtime:** Expo SDK 56, React Native 0.85.3, React 19.2.3, TypeScript 6, Hermes, New Architecture (Fabric/TurboModules), React Compiler + typed routes enabled.
 - **Local store:** `flash_accounting.db` (expo-sqlite). **Cloud:** Firestore `users/{uid}/consumptions/{id}` (Pro only).
 - **Languages:** en, zh(-Hant), es, fr, de, ja, hi, pt, ru, id, ko, it, tr, vi, th, pl + `device`.
-- **Tests:** 13 files run by Node's built-in test runner via `tsx` (no Jest). CI on Node 22.
+- **Design system:** monochrome-first two-layer tokens — `theme/tokens.ts` (primitive) → `contexts/ThemeContext.tsx` (semantic `Theme`), governed by `docs/design-system/`; `<Text>`/`<Screen>` primitives exist but migration is early (only `AccountingScreen` fully moved). Legacy `docs/DESIGN_SYSTEM.md` / `design-tokens.json` / `design-system.html` are now stale.
+- **Marketing sites (two):** in-repo Vite `website/` → `zii144.github.io/flash-accounting/`; and a **separate untracked Next.js repo** `flash-accounting-landing-page/` → `zii144.github.io/flash-accounting-landing-page/`, which the App Store URLs actually point to.
+- **Tests:** 13 files / 63 cases run by Node's built-in test runner via `tsx` (no Jest). CI on Node 22.
 - **Graceful degradation:** the app boots and works with **no** Firebase, RevenueCat, or Sentry env configured — all optional integrations return null/no-op.
+- **Local caveat:** if the untracked `flash-accounting-landing-page/` folder is present, `npm run typecheck` (and thus `release:ios:check`) fails on phantom errors — the root `tsconfig.json` sweeps it in (`exclude` lists only `node_modules`, `website`). CI is unaffected (folder is untracked). See [`references/15`](references/15-roadmap-and-caveats.md).
 
 ## Common commands
 
@@ -151,5 +161,8 @@ npm test                  # node --import tsx --test tests/*.test.ts
 npm run test:e2e          # maestro test .maestro/smoke.yaml (needs dev client + Metro)
 npm run seed:expenses:all # seed localized demo records
 npm run release:ios:testflight   # local iOS: check → bump → archive → upload
-npm run appstore:metadata:gen    # regenerate App Store text metadata (16 locales)
+npm run release:ios:metadata     # fastlane deliver — App Store text metadata (16 locales)
+npm run release:ios:screenshots  # fastlane deliver — App Store screenshots only
+npm run appstore:metadata:gen    # regenerate App Store text-metadata files (16 locales)
+npm run appstore:screenshots:gen # lay out captures/ into fastlane/screenshots/<locale>/NN_*.png
 ```

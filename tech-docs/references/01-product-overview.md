@@ -50,9 +50,12 @@ implemented — see [15](15-roadmap-and-caveats.md).
 
 ## The "black and white" identity
 
-The name and the default **monochrome** diagram palette reflect a deliberate minimalist,
-iOS-native aesthetic — a translucent "liquid glass" surface language over grayscale-first
-charts, with an optional accent palette. See [08](08-design-system.md).
+The name reflects a deliberate **monochrome-first**, iOS-native aesthetic: as of the 2026-07
+design-system foundation the *entire UI chrome* is built from a single grayscale ramp (not just
+the charts), codified as a two-layer token system (`theme/tokens.ts` → `ThemeContext`). Hue is
+reserved for exactly two jobs — destructive actions and the opt-in accent chart palette — over a
+translucent "liquid glass" surface language. The default diagram palette is likewise monochrome,
+with an optional accent palette. See [08](08-design-system.md).
 
 ## Where to read what
 
