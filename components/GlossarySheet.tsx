@@ -194,7 +194,7 @@ export function GlossarySheet() {
   };
 
   return (
-    <SafeAreaView edges={["bottom"]} style={[styles.container, { backgroundColor: theme.background }]}>
+    <SafeAreaView edges={["top", "bottom"]} style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
         <Text style={[styles.title, { color: theme.text }]}>{t("smartGlossaryTitle")}</Text>
         <Text style={[styles.subtitle, { color: theme.textSecondary }]}>{entrySummary}</Text>
