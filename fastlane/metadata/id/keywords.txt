@@ -1,1 +1,1 @@
-pengeluaran,anggaran,uang,keuangan,tabungan,akuntansi,langganan,tracker,buku,biaya
+pengeluaran,anggaran,catat,dompet,langganan,uang,keuangan,tabungan,minimalis,offline,privasi

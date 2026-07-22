@@ -1,1 +1,1 @@
-harcama,bütçe,para,finans,tasarruf,muhasebe,abonelik,takip,defter,gider
+harcama,gider,masraf,bütçe,abonelik,para,finans,tasarruf,birikim,çevrimdışı,gizlilik

@@ -1,1 +1,1 @@
-expense,budget,money,finance,spending,tracker,ledger,accounting,saving,subscription,bookkeeping
+expense,budget,ghost spending,subscription,tracker,money,finance,minimal,offline,privacy,ledger

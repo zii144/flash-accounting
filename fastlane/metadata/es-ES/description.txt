@@ -1,35 +1,34 @@
-¿A dónde se fue el dinero?
+No has derrochado — entonces, ¿adónde se ha ido el dinero?
 
-Este mes no hubo grandes compras, pero el saldo bajó. Cafés, delivery y suscripciones que se renuevan solas: esos cargos pequeños y olvidables suman mucho más de lo que crees.
+El snack que cogiste al pasar por caja, los 3,99 € de gastos de envío, el taxi por perder el último metro y esa suscripción de 2,99 € que llevas tres años pagando sin darte cuenta: estas fugas invisibles de dinero, y no las grandes compras, son la razón de que tu saldo siga bajando.
 
-Contabilidad B/N está hecha para quienes odian las apps de gastos tradicionales.
+Contabilidad B/N se basa en dos ideas: rastrear los gastos fantasma y registrar sin fricción. Hecha para quienes odian las típicas apps de gastos.
 
-¿Por qué Contabilidad B/N?
+RASTREA LOS GASTOS FANTASMA
+Un café para llevar, un pedido a domicilio, alguna minisuscripción: los gastos fantasma suman mucho más de lo que crees. Anota cada uno y la página de estadísticas te enseña cuánto se te ha escapado este mes sin hacer ruido.
 
-Registro sin fricción
-Importe, descripción y listo — en unos tres segundos. Sin categorías complicadas, sin recordatorios molestos, sin una pantalla que quieras cerrar al abrirla.
+REGISTRO SIN FRICCIÓN
+Importe, descripción y listo — en unos tres segundos. Sin categorías complicadas, sin recordatorios pesados, sin una pantalla que te den ganas de cerrar nada más abrirla. Apuntas y sigues a lo tuyo — tu vida no se interrumpe.
 
-Detecta lo que no notas
-Los gastos pequeños son los más fáciles de pasar por alto. Anótalos y verás cuánto se filtró en silencio este mes.
+DETECTA LA FATIGA DE SUSCRIPCIONES
+Registra los cargos recurrentes como gastos y el resumen mensual te descubre cuántas apps estás manteniendo sin darte cuenta. Ponles un cortafuegos a tus gastos y fulmina las suscripciones parásito.
 
-La trampa de las suscripciones
-Registra cargos recurrentes como gastos y deja que el resumen mensual muestre las suscripciones que seguías pagando sin darte cuenta.
+PRIVACIDAD PRIMERO, EN TU DISPOSITIVO
+Funciona sin conexión. Tus datos se quedan en tu móvil. Empieza sin crear cuenta, exporta una copia en hoja de cálculo cuando quieras, edita o borra cualquier registro: el control es tuyo.
 
-Privacidad por defecto
-Funciona sin conexión. Tus datos se guardan en el dispositivo.
+TRES PASOS PARA RECUPERAR EL CONTROL
+1. Anota en 3 segundos: introduce importe y descripción, toca Gasto o Ingreso.
+2. Ve las fugas: tu libro de cuentas muestra el total neto — los gastos fantasma no tienen dónde esconderse.
+3. Revisa suscripciones y gastos: pasa a Estadísticas, mira por día o mes, filtra esta semana o este mes, ordena por importe o fecha.
 
-Estadísticas simples
-Por día, semana, mes o año: tus patrones de gasto de un vistazo.
+EMPIEZA GRATIS, SINCRONIZA CUANDO QUIERAS
+Gratis: hasta 500 registros en el dispositivo, gastos e ingresos, estadísticas con filtros y orden, exportación a hoja de cálculo, modo oscuro, sin registro.
+Pro: almacenamiento en la nube ilimitado, sube tus registros locales a la nube, restaura desde la nube, conserva tus cuentas al cambiar de móvil, inicio de sesión con Apple opcional, restauración de compras.
 
-Modo oscuro
-Sigue la apariencia del sistema; cómodo de noche.
+16 IDIOMAS
+繁體中文、English、日本語、한국어、Español、Français、Deutsch、Italiano、Português、Русский、हिन्दी、Bahasa Indonesia、Tiếng Việt、ไทย、Türkçe、Polski
 
-Pro opcional
-Desbloquea la sincronización en la nube para respaldar tu libro y conservarlo al cambiar de móvil.
+PRÓXIMAMENTE
+Escaneo de recibos con OCR, exportación a PDF, plantillas de hoja de cálculo, categorización más inteligente.
 
-16 idiomas
-English, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Italiano, Português, Русский, हिन्दी, Bahasa Indonesia, Tiếng Việt, ไทย, Türkçe, Polski
-
-Recupera el control de tu dinero — empezando por ver cada gasto que normalmente se te escapa.
-
-Descarga Contabilidad B/N y empieza a notar a dónde va de verdad tu dinero.
+¿Listo para recuperar el control de tu dinero? Empieza por ver cada gasto que normalmente se te pasaría. Descarga Contabilidad B/N, apunta tu primer gasto en tres segundos y caza todos los fantasmas.

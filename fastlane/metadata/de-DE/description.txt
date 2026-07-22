@@ -1,35 +1,34 @@
-Wohin ist das Geld?
+Nichts Großes gekauft — und trotzdem ist das Geld weg?
 
-Keine großen Käufe in diesem Monat — und trotzdem weniger auf dem Konto. Kaffee, Lieferungen und sich selbst erneuernde Abos: Diese kleinen, vergessenen Beträge summieren sich stärker, als du denkst.
+Der Snack an der Kasse, die Liefergebühr von 3,99 €, der E-Scooter, weil die Bahn gerade weg war, und das iCloud-Abo für 2,99 € im Monat, das seit drei Jahren still abgebucht wird: Diese unsichtbaren Geldlecks — nicht die großen Käufe — lassen dein Konto schrumpfen.
 
-SchwarzWeiß Finanzen ist für alle, die klassische Ausgaben-Apps hassen.
+SchwarzWeiß Finanzen baut auf zwei Ideen: Phantom-Ausgaben aufspüren und reibungsloses Erfassen. Gemacht für alle, die klassische Ausgaben-Apps nicht ausstehen können.
 
-Warum SchwarzWeiß Finanzen?
+PHANTOM-AUSGABEN AUFSPÜREN
+Bubble Tea, Lieferungen, Mini-Abos — Phantom-Ausgaben summieren sich zu weit mehr, als du denkst. Erfasse jede einzelne, und die Statistikseite zeigt, wie viel diesen Monat still versickert ist.
 
-Reibungsloses Erfassen
-Betrag, Beschreibung, fertig — in etwa drei Sekunden. Keine komplizierten Kategorien, keine nervigen Erinnerungen, kein Bildschirm, den du sofort schließen willst.
+REIBUNGSLOSES ERFASSEN
+Betrag, Beschreibung, fertig — in etwa drei Sekunden. Keine komplizierten Kategorien, keine nervigen Erinnerungen, kein überladener Bildschirm, den man sofort wieder schließen will. Erfassen und weitermachen — dein Alltag bleibt ungestört.
 
-Erkenne Ausgaben, die du übersiehst
-Kleine Käufe vergisst man am leichtesten. Erfasse sie und sieh, wie viel diesen Monat still verschwunden ist.
+ABO-MÜDIGKEIT ERKENNEN
+Trage wiederkehrende Zahlungen als Ausgaben ein — die Monatsübersicht zeigt, wie viele Apps du stillschweigend durchfütterst. Errichte eine Ausgaben-Firewall und wirf die Schmarotzer-Abos raus.
 
-Die Abo-Falle sehen
-Trage wiederkehrende Kosten als Ausgaben ein — die Monatsübersicht zeigt Abos, die du noch zahlst, ohne es zu merken.
+PRIVATSPHÄRE ZUERST, LOKAL GESPEICHERT
+Funktioniert offline. Deine Daten bleiben auf deinem Gerät. Starte ohne Konto, exportiere jederzeit ein Tabellen-Backup, bearbeite oder lösche jeden Eintrag — du behältst die Kontrolle.
 
-Privat standardmäßig
-Funktioniert offline. Deine Daten bleiben auf dem Gerät.
+IN DREI SCHRITTEN ZURÜCK ZUR KONTROLLE
+1. In 3 Sekunden erfassen: Betrag und Beschreibung eingeben, auf Ausgabe oder Einnahme tippen.
+2. Lecks sehen: Das Haushaltsbuch zeigt die laufende Nettosumme — Phantom-Ausgaben können sich nirgends mehr verstecken.
+3. Abos und Ausgaben prüfen: Öffne die Statistik — Ansicht nach Tag oder Monat, Filter für diese Woche oder diesen Monat, Sortierung nach Betrag oder Zeit.
 
-Einfache Statistiken
-Nach Tag, Woche, Monat oder Jahr — deine Muster auf einen Blick.
+KOSTENLOS STARTEN, SPÄTER SYNCHRONISIEREN
+Kostenlos: bis zu 500 Einträge auf dem Gerät, Ausgaben- und Einnahmenerfassung, Statistik mit Filtern und Sortierung, Tabellen-Export, Dunkelmodus, keine Anmeldung nötig.
+Pro: unbegrenzter Cloud-Speicher, lokale Einträge in die Cloud übertragen, aus der Cloud wiederherstellen, Haushaltsbuch beim Handywechsel behalten, Anmeldung mit Apple optional, Käufe wiederherstellen.
 
-Dunkelmodus
-Folgt dem Systemdesign, angenehm nachts.
+16 SPRACHEN
+繁體中文、English、日本語、한국어、Español、Français、Deutsch、Italiano、Português、Русский、हिन्दी、Bahasa Indonesia、Tiếng Việt、ไทย、Türkçe、Polski
 
-Optionales Pro
-Schalte Cloud-Sync frei, um dein Buch zu sichern und beim Handywechsel zu behalten.
+BALD VERFÜGBAR
+Beleg-Scan mit OCR, PDF-Export, Tabellenvorlagen, intelligentere Kategorisierung.
 
-16 Sprachen
-English, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Italiano, Português, Русский, हिन्दी, Bahasa Indonesia, Tiếng Việt, ไทย, Türkçe, Polski
-
-Hol dir die Kontrolle über dein Geld zurück — indem du jede Ausgabe siehst, die sonst untergeht.
-
-Lade SchwarzWeiß Finanzen und fang an zu merken, wohin dein Geld wirklich fließt.
+Bereit, dir die Kontrolle über dein Geld zurückzuholen? Fang damit an, jede Ausgabe zu sehen, die du sonst übersiehst. Hol dir SchwarzWeiß Finanzen, erfasse deinen ersten Eintrag in drei Sekunden und schnapp dir jedes Phantom.

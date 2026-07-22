@@ -1,1 +1,1 @@
-wydatki,budżet,pieniądze,finanse,oszczędności,księgowość,subskrypcja,tracker,ledger,koszty
+wydatki,budżet,subskrypcje,pieniądze,finanse,oszczędności,portfel,offline,prywatność

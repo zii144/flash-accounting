@@ -1,1 +1,1 @@
-spese,budget,denaro,finanze,risparmio,contabilità,abbonamento,tracker,registro,soldi
+spese,budget,conti,soldi,abbonamento,denaro,finanze,risparmio,minimal,offline,privacy

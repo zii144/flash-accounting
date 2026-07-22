@@ -1,1 +1,1 @@
-dépenses,budget,argent,finance,épargne,comptabilité,abonnement,suivi,livre,gestion
+dépenses,budget,gestion,compte,abonnement,argent,finance,épargne,minimaliste,hors ligne,privé

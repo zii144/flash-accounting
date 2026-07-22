@@ -1,35 +1,34 @@
-Where did the money go?
+You didn't splurge — so where did the money go?
 
-No big purchases this month, yet your balance still shrank. Coffees, deliveries, and auto-renewing subscriptions — these small, forgettable charges add up to far more than you think.
+The snack you grabbed in the checkout line, the $5.99 delivery fee, the surge-priced ride home, and that $2.99 iCloud plan quietly billing you for three years — these invisible leaks, not big purchases, are why your balance keeps shrinking.
 
-Black White Accounting is built for people who hate traditional expense apps.
+Black White Accounting is built around two ideas: tracking ghost spending and zero-friction logging. Made for people who hate traditional expense apps.
 
-Why Black White Accounting?
+TRACK GHOST SPENDING
+Bubble tea, delivery orders, tiny subscriptions — ghost spending adds up to far more than you think. Log each one and the Statistics page shows exactly how much quietly slipped away this month.
 
-Frictionless logging
-Amount, description, done — in about three seconds. No complicated categories, no nagging reminders, no cluttered screen you want to close the moment it opens.
+ZERO-FRICTION LOGGING
+Amount, note, done — about three seconds. No fiddly categories, no nagging reminders, no cluttered screen you want to close the moment it opens. Log it and get on with your day.
 
-Catch the spending you never notice
-Small purchases are the easiest to overlook. Log them and see exactly how much quietly leaked out this month.
+CATCH SUBSCRIPTION CREEP
+Log recurring charges as expenses and the monthly summary shows just how many apps you're quietly feeding. Then cancel the ones that aren't earning their keep.
 
-See the subscription trap
-Record recurring charges as expenses and let the monthly summary surface the subscriptions you forgot you were paying for.
+PRIVACY FIRST, ON-DEVICE
+Works offline. Your data lives on your device. Start without an account, export a spreadsheet backup anytime, and edit or delete any record — you're in control.
 
-Private by default
-Works offline. Your data is stored on your device.
+TAKE BACK CONTROL IN THREE STEPS
+1. Log it in 3 seconds: type an amount and a note, then tap Expense or Income.
+2. Spot the leaks: the ledger keeps a running net total — ghost spending has nowhere to hide.
+3. Review subscriptions and spending: switch to Statistics, view by day or month, filter by this week or this month, and sort by amount or date.
 
-Simple statistics
-By day, month, week, or year — your spending patterns at a glance.
+START FREE, SYNC WHEN YOU'RE READY
+Free: up to 500 records on your device, expense and income logging, statistics with filters and sorting, spreadsheet export, dark mode, no sign-in required.
+Pro: unlimited cloud storage, back up your local records to the cloud, restore them on any device, keep your ledger when you switch phones, optional Sign in with Apple, and Restore Purchases.
 
-Dark mode
-Follows your system appearance, easy on the eyes at night.
-
-Optional Pro
-Unlock cloud sync to back up your ledger and keep it when you switch phones.
-
-16 languages
+16 LANGUAGES
 English, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Italiano, Português, Русский, हिन्दी, Bahasa Indonesia, Tiếng Việt, ไทย, Türkçe, Polski
 
-Take back control of your money — starting with seeing every expense you'd normally miss.
+COMING SOON
+Receipt scanning with OCR, PDF export, spreadsheet templates, smarter categorization.
 
-Download Black White Accounting and start noticing where your money really goes.
+Ready to find out where your money actually goes? Download Black White Accounting, log your first expense in three seconds, and catch every ghost.

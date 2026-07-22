@@ -1,1 +1,1 @@
-ausgaben,budget,geld,finanzen,sparen,buchhaltung,abo,tracker,haushalt,kosten
+ausgaben,budget,haushaltsbuch,abo,geld,finanzen,sparen,minimalistisch,offline,privatsphäre
