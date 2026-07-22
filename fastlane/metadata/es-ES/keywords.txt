@@ -1,1 +1,1 @@
-gastos,presupuesto,dinero,finanzas,ahorro,contabilidad,suscripción,tracker,ledger,libro
+gastos,presupuesto,gastos fantasma,suscripción,dinero,finanzas,ahorro,minimalista,offline,privacidad

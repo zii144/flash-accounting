@@ -16,7 +16,15 @@ app_identifier("com.zii.flash.accounting")
 # inline PEM `key` field (deliver does not accept key_filepath here).
 api_key_path("fastlane/asc_api_key.json")
 
-# Text only — the binary comes from the local Xcode archive, not from here.
+# Defaults target the TEXT metadata flow (`npm run release:ios:metadata`):
+# text only, no binary, no screenshots. The binary comes from the local Xcode
+# archive, not from here.
+#
+# Screenshots are pushed by a SEPARATE command (`npm run release:ios:screenshots`,
+# i.e. `scripts/release-ios.sh screenshots`), which lays out fastlane/screenshots
+# from captures/ and overrides the two flags below on the CLI with
+# `--skip_metadata true --skip_screenshots false --overwrite_screenshots true`.
+# Keeping them split means a text tweak never re-uploads every screenshot.
 skip_binary_upload(true)
 skip_screenshots(true)
 skip_metadata(false)

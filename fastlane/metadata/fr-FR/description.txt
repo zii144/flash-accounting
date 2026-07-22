@@ -1,35 +1,34 @@
-Où est passé l'argent ?
+Vous n'avez pas fait de folies — alors où est passé l'argent ?
 
-Pas de gros achats ce mois-ci, et pourtant le solde a baissé. Cafés, livraisons et abonnements à renouvellement auto — ces petits montants oubliables s'additionnent bien plus qu'on ne croit.
+Le snack pris à la caisse, les 3,99 € de frais de livraison, la trottinette parce que le bus venait de passer et ce forfait iCloud à 2,99 € par mois prélevé en silence depuis trois ans : ce sont ces fuites d'argent invisibles, pas les gros achats, qui font fondre votre solde.
 
-Compta Noir & Blanc est faite pour ceux qui détestent les apps de dépenses classiques.
+Compta Noir & Blanc repose sur deux idées : la chasse aux dépenses fantômes et la saisie sans friction. Conçue pour celles et ceux qui détestent les applis de budget classiques.
 
-Pourquoi Compta Noir & Blanc ?
+TRAQUEZ LES DÉPENSES FANTÔMES
+Bubble tea, livraisons, petits abonnements : les dépenses fantômes pèsent bien plus lourd que vous ne le pensez. Notez chaque dépense et la page Statistiques montre combien s'est envolé en silence ce mois-ci.
 
-Saisie sans friction
-Montant, description, terminé — en environ trois secondes. Pas de catégories complexes, pas de rappels collants, pas d'écran qu'on a envie de fermer aussitôt ouvert.
+SAISIE SANS FRICTION
+Montant, description, c'est noté — en trois secondes environ. Pas de catégories complexes, pas de rappels envahissants, pas d'écran qu'on referme aussitôt ouvert. Notez et passez à autre chose — votre journée continue.
 
-Repérez ce que vous ne voyez pas
-Les petits achats passent le plus facilement. Notez-les et voyez exactement ce qui s'est échappé ce mois-ci.
+FAITES LE TRI DANS VOS ABONNEMENTS
+Enregistrez les prélèvements récurrents comme dépenses : le résumé mensuel révèle combien d'applis vous nourrissez sans y penser. Dressez un pare-feu anti-dépenses et résiliez les abonnements parasites.
 
-Le piège des abonnements
-Enregistrez les prélèvements récurrents et laissez le résumé mensuel faire apparaître les abonnements que vous payiez encore sans y penser.
+CONFIDENTIALITÉ D'ABORD, SUR VOTRE APPAREIL
+Fonctionne hors ligne. Vos données restent sur votre appareil. Commencez sans compte, exportez une sauvegarde en tableur à tout moment, modifiez ou supprimez chaque enregistrement : vous gardez le contrôle.
 
-Privé par défaut
-Fonctionne hors ligne. Vos données restent sur l'appareil.
+REPRENEZ LA MAIN EN TROIS ÉTAPES
+1. Notez en 3 secondes : saisissez un montant et une description, touchez Dépense ou Revenu.
+2. Voyez les fuites : le livre de comptes affiche le total net — les dépenses fantômes n'ont nulle part où se cacher.
+3. Passez en revue abonnements et dépenses : ouvrez Statistiques, affichez par jour ou par mois, filtrez sur la semaine ou le mois, triez par montant ou par date.
 
-Statistiques simples
-Par jour, semaine, mois ou année — vos habitudes de dépense d'un coup d'œil.
+COMMENCEZ GRATUITEMENT, SYNCHRONISEZ QUAND VOUS VOULEZ
+Gratuit : jusqu'à 500 enregistrements sur l'appareil, dépenses et revenus, statistiques avec filtres et tri, export tableur, mode sombre, sans inscription.
+Pro : stockage cloud illimité, envoi des données locales vers le cloud, restauration depuis le cloud, gardez votre livre de comptes en changeant de téléphone, connexion Apple facultative, restauration des achats.
 
-Mode sombre
-Suit l'apparence du système, agréable la nuit.
+16 LANGUES
+繁體中文、English、日本語、한국어、Español、Français、Deutsch、Italiano、Português、Русский、हिन्दी、Bahasa Indonesia、Tiếng Việt、ไทย、Türkçe、Polski
 
-Pro en option
-Débloquez la synchro cloud pour sauvegarder votre livre et le garder en changeant de téléphone.
+BIENTÔT DISPONIBLE
+Scan de reçus avec OCR, export PDF, modèles de tableur, catégorisation plus intelligente.
 
-16 langues
-English, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Italiano, Português, Русский, हिन्दी, Bahasa Indonesia, Tiếng Việt, ไทย, Türkçe, Polski
-
-Reprenez le contrôle de votre argent — en voyant chaque dépense que vous auriez manquée.
-
-Téléchargez Compta Noir & Blanc et commencez à voir où va vraiment votre argent.
+Prêt à reprendre le contrôle de votre argent ? Commencez par voir chaque dépense qui vous échappe d'habitude. Téléchargez Compta Noir & Blanc, notez votre première dépense en trois secondes et attrapez tous les fantômes.

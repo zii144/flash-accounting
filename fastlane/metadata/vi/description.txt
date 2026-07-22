@@ -1,35 +1,34 @@
-Tiền đi đâu rồi?
+Không tiêu gì lớn — vậy tiền đi đâu hết rồi?
 
-Tháng này không mua gì lớn, vậy mà số dư vẫn giảm. Cà phê, giao hàng và gói đăng ký tự gia hạn — những khoản nhỏ dễ quên cộng lại nhiều hơn bạn nghĩ.
+Món ăn vặt tiện tay lấy ở quầy thu ngân, tiền ship 25.000₫, cuốc xe công nghệ đội giá lúc trời mưa, và gói iCloud 59.000₫ mỗi tháng âm thầm trừ tiền suốt ba năm: chính những khoản rò rỉ vô hình này — chứ không phải món đồ đắt tiền — mới khiến số dư của bạn mỏng dần.
 
-Sổ Đen Trắng dành cho người ghét app chi tiêu truyền thống.
+Sổ Đen Trắng được xây dựng trên hai ý tưởng: truy dấu chi tiêu không tên và ghi chép không rườm rà. Dành cho những ai đã chán ngấy các app chi tiêu kiểu cũ.
 
-Vì sao chọn Sổ Đen Trắng?
+TRUY DẤU CHI TIÊU KHÔNG TÊN
+Trà sữa, đồ ăn đặt ship, mấy gói đăng ký lặt vặt — chi tiêu không tên cộng dồn lại nhiều hơn bạn tưởng. Ghi từng khoản, trang thống kê sẽ cho bạn thấy tháng này đã âm thầm rò rỉ bao nhiêu.
 
-Ghi nhanh không ma sát
-Số tiền, mô tả, xong — khoảng ba giây. Không danh mục phức tạp, không nhắc nhở dai dẳng, không màn hình muốn đóng ngay khi mở.
+GHI CHÉP KHÔNG RƯỜM RÀ
+Số tiền, mô tả, xong — chỉ khoảng ba giây. Không danh mục rắc rối, không nhắc nhở phiền phức, không màn hình rối mắt chỉ muốn thoát ngay khi mở. Ghi xong là thôi — cuộc sống không bị gián đoạn.
 
-Bắt được khoản bạn không để ý
-Chi nhỏ dễ bị bỏ qua nhất. Ghi lại để thấy tháng này đã “rò” bao nhiêu trong im lặng.
+BẮT BỆNH BỘI THỰC ĐĂNG KÝ
+Ghi các khoản trừ định kỳ thành chi tiêu — bản tổng kết hằng tháng sẽ lộ ra bạn đang âm thầm nuôi bao nhiêu app. Dựng hàng rào chi tiêu và cắt phăng những gói đăng ký ký sinh.
 
-Bẫy đăng ký
-Ghi các khoản định kỳ thành chi tiêu — tóm tắt tháng sẽ lộ những gói bạn vẫn đang trả mà quên.
+RIÊNG TƯ TRÊN HẾT, DỮ LIỆU Ở TRÊN MÁY
+Dùng được offline. Dữ liệu chỉ nằm trên máy của bạn. Bắt đầu không cần tài khoản, xuất file bảng tính để sao lưu bất cứ lúc nào, sửa hoặc xóa bất kỳ bản ghi nào — mọi quyền kiểm soát nằm trong tay bạn.
 
-Riêng tư mặc định
-Dùng offline được. Dữ liệu lưu trên máy.
+BA BƯỚC GIÀNH LẠI QUYỀN KIỂM SOÁT
+1. Ghi trong 3 giây: nhập số tiền và mô tả, chạm Chi hoặc Thu.
+2. Thấy rõ chỗ rò: sổ hiển thị tổng ròng — chi tiêu không tên hết chỗ trốn.
+3. Rà soát đăng ký và chi tiêu: mở Thống kê, xem theo ngày hoặc tháng, lọc tuần này hay tháng này, sắp xếp theo số tiền hoặc thời gian.
 
-Thống kê đơn giản
-Theo ngày, tuần, tháng hoặc năm — thói quen chi tiêu nhìn một cái là rõ.
+BẮT ĐẦU MIỄN PHÍ, ĐỒNG BỘ KHI CẦN
+Miễn phí: tối đa 500 bản ghi trên máy, ghi cả chi lẫn thu, thống kê với bộ lọc và sắp xếp, xuất file bảng tính, chế độ tối, không cần đăng nhập.
+Pro: lưu trữ đám mây không giới hạn, đẩy dữ liệu trên máy lên đám mây, khôi phục từ đám mây, đổi máy không mất sổ, tùy chọn đăng nhập bằng Apple, khôi phục giao dịch mua.
 
-Chế độ tối
-Theo giao diện hệ thống, dễ chịu về đêm.
+16 NGÔN NGỮ
+繁體中文、English、日本語、한국어、Español、Français、Deutsch、Italiano、Português、Русский、हिन्दी、Bahasa Indonesia、Tiếng Việt、ไทย、Türkçe、Polski
 
-Pro tùy chọn
-Mở đồng bộ đám mây để sao lưu sổ và giữ khi đổi máy.
+SẮP RA MẮT
+Quét hóa đơn bằng OCR, xuất PDF, mẫu bảng tính, phân loại thông minh hơn.
 
-16 ngôn ngữ
-English, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Italiano, Português, Русский, हिन्दी, Bahasa Indonesia, Tiếng Việt, ไทย, Türkçe, Polski
-
-Lấy lại quyền kiểm soát tiền bạc — bắt đầu từ những khoản thường bị bỏ sót.
-
-Tải Sổ Đen Trắng và bắt đầu nhận ra tiền thật sự đi đâu.
+Sẵn sàng giành lại quyền kiểm soát đồng tiền của mình? Hãy bắt đầu bằng việc nhìn rõ từng khoản chi vẫn hay bị bỏ qua. Tải Sổ Đen Trắng, ghi khoản đầu tiên trong ba giây, và bắt hết những khoản chi không tên.

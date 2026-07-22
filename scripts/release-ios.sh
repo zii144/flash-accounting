@@ -12,6 +12,7 @@ EXPORT_PATH="ios/build/export"
 EXPORT_PLIST="ios/ExportOptions.plist"
 BUNDLE_ID="com.zii.flash.accounting"
 METADATA_DIR="fastlane/metadata"
+SCREENSHOTS_DIR="fastlane/screenshots"
 ASC_KEY="fastlane/asc_api_key.json"
 
 usage() {
@@ -26,13 +27,14 @@ Commands:
   upload      Export and upload the latest archive to App Store Connect
   testflight  Run check + archive + upload (full TestFlight pipeline)
   metadata    Push App Store text metadata (description, keywords, etc.) via fastlane
+  screenshots Regenerate the screenshot layout and push it via fastlane (no text, no binary)
   open        Open the Xcode workspace
 
 Environment:
   SKIP_CHECKS=1     Skip check step in testflight
   SKIP_UPLOAD=1     Archive only; do not upload
   BUILD_NUMBER=N    Set build number explicitly for bump
-  FORCE=1           metadata: skip the HTML preview confirmation (for CI)
+  FORCE=1           metadata/screenshots: skip the HTML preview confirmation (for CI)
 EOF
 }
 
@@ -200,6 +202,44 @@ cmd_metadata() {
   echo "Metadata push submitted. Review in App Store Connect > App Store."
 }
 
+cmd_screenshots() {
+  if ! command -v fastlane >/dev/null 2>&1; then
+    echo "error: fastlane not installed — run: brew install fastlane  (or: gem install fastlane)" >&2
+    exit 1
+  fi
+
+  if [[ ! -f "$ASC_KEY" ]]; then
+    echo "error: missing $ASC_KEY" >&2
+    echo "  Copy fastlane/asc_api_key.example.json to $ASC_KEY and fill in your" >&2
+    echo "  App Store Connect API key (App Store Connect > Users and Access > Integrations)." >&2
+    exit 1
+  fi
+
+  echo "==> Generating screenshot layout from captures/"
+  node scripts/gen-appstore-screenshots.mjs
+
+  if ! find "$SCREENSHOTS_DIR" -mindepth 2 -name '*.png' -print -quit 2>/dev/null | grep -q .; then
+    echo "error: no screenshots generated under $SCREENSHOTS_DIR — check captures/" >&2
+    exit 1
+  fi
+
+  # Screenshots only: no binary, no text metadata. overwrite replaces whatever is
+  # already on the editable version so re-runs are clean. These flags override the
+  # text-only defaults in fastlane/Deliverfile.
+  echo "==> Pushing App Store screenshots (no binary, no text metadata)"
+  local force_flag=()
+  if [[ "${FORCE:-}" == "1" ]]; then
+    force_flag=(--force)
+  fi
+  fastlane deliver \
+    --skip_binary_upload true \
+    --skip_metadata true \
+    --skip_screenshots false \
+    --overwrite_screenshots true \
+    "${force_flag[@]}"
+  echo "Screenshot push submitted. Review in App Store Connect > App Store."
+}
+
 cmd_open() {
   require_workspace
   xed ios
@@ -215,6 +255,7 @@ main() {
     upload) cmd_upload ;;
     testflight) cmd_testflight ;;
     metadata) cmd_metadata ;;
+    screenshots) cmd_screenshots ;;
     open) cmd_open ;;
     ""|-h|--help|help) usage ;;
     *)

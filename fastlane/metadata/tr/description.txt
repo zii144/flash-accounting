@@ -1,35 +1,34 @@
-Para nereye gitti?
+Büyük bir şey almadın — peki para nereye gitti?
 
-Bu ay büyük alışveriş yoktu ama bakiye yine düştü. Kahveler, teslimatlar ve otomatik yenilenen abonelikler — unutulması kolay küçük tutarlar sandığınızdan çok daha fazla birikir.
+Kasada son anda alınan atıştırmalık, paket servisin teslimat ücreti, otobüsü kaçırınca binilen taksi ve üç yıldır sessizce çekilen iCloud aboneliği: bakiyeni eriten şey büyük alışverişler değil, bu görünmez para sızıntıları.
 
-Siyah Beyaz Muhasebe, klasik harcama uygulamalarından nefret edenler için yapıldı.
+Siyah Beyaz Muhasebe iki fikir üzerine kurulu: hayalet harcamaları izlemek ve zahmetsiz kayıt. Geleneksel harcama uygulamalarından bıkanlar için yapıldı.
 
-Neden Siyah Beyaz Muhasebe?
+HAYALET HARCAMALARI İZLE
+Dışarıdan kahve, paket servis, küçük abonelikler — hayalet harcamalar sandığından çok daha fazla tutuyor. Her birini kaydet; istatistik sayfası bu ay sessizce ne kadar sızdığını göstersin.
 
-Sürtünmesiz kayıt
-Tutar, açıklama, bitti — yaklaşık üç saniyede. Karmaşık kategoriler yok, rahatsız edici hatırlatmalar yok, açar açmaz kapatmak istediğiniz ekran yok.
+ZAHMETSİZ KAYIT
+Tutar, açıklama, bitti — üç saniyede. Karmaşık kategoriler yok, bıktıran hatırlatmalar yok, açar açmaz kapatmak istediğin ekran yok. Kaydet ve devam et — hayatın bölünmesin.
 
-Fark etmediğin harcamaları yakala
-Küçük alışverişler en kolay gözden kaçar. Kaydet ve bu ay sessizce ne kadar sızdığını gör.
+ABONELİK YORGUNLUĞUNA SON VER
+Tekrarlayan ödemeleri gider olarak yaz; aylık özet, farkında olmadan kaç uygulamayı beslediğini ortaya çıkarır. Harcamalarına set çek, asalak abonelikleri temizle.
 
-Abonelik tuzağı
-Tekrarlayan ücretleri gider olarak yaz; aylık özet, hâlâ ödediğin abonelikleri ortaya çıkarır.
+ÖNCE GİZLİLİK, VERİLER CİHAZINDA
+Çevrimdışı çalışır. Verilerin cihazında kalır. Hesap açmadan başla, istediğin an tabloya yedek al, her kaydı düzenle veya sil — kontrol sende.
 
-Varsayılan olarak özel
-Çevrimdışı çalışır. Verilerin cihazda kalır.
+KONTROLÜ GERİ ALMANIN ÜÇ ADIMI
+1. 3 saniyede kaydet: tutar ve açıklama gir, Gider veya Gelir'e dokun.
+2. Sızıntıları gör: defter net toplamı gösterir — hayalet harcamaların saklanacak yeri yok.
+3. Abonelikleri ve harcamaları incele: İstatistik'e geç, güne veya aya göre bak, bu haftaya ya da bu aya göre filtrele, tutara veya zamana göre sırala.
 
-Basit istatistikler
-Gün, hafta, ay veya yıl — harcama alışkanlıkların bir bakışta.
+ÜCRETSİZ BAŞLA, HAZIR OLUNCA SENKRONİZE ET
+Ücretsiz: cihazda 500 kayda kadar, gider ve gelir kaydı, filtre ve sıralamalı istatistik, tablo dışa aktarma, karanlık mod, giriş gerekmez.
+Pro: sınırsız bulut depolama, yerel kayıtları buluta gönderme, buluttan geri yükleme, telefon değişiminde defterin korunması, isteğe bağlı Apple ile giriş, satın alımları geri yükleme.
 
-Karanlık mod
-Sistem görünümünü izler; geceleri göz yormaz.
+16 DİL
+繁體中文、English、日本語、한국어、Español、Français、Deutsch、Italiano、Português、Русский、हिन्दी、Bahasa Indonesia、Tiếng Việt、ไทย、Türkçe、Polski
 
-İsteğe bağlı Pro
-Bulut senkronu ile defterini yedekle, telefon değiştirince de koru.
+ÇOK YAKINDA
+OCR ile fiş tarama, PDF dışa aktarma, tablo şablonları, daha akıllı kategoriler.
 
-16 dil
-English, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Italiano, Português, Русский, हिन्दी, Bahasa Indonesia, Tiếng Việt, ไทย, Türkçe, Polski
-
-Paranın kontrolünü geri al — genellikle kaçırdığın her harcamayı görmeye başlayarak.
-
-Siyah Beyaz Muhasebe'yi indir ve paranızın gerçekten nereye gittiğini fark etmeye başla.
+Paranın kontrolünü geri almaya hazır mısın? Normalde gözden kaçırdığın her harcamayı görmekle başla. Siyah Beyaz Muhasebe'yi indir, ilk kaydını üç saniyede gir ve bütün hayaletleri yakala.

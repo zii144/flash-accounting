@@ -4,37 +4,37 @@
       "asc": "en-US",
       "label": "English",
       "name": "Black White Accounting",
-      "subtitle": "Frictionless expense tracker",
-      "promo": "No big buys this month — so why is your balance down? Log any expense in three seconds. Minimal, private, never nagging.",
-      "hook": "Where did the money go?",
+      "subtitle": "Catch ghost spending in 3 sec",
+      "promo": "No big buys this month — so why is your balance down? Bubble tea, delivery fees, tiny subscriptions: ghost spending is the culprit. Log it in 3 seconds and go.",
+      "hook": "You didn't splurge — so where did the money go?",
       "features": [
         {
-          "title": "Frictionless logging",
-          "body": "Amount, description, done — in about three seconds. No complicated categories, no nagging reminders, no cluttered screen you want to close the moment it opens."
+          "title": "TRACK GHOST SPENDING",
+          "body": "Bubble tea, deliveries, tiny subscriptions — ghost spending adds up to far more than you think. Log each one and the statistics page shows exactly how much quietly leaked out this month."
         },
         {
-          "title": "Catch the spending you never notice",
-          "body": "Small purchases are the easiest to overlook. Log them and see exactly how much quietly leaked out this month."
+          "title": "ZERO-FRICTION LOGGING",
+          "body": "Amount, description, done — in about three seconds. No complicated categories, no nagging reminders, no cluttered screen you want to close the moment it opens. Log it and go — life stays uninterrupted."
         },
         {
-          "title": "See the subscription trap",
-          "body": "Record recurring charges as expenses and let the monthly summary surface the subscriptions you forgot you were paying for."
+          "title": "CATCH SUBSCRIPTION FATIGUE",
+          "body": "Record recurring charges as expenses and the monthly summary reveals how many apps you are quietly feeding. Build a spending firewall and kill the parasite subscriptions."
         },
         {
-          "title": "Private by default",
-          "body": "Works offline. Your data is stored on your device."
+          "title": "PRIVACY FIRST, ON-DEVICE",
+          "body": "Works offline. Your data stays on your device. Start without an account, export a spreadsheet backup anytime, edit or delete any record — you stay in control."
         },
         {
-          "title": "Simple statistics",
-          "body": "By day, month, week, or year — your spending patterns at a glance."
+          "title": "THREE STEPS TO TAKE BACK CONTROL",
+          "body": "1. Log in 3 seconds: enter an amount and a description, tap Expense or Income. 2. See the leaks: the ledger shows your running net total — ghost spending has nowhere to hide. 3. Review subscriptions and spending: switch to Statistics, view by day or month, filter this week or this month, sort by amount or time."
         },
         {
-          "title": "Dark mode",
-          "body": "Follows your system appearance, easy on the eyes at night."
+          "title": "START FREE, SYNC WHEN READY",
+          "body": "Free: up to 500 records on device, expense and income logging, statistics with filters and sorting, spreadsheet export, dark mode, no sign-in required. Pro: unlimited cloud storage, push local records to the cloud, restore from the cloud, keep your ledger when you switch phones, optional Apple sign-in, purchase restore."
         },
         {
-          "title": "Optional Pro",
-          "body": "Unlock cloud sync to back up your ledger and keep it when you switch phones."
+          "title": "COMING SOON",
+          "body": "Receipt scanning with OCR, PDF export, spreadsheet templates, smarter categorization."
         }
       ],
       "shots": "en"
@@ -42,38 +42,38 @@
     "zh-Hant": {
       "asc": "zh-Hant",
       "label": "繁體中文",
-      "name": "黑白記帳",
-      "subtitle": "零摩擦記帳，追蹤無感消費",
-      "promo": "這個月沒大買，戶頭怎麼變少？小額支出、訂閱扣款——無感漏財才是元兇。三秒記一筆，極簡不煩你。Pro 雲端同步，換機不丟帳。",
-      "hook": "錢去哪了？",
+      "name": "黑白記帳｜追蹤無感消費",
+      "subtitle": "三秒記帳，揪出幽靈消費",
+      "promo": "這個月沒大買，為什麼戶頭還是這麼少？手搖、外送、小額訂閱——幽靈消費才是元兇。三秒記一筆，記完就走。免登入、只存本機，Pro 雲端同步換機不丟帳。",
+      "hook": "沒花大錢，錢怎麼不見了？",
       "features": [
         {
-          "title": "零摩擦記帳",
-          "body": "金額、描述，三秒完成。沒有複雜分類、沒有惱人提醒、沒有打開就想關的介面。"
+          "title": "【追蹤無感消費】",
+          "body": "手搖、外送、小額訂閱——幽靈消費加起來比你想像的多。記下一筆，統計頁一眼看清本月無感漏財總額。"
         },
         {
-          "title": "追蹤無感消費",
-          "body": "小額支出最容易被忽略。記下來，統計頁一眼看清本月無感漏財總額。"
+          "title": "【零摩擦記帳】",
+          "body": "金額、描述，三秒完成。沒有複雜分類、沒有惱人提醒、沒有打開就想關的介面。記完就走，生活不被打斷。"
         },
         {
-          "title": "訂閱陷阱，看得見",
-          "body": "把固定訂閱記成支出，每月統計幫你揪出訂閱疲勞的寄生蟲。"
+          "title": "【揪出訂閱疲勞】",
+          "body": "把固定訂閱當成支出記下來，每月統計幫你發現「原來我在養這麼多 App」。建立消費防火牆，殺掉寄生蟲訂閱。"
         },
         {
-          "title": "隱私優先，資料永遠在你手上",
-          "body": "離線可用，只於本機儲存。"
+          "title": "【隱私優先，本機儲存】",
+          "body": "離線可用，資料只存本機。免登入即可開始，隨時匯出試算表、編輯或刪除紀錄，資料掌控權永遠在你手上。"
         },
         {
-          "title": "極簡統計",
-          "body": "按日、按月、本週、本年——支出模式一目了然。"
+          "title": "【三步驟，重掌財務主導權】",
+          "body": "一、三秒記一筆：輸入金額與描述，點「記支出」或「記收入」。 二、看清無感漏財：記帳畫面顯示淨額總計，幽靈消費無所遁形。 三、統計訂閱與支出：切到統計頁，按日或按月檢視，篩選本週、本月，依金額或時間排序，訂閱疲勞一眼看懂。"
         },
         {
-          "title": "深色模式",
-          "body": "跟著系統切換，夜間記帳也舒服。"
+          "title": "【免費開始，準備好再同步】",
+          "body": "免費版：本機最多 500 筆紀錄、支出與收入記帳、統計篩選與排序、試算表匯出、深色模式、免登入即可使用。 Pro 版：無上限雲端儲存、推送本機至雲端、從雲端還原、換機資料還原、可選 Apple 登入、恢復購買。"
         },
         {
-          "title": "Pro 進階",
-          "body": "解鎖雲端同步，備份帳本，換手機也不丟資料。"
+          "title": "【即將推出】",
+          "body": "收據掃描 + OCR、PDF 匯出、試算表範本、更聰明的分類。"
         }
       ],
       "shots": "zh"
@@ -82,37 +82,37 @@
       "asc": "ja",
       "label": "日本語",
       "name": "白黒家計簿",
-      "subtitle": "ストレスフリー家計管理",
-      "promo": "大きな買い物はないのに、残高が減る？小さな支出とサブスクを3秒で記録。シンプル・端末内保存・催促なし。",
-      "hook": "お金はどこへ消えた？",
+      "subtitle": "3秒で記帳、ゴースト出費を発見",
+      "promo": "今月大きな買い物はしていないのに、なぜ残高が減る？タピオカ・送料・少額サブスク——犯人はゴースト出費。3秒で記録、すぐ閉じる。登録不要・端末内保存、Pro でクラウド同期。",
+      "hook": "大きな買い物はしていないのに、お金はどこへ？",
       "features": [
         {
-          "title": "ストレスフリーな記録",
-          "body": "金額と内容を入れて完了——約3秒。複雑なカテゴリも、しつこいリマインダーも、開いた瞬間に閉じたくなる画面もありません。"
+          "title": "■ ゴースト出費を見える化",
+          "body": "タピオカ、デリバリー、少額サブスク——ゴースト出費は思った以上に積み重なります。1件記録すれば、統計画面で今月の漏れの合計がひと目でわかります。"
         },
         {
-          "title": "気づかない支出を見える化",
-          "body": "少額ほど見落とされがち。記録すれば、今月どれだけ静かに減ったかがはっきりわかります。"
+          "title": "■ 摩擦ゼロ記帳",
+          "body": "金額と説明を入れて、約3秒で完了。複雑なカテゴリも、しつこいリマインダーも、開いた瞬間閉じたくなる画面もありません。記録してすぐ閉じる——生活を邪魔しません。"
         },
         {
-          "title": "サブスクの罠を把握",
-          "body": "定期課金を支出として残し、月次サマリーで「払い続けていた」サブスクを見つけます。"
+          "title": "■ サブスク疲れを発見",
+          "body": "定期課金を支出として記録すると、月次統計が「こんなにアプリを養っていたのか」を教えてくれます。出費のファイアウォールを築き、寄生サブスクを退治しましょう。"
         },
         {
-          "title": "プライバシー優先",
-          "body": "オフラインで使えます。データは端末内に保存。"
+          "title": "■ プライバシー優先・端末内保存",
+          "body": "オフラインで使えます。データは端末内のみ。アカウント登録なしで始められ、いつでもスプレッドシートに書き出し、記録の編集・削除も自由。データの主導権はあなたに。"
         },
         {
-          "title": "シンプルな統計",
-          "body": "日・週・月・年——支出の傾向が一目でわかります。"
+          "title": "■ 3ステップでお金の主導権を取り戻す",
+          "body": "1. 3秒で記録：金額と説明を入力し、「支出」または「収入」をタップ。 2. 漏れを見える化：記帳画面に純額の合計を表示。ゴースト出費は隠れられません。 3. サブスクと支出を統計：統計画面で日別・月別に表示。今週・今月で絞り込み、金額や時間で並べ替え。"
         },
         {
-          "title": "ダークモード",
-          "body": "システム設定に追従。夜の記録も目にやさしい。"
+          "title": "■ 無料で開始、必要になったら同期",
+          "body": "無料版：端末内に最大500件、支出と収入の記録、統計の絞り込みと並べ替え、スプレッドシート書き出し、ダークモード、登録不要。 Pro 版：クラウド容量無制限、端末からクラウドへ送信、クラウドから復元、機種変更でもデータを引き継ぎ、Apple でサインイン（任意）、購入の復元。"
         },
         {
-          "title": "オプションの Pro",
-          "body": "クラウド同期で家計をバックアップ。機種変更後も安心。"
+          "title": "■ 今後の予定",
+          "body": "レシートスキャン + OCR、PDF 書き出し、スプレッドシートテンプレート、より賢い分類。"
         }
       ],
       "shots": "ja"
@@ -121,37 +121,37 @@
       "asc": "ko",
       "label": "한국어",
       "name": "흑백가계부",
-      "subtitle": "마찰 없는 지출 기록",
-      "promo": "큰 지출은 없는데 잔고가 줄었다? 커피·배달·구독을 3초 만에 기록. 미니멀, 기기 저장, 잔소리 없음.",
-      "hook": "돈은 어디로 갔을까요?",
+      "subtitle": "3초 기록, 유령 소비 잡기",
+      "promo": "이번 달 큰 지출도 없는데 잔고가 왜 줄었을까? 버블티·배달비·소액 구독 — 범인은 유령 소비. 3초 기록하고 바로 닫기. 로그인 불필요, 기기 저장, Pro 클라우드 동기화.",
+      "hook": "큰돈 쓴 것도 없는데, 돈은 어디로 갔을까?",
       "features": [
         {
-          "title": "마찰 없는 기록",
-          "body": "금액과 내용만 입력하면 끝——약 3초. 복잡한 카테고리도, 성가신 알림도, 열자마자 끄고 싶은 화면도 없습니다."
+          "title": "■ 유령 소비 추적",
+          "body": "버블티, 배달, 소액 구독 — 유령 소비는 생각보다 훨씬 큽니다. 한 건씩 기록하면 통계 화면에서 이번 달 새어 나간 돈의 총액이 한눈에 보입니다."
         },
         {
-          "title": "놓치기 쉬운 소비를 포착",
-          "body": "소액일수록 잊기 쉽습니다. 기록하면 이번 달 조용히 빠져나간 금액을 바로 볼 수 있습니다."
+          "title": "■ 마찰 없는 기록",
+          "body": "금액과 설명만 입력하면 끝 — 약 3초. 복잡한 카테고리도, 성가신 알림도, 열자마자 닫고 싶은 화면도 없습니다. 기록하고 바로 닫기 — 생활이 끊기지 않습니다."
         },
         {
-          "title": "구독 함정을 확인",
-          "body": "정기 결제를 지출로 남기고, 월별 요약으로 잊고 있던 구독을 찾아냅니다."
+          "title": "■ 구독 피로 잡아내기",
+          "body": "정기 결제를 지출로 기록하면 월별 통계가 「내가 이렇게 많은 앱을 먹여 살리고 있었나」를 알려 줍니다. 소비 방화벽을 세우고 기생 구독을 정리하세요."
         },
         {
-          "title": "기본은 프라이빗",
-          "body": "오프라인에서도 사용. 데이터는 기기에 저장됩니다."
+          "title": "■ 프라이버시 우선, 기기 저장",
+          "body": "오프라인에서도 사용할 수 있습니다. 데이터는 기기에만 저장됩니다. 계정 없이 시작하고, 언제든 스프레드시트로 내보내고, 기록을 수정·삭제할 수 있습니다. 주도권은 당신에게 있습니다."
         },
         {
-          "title": "간단한 통계",
-          "body": "일·주·월·년——소비 패턴을 한눈에."
+          "title": "■ 3단계로 돈의 주도권 되찾기",
+          "body": "1. 3초 기록: 금액과 설명을 입력하고 「지출」 또는 「수입」을 탭. 2. 새는 돈 확인: 기록 화면에 순액 합계가 표시되어 유령 소비가 숨을 곳이 없습니다. 3. 구독·지출 통계: 통계 화면에서 일별·월별 보기, 이번 주·이번 달 필터, 금액·시간 정렬."
         },
         {
-          "title": "다크 모드",
-          "body": "시스템 설정을 따릅니다. 밤에도 눈이 편합니다."
+          "title": "■ 무료로 시작, 필요할 때 동기화",
+          "body": "무료: 기기에 최대 500건 기록, 지출·수입 기록, 통계 필터와 정렬, 스프레드시트 내보내기, 다크 모드, 로그인 불필요. Pro: 무제한 클라우드 저장, 기기에서 클라우드로 푸시, 클라우드에서 복원, 기기 변경 시 데이터 복원, 선택적 Apple 로그인, 구매 복원."
         },
         {
-          "title": "선택적 Pro",
-          "body": "클라우드 동기화로 장부를 백업하고, 기기를 바꿔도 유지합니다."
+          "title": "■ 곧 추가될 기능",
+          "body": "영수증 스캔 + OCR, PDF 내보내기, 스프레드시트 템플릿, 더 똑똑한 분류."
         }
       ],
       "shots": "en"
@@ -160,37 +160,37 @@
       "asc": "es-ES",
       "label": "Español",
       "name": "Contabilidad B/N",
-      "subtitle": "Gastos sin fricción",
-      "promo": "¿Sin grandes compras y el saldo baja? Anota cualquier gasto en tres segundos. Mínima, privada y sin avisos molestos.",
-      "hook": "¿A dónde se fue el dinero?",
+      "subtitle": "Caza gastos fantasma en 3 s",
+      "promo": "¿Sin grandes compras y el saldo baja? Té de burbujas, envíos, mini suscripciones: los gastos fantasma son los culpables. Anota en 3 segundos y sigue con tu vida.",
+      "hook": "No has derrochado — ¿entonces a dónde se fue el dinero?",
       "features": [
         {
-          "title": "Registro sin fricción",
-          "body": "Importe, descripción y listo — en unos tres segundos. Sin categorías complicadas, sin recordatorios molestos, sin una pantalla que quieras cerrar al abrirla."
+          "title": "RASTREA LOS GASTOS FANTASMA",
+          "body": "Té de burbujas, repartos, mini suscripciones: los gastos fantasma suman mucho más de lo que crees. Anota cada uno y la página de estadísticas muestra cuánto se fugó en silencio este mes."
         },
         {
-          "title": "Detecta lo que no notas",
-          "body": "Los gastos pequeños son los más fáciles de pasar por alto. Anótalos y verás cuánto se filtró en silencio este mes."
+          "title": "REGISTRO SIN FRICCIÓN",
+          "body": "Importe, descripción, listo — en unos tres segundos. Sin categorías complicadas, sin recordatorios molestos, sin una pantalla que quieras cerrar nada más abrirla. Anota y sigue — tu vida no se interrumpe."
         },
         {
-          "title": "La trampa de las suscripciones",
-          "body": "Registra cargos recurrentes como gastos y deja que el resumen mensual muestre las suscripciones que seguías pagando sin darte cuenta."
+          "title": "DETECTA LA FATIGA DE SUSCRIPCIONES",
+          "body": "Registra los cargos recurrentes como gastos y el resumen mensual revela cuántas apps estás alimentando sin darte cuenta. Levanta un cortafuegos de gastos y elimina las suscripciones parásito."
         },
         {
-          "title": "Privacidad por defecto",
-          "body": "Funciona sin conexión. Tus datos se guardan en el dispositivo."
+          "title": "PRIVACIDAD PRIMERO, EN TU DISPOSITIVO",
+          "body": "Funciona sin conexión. Tus datos se quedan en tu dispositivo. Empieza sin cuenta, exporta una copia en hoja de cálculo cuando quieras, edita o borra cualquier registro: tú tienes el control."
         },
         {
-          "title": "Estadísticas simples",
-          "body": "Por día, semana, mes o año: tus patrones de gasto de un vistazo."
+          "title": "TRES PASOS PARA RECUPERAR EL CONTROL",
+          "body": "1. Anota en 3 segundos: introduce importe y descripción, toca Gasto o Ingreso. 2. Ve las fugas: el libro muestra el total neto — los gastos fantasma no tienen dónde esconderse. 3. Revisa suscripciones y gastos: pasa a Estadísticas, mira por día o mes, filtra esta semana o este mes, ordena por importe o fecha."
         },
         {
-          "title": "Modo oscuro",
-          "body": "Sigue la apariencia del sistema; cómodo de noche."
+          "title": "EMPIEZA GRATIS, SINCRONIZA CUANDO QUIERAS",
+          "body": "Gratis: hasta 500 registros en el dispositivo, gastos e ingresos, estadísticas con filtros y orden, exportación a hoja de cálculo, modo oscuro, sin registro. Pro: almacenamiento en la nube ilimitado, subir registros locales a la nube, restaurar desde la nube, conserva tu libro al cambiar de móvil, inicio de sesión con Apple opcional, restaurar compras."
         },
         {
-          "title": "Pro opcional",
-          "body": "Desbloquea la sincronización en la nube para respaldar tu libro y conservarlo al cambiar de móvil."
+          "title": "PRÓXIMAMENTE",
+          "body": "Escaneo de recibos con OCR, exportación a PDF, plantillas de hoja de cálculo, categorización más inteligente."
         }
       ],
       "shots": "es"
@@ -199,37 +199,37 @@
       "asc": "fr-FR",
       "label": "Français",
       "name": "Compta Noir & Blanc",
-      "subtitle": "Dépenses sans friction",
-      "promo": "Pas de gros achats, et pourtant le solde baisse ? Notez une dépense en trois secondes. Minimal, privé, sans relances.",
-      "hook": "Où est passé l'argent ?",
+      "subtitle": "Traquez les dépenses fantômes",
+      "promo": "Pas de gros achats, mais le solde baisse ? Bubble tea, frais de livraison, petits abonnements : les dépenses fantômes sont les coupables. Notez en 3 s, c'est fait.",
+      "hook": "Vous n'avez pas fait de folies — alors où est passé l'argent ?",
       "features": [
         {
-          "title": "Saisie sans friction",
-          "body": "Montant, description, terminé — en environ trois secondes. Pas de catégories complexes, pas de rappels collants, pas d'écran qu'on a envie de fermer aussitôt ouvert."
+          "title": "TRAQUEZ LES DÉPENSES FANTÔMES",
+          "body": "Bubble tea, livraisons, petits abonnements : les dépenses fantômes pèsent bien plus que vous ne le pensez. Notez chaque dépense et la page Statistiques montre combien s'est échappé en silence ce mois-ci."
         },
         {
-          "title": "Repérez ce que vous ne voyez pas",
-          "body": "Les petits achats passent le plus facilement. Notez-les et voyez exactement ce qui s'est échappé ce mois-ci."
+          "title": "SAISIE SANS FRICTION",
+          "body": "Montant, description, terminé — en trois secondes environ. Pas de catégories complexes, pas de rappels envahissants, pas d'écran qu'on veut fermer aussitôt ouvert. Notez et passez à autre chose — votre vie n'est pas interrompue."
         },
         {
-          "title": "Le piège des abonnements",
-          "body": "Enregistrez les prélèvements récurrents et laissez le résumé mensuel faire apparaître les abonnements que vous payiez encore sans y penser."
+          "title": "REPÉREZ LA FATIGUE D'ABONNEMENT",
+          "body": "Enregistrez les prélèvements récurrents comme dépenses : le résumé mensuel révèle combien d'apps vous nourrissez sans y penser. Dressez un pare-feu de dépenses et éliminez les abonnements parasites."
         },
         {
-          "title": "Privé par défaut",
-          "body": "Fonctionne hors ligne. Vos données restent sur l'appareil."
+          "title": "CONFIDENTIALITÉ D'ABORD, SUR VOTRE APPAREIL",
+          "body": "Fonctionne hors ligne. Vos données restent sur votre appareil. Commencez sans compte, exportez une sauvegarde en tableur à tout moment, modifiez ou supprimez chaque enregistrement : vous gardez le contrôle."
         },
         {
-          "title": "Statistiques simples",
-          "body": "Par jour, semaine, mois ou année — vos habitudes de dépense d'un coup d'œil."
+          "title": "TROIS ÉTAPES POUR REPRENDRE LE CONTRÔLE",
+          "body": "1. Notez en 3 secondes : saisissez un montant et une description, touchez Dépense ou Revenu. 2. Voyez les fuites : le livre affiche le total net — les dépenses fantômes n'ont nulle part où se cacher. 3. Passez en revue abonnements et dépenses : ouvrez Statistiques, affichez par jour ou par mois, filtrez cette semaine ou ce mois, triez par montant ou par date."
         },
         {
-          "title": "Mode sombre",
-          "body": "Suit l'apparence du système, agréable la nuit."
+          "title": "COMMENCEZ GRATUITEMENT, SYNCHRONISEZ QUAND VOUS VOULEZ",
+          "body": "Gratuit : jusqu'à 500 enregistrements sur l'appareil, dépenses et revenus, statistiques avec filtres et tri, export tableur, mode sombre, sans inscription. Pro : stockage cloud illimité, envoi des données locales vers le cloud, restauration depuis le cloud, conservez votre livre en changeant de téléphone, connexion Apple facultative, restauration des achats."
         },
         {
-          "title": "Pro en option",
-          "body": "Débloquez la synchro cloud pour sauvegarder votre livre et le garder en changeant de téléphone."
+          "title": "BIENTÔT DISPONIBLE",
+          "body": "Scan de reçus avec OCR, export PDF, modèles de tableur, catégorisation plus intelligente."
         }
       ],
       "shots": "fr"
@@ -238,37 +238,37 @@
       "asc": "de-DE",
       "label": "Deutsch",
       "name": "SchwarzWeiß Finanzen",
-      "subtitle": "Ausgaben ohne Reibung",
-      "promo": "Keine großen Käufe — und doch weniger Guthaben? Jede Ausgabe in drei Sekunden. Minimal, privat, ohne Nörgeln.",
-      "hook": "Wohin ist das Geld?",
+      "subtitle": "Phantom-Ausgaben in 3 Sekunden",
+      "promo": "Keine großen Käufe — und trotzdem weniger Geld? Bubble Tea, Lieferkosten, Mini-Abos: Phantom-Ausgaben sind schuld. In 3 Sekunden erfasst. Ohne Konto, Daten lokal.",
+      "hook": "Kein großer Einkauf — und trotzdem ist das Geld weg?",
       "features": [
         {
-          "title": "Reibungsloses Erfassen",
-          "body": "Betrag, Beschreibung, fertig — in etwa drei Sekunden. Keine komplizierten Kategorien, keine nervigen Erinnerungen, kein Bildschirm, den du sofort schließen willst."
+          "title": "PHANTOM-AUSGABEN AUFSPÜREN",
+          "body": "Bubble Tea, Lieferungen, Mini-Abos — Phantom-Ausgaben summieren sich zu weit mehr, als du denkst. Erfasse jede einzelne, und die Statistikseite zeigt, wie viel diesen Monat still versickert ist."
         },
         {
-          "title": "Erkenne Ausgaben, die du übersiehst",
-          "body": "Kleine Käufe vergisst man am leichtesten. Erfasse sie und sieh, wie viel diesen Monat still verschwunden ist."
+          "title": "REIBUNGSLOSES ERFASSEN",
+          "body": "Betrag, Beschreibung, fertig — in etwa drei Sekunden. Keine komplizierten Kategorien, keine nervigen Erinnerungen, kein überladener Bildschirm, den man sofort wieder schließen will. Erfassen und weitermachen — dein Alltag bleibt ungestört."
         },
         {
-          "title": "Die Abo-Falle sehen",
-          "body": "Trage wiederkehrende Kosten als Ausgaben ein — die Monatsübersicht zeigt Abos, die du noch zahlst, ohne es zu merken."
+          "title": "ABO-MÜDIGKEIT ERKENNEN",
+          "body": "Trage wiederkehrende Zahlungen als Ausgaben ein — die Monatsübersicht zeigt, wie viele Apps du stillschweigend durchfütterst. Errichte eine Ausgaben-Firewall und wirf die Schmarotzer-Abos raus."
         },
         {
-          "title": "Privat standardmäßig",
-          "body": "Funktioniert offline. Deine Daten bleiben auf dem Gerät."
+          "title": "PRIVATSPHÄRE ZUERST, LOKAL GESPEICHERT",
+          "body": "Funktioniert offline. Deine Daten bleiben auf deinem Gerät. Starte ohne Konto, exportiere jederzeit ein Tabellen-Backup, bearbeite oder lösche jeden Eintrag — du behältst die Kontrolle."
         },
         {
-          "title": "Einfache Statistiken",
-          "body": "Nach Tag, Woche, Monat oder Jahr — deine Muster auf einen Blick."
+          "title": "IN DREI SCHRITTEN ZURÜCK ANS STEUER",
+          "body": "1. In 3 Sekunden erfassen: Betrag und Beschreibung eingeben, auf Ausgabe oder Einnahme tippen. 2. Lecks sehen: Das Buch zeigt die laufende Nettosumme — Phantom-Ausgaben können sich nicht verstecken. 3. Abos und Ausgaben prüfen: In der Statistik nach Tag oder Monat anzeigen, nach dieser Woche oder diesem Monat filtern, nach Betrag oder Zeit sortieren."
         },
         {
-          "title": "Dunkelmodus",
-          "body": "Folgt dem Systemdesign, angenehm nachts."
+          "title": "KOSTENLOS STARTEN, SPÄTER SYNCHRONISIEREN",
+          "body": "Kostenlos: bis zu 500 Einträge auf dem Gerät, Ausgaben- und Einnahmenerfassung, Statistik mit Filtern und Sortierung, Tabellen-Export, Dunkelmodus, keine Anmeldung nötig. Pro: unbegrenzter Cloud-Speicher, lokale Einträge in die Cloud übertragen, aus der Cloud wiederherstellen, Buch beim Handywechsel behalten, optionale Apple-Anmeldung, Käufe wiederherstellen."
         },
         {
-          "title": "Optionales Pro",
-          "body": "Schalte Cloud-Sync frei, um dein Buch zu sichern und beim Handywechsel zu behalten."
+          "title": "BALD VERFÜGBAR",
+          "body": "Beleg-Scan mit OCR, PDF-Export, Tabellenvorlagen, intelligentere Kategorisierung."
         }
       ],
       "shots": "de"
@@ -277,37 +277,37 @@
       "asc": "it",
       "label": "Italiano",
       "name": "Conti Bianco Nero",
-      "subtitle": "Spese senza attrito",
-      "promo": "Niente grandi acquisti e il saldo scende? Registra una spesa in tre secondi. Minimale, privata, senza sollecitazioni.",
-      "hook": "Dove sono finiti i soldi?",
+      "subtitle": "Caccia alle spese fantasma",
+      "promo": "Nessun grande acquisto, ma il saldo scende? Bubble tea, consegne, mini abbonamenti: la colpa è delle spese fantasma. Registra in 3 secondi e chiudi l'app.",
+      "hook": "Non hai fatto follie — allora dove sono finiti i soldi?",
       "features": [
         {
-          "title": "Registrazione senza attrito",
-          "body": "Importo, descrizione, fatto — in circa tre secondi. Niente categorie complicate, niente promemoria insistenti, niente schermata da chiudere appena aperta."
+          "title": "SCOVA LE SPESE FANTASMA",
+          "body": "Bubble tea, consegne, mini abbonamenti: le spese fantasma pesano molto più di quanto immagini. Registrane una e la pagina Statistiche mostra quanto è filtrato via in silenzio questo mese."
         },
         {
-          "title": "Scova ciò che non noti",
-          "body": "Le piccole spese sono le più facili da perdere. Registrale e vedi quanto è filtrato via in silenzio questo mese."
+          "title": "REGISTRAZIONE SENZA ATTRITO",
+          "body": "Importo, descrizione, fatto — in circa tre secondi. Niente categorie complicate, niente promemoria insistenti, niente schermate da chiudere appena aperte. Registra e vai — la tua vita non si interrompe."
         },
         {
-          "title": "La trappola degli abbonamenti",
-          "body": "Segna i costi ricorrenti come spese e lascia che il riepilogo mensile mostri gli abbonamenti che stavi ancora pagando."
+          "title": "SCOPRI LA STANCHEZZA DA ABBONAMENTI",
+          "body": "Registra i costi ricorrenti come spese: il riepilogo mensile rivela quante app stai mantenendo senza accorgertene. Costruisci un firewall delle spese ed elimina gli abbonamenti parassiti."
         },
         {
-          "title": "Privata di default",
-          "body": "Funziona offline. I dati restano sul dispositivo."
+          "title": "PRIVACY PRIMA DI TUTTO, SUL TUO DISPOSITIVO",
+          "body": "Funziona offline. I dati restano sul tuo dispositivo. Inizia senza account, esporta un backup in foglio di calcolo quando vuoi, modifica o elimina ogni registrazione: il controllo è tuo."
         },
         {
-          "title": "Statistiche semplici",
-          "body": "Per giorno, settimana, mese o anno — i tuoi pattern a colpo d'occhio."
+          "title": "TRE PASSI PER RIPRENDERE IL CONTROLLO",
+          "body": "1. Registra in 3 secondi: inserisci importo e descrizione, tocca Spesa o Entrata. 2. Vedi le perdite: il registro mostra il totale netto — le spese fantasma non hanno dove nascondersi. 3. Controlla abbonamenti e spese: passa a Statistiche, guarda per giorno o mese, filtra questa settimana o questo mese, ordina per importo o data."
         },
         {
-          "title": "Modalità scura",
-          "body": "Segue l'aspetto di sistema, comoda di notte."
+          "title": "INIZIA GRATIS, SINCRONIZZA QUANDO VUOI",
+          "body": "Gratis: fino a 500 registrazioni sul dispositivo, spese ed entrate, statistiche con filtri e ordinamento, esportazione in foglio di calcolo, modalità scura, nessuna registrazione richiesta. Pro: archiviazione cloud illimitata, invio dei dati locali al cloud, ripristino dal cloud, registro conservato al cambio di telefono, accesso Apple facoltativo, ripristino acquisti."
         },
         {
-          "title": "Pro opzionale",
-          "body": "Sblocca la sync cloud per eseguire il backup del registro e tenerlo cambiando telefono."
+          "title": "IN ARRIVO",
+          "body": "Scansione ricevute con OCR, esportazione PDF, modelli per fogli di calcolo, categorizzazione più intelligente."
         }
       ],
       "shots": "en"
@@ -316,37 +316,37 @@
       "asc": "pt-BR",
       "label": "Português",
       "name": "Conta Preto e Branco",
-      "subtitle": "Gastos sem atrito",
-      "promo": "Sem grandes compras e o saldo caiu? Lance qualquer gasto em três segundos. Minimalista, privada e sem cobranças.",
-      "hook": "Para onde foi o dinheiro?",
+      "subtitle": "Cace gastos fantasma em 3 s",
+      "promo": "Nenhuma compra grande e o saldo caiu? Chá de bolhas, entregas, mini assinaturas: os gastos fantasma são os culpados. Registre em 3 segundos e siga em frente.",
+      "hook": "Você não gastou muito — então para onde foi o dinheiro?",
       "features": [
         {
-          "title": "Lançamento sem atrito",
-          "body": "Valor, descrição, pronto — em cerca de três segundos. Sem categorias complicadas, sem lembretes chatos, sem tela que dá vontade de fechar na hora."
+          "title": "RASTREIE OS GASTOS FANTASMA",
+          "body": "Chá de bolhas, delivery, mini assinaturas — os gastos fantasma somam muito mais do que você imagina. Registre cada um e a página de estatísticas mostra quanto vazou em silêncio neste mês."
         },
         {
-          "title": "Pegue o que você não nota",
-          "body": "Gastos pequenos são os mais fáceis de ignorar. Lance-os e veja quanto vazou em silêncio neste mês."
+          "title": "REGISTRO SEM ATRITO",
+          "body": "Valor, descrição, pronto — em cerca de três segundos. Sem categorias complicadas, sem lembretes chatos, sem tela que dá vontade de fechar na hora. Registre e siga — sua vida não é interrompida."
         },
         {
-          "title": "A armadilha das assinaturas",
-          "body": "Registre cobranças recorrentes como gastos e deixe o resumo mensal mostrar as assinaturas que você ainda pagava."
+          "title": "FLAGRE A FADIGA DE ASSINATURAS",
+          "body": "Registre cobranças recorrentes como gastos e o resumo mensal revela quantos apps você sustenta sem perceber. Erga um firewall de gastos e elimine as assinaturas parasitas."
         },
         {
-          "title": "Privada por padrão",
-          "body": "Funciona offline. Seus dados ficam no aparelho."
+          "title": "PRIVACIDADE EM PRIMEIRO LUGAR, NO SEU APARELHO",
+          "body": "Funciona offline. Seus dados ficam no seu aparelho. Comece sem conta, exporte um backup em planilha quando quiser, edite ou apague qualquer registro — o controle é seu."
         },
         {
-          "title": "Estatísticas simples",
-          "body": "Por dia, semana, mês ou ano — seus padrões de gasto de um olhar."
+          "title": "TRÊS PASSOS PARA RETOMAR O CONTROLE",
+          "body": "1. Registre em 3 segundos: digite valor e descrição, toque em Despesa ou Receita. 2. Veja os vazamentos: o livro mostra o total líquido — gastos fantasma não têm onde se esconder. 3. Revise assinaturas e gastos: abra Estatísticas, veja por dia ou mês, filtre esta semana ou este mês, ordene por valor ou data."
         },
         {
-          "title": "Modo escuro",
-          "body": "Segue a aparência do sistema; confortável à noite."
+          "title": "COMECE GRÁTIS, SINCRONIZE QUANDO QUISER",
+          "body": "Grátis: até 500 registros no aparelho, despesas e receitas, estatísticas com filtros e ordenação, exportação para planilha, modo escuro, sem cadastro. Pro: armazenamento em nuvem ilimitado, envio dos registros locais para a nuvem, restauração da nuvem, livro preservado na troca de celular, login com Apple opcional, restauração de compras."
         },
         {
-          "title": "Pro opcional",
-          "body": "Desbloqueie a sincronização na nuvem para fazer backup do livro e mantê-lo ao trocar de celular."
+          "title": "EM BREVE",
+          "body": "Escaneamento de recibos com OCR, exportação em PDF, modelos de planilha, categorização mais inteligente."
         }
       ],
       "shots": "en"
@@ -355,37 +355,37 @@
       "asc": "ru",
       "label": "Русский",
       "name": "Чёрно-белый учёт",
-      "subtitle": "Расходы без трения",
-      "promo": "Крупных покупок нет, а баланс тает? Любой расход за три секунды. Минимум, на устройстве, без напоминаний.",
-      "hook": "Куда ушли деньги?",
+      "subtitle": "Поймай призрачные траты",
+      "promo": "Крупных покупок не было, а денег меньше? Кофе, доставка, мелкие подписки — виноваты призрачные траты. Запишите за 3 секунды и живите дальше.",
+      "hook": "Больших трат не было — так куда ушли деньги?",
       "features": [
         {
-          "title": "Запись без трения",
-          "body": "Сумма, описание — готово примерно за три секунды. Без сложных категорий, навязчивых напоминаний и экрана, который хочется закрыть сразу."
+          "title": "ОТСЛЕЖИВАЙТЕ ПРИЗРАЧНЫЕ ТРАТЫ",
+          "body": "Бабл-ти, доставка, мелкие подписки — призрачные траты складываются в куда большую сумму, чем кажется. Записывайте каждую, и страница статистики покажет, сколько тихо утекло за месяц."
         },
         {
-          "title": "Ловите то, что не замечаете",
-          "body": "Мелкие траты проще всего упустить. Запишите их и увидите, сколько тихо утекло за месяц."
+          "title": "УЧЁТ БЕЗ ТРЕНИЯ",
+          "body": "Сумма, описание — готово примерно за три секунды. Без сложных категорий, навязчивых напоминаний и перегруженного экрана, который хочется сразу закрыть. Записал — и живи дальше."
         },
         {
-          "title": "Ловушка подписок",
-          "body": "Фиксируйте регулярные списания как расходы — месячная сводка покажет подписки, которые вы всё ещё оплачивали."
+          "title": "ЛОВИТЕ ПОДПИСОЧНУЮ УСТАЛОСТЬ",
+          "body": "Фиксируйте регулярные списания как расходы — месячная сводка покажет, сколько приложений вы тихо кормите. Постройте файрвол для трат и избавьтесь от подписок-паразитов."
         },
         {
-          "title": "Приватность по умолчанию",
-          "body": "Работает офлайн. Данные хранятся на устройстве."
+          "title": "ПРИВАТНОСТЬ ПРЕЖДЕ ВСЕГО, ДАННЫЕ НА УСТРОЙСТВЕ",
+          "body": "Работает офлайн. Данные остаются на вашем устройстве. Начните без аккаунта, в любой момент экспортируйте резервную копию в таблицу, редактируйте и удаляйте записи — контроль у вас."
         },
         {
-          "title": "Простая статистика",
-          "body": "По дням, неделям, месяцам или годам — ваши привычки с первого взгляда."
+          "title": "ТРИ ШАГА, ЧТОБЫ ВЕРНУТЬ КОНТРОЛЬ",
+          "body": "1. Запишите за 3 секунды: введите сумму и описание, нажмите «Расход» или «Доход». 2. Увидьте утечки: в журнале виден чистый итог — призрачным тратам негде спрятаться. 3. Проверьте подписки и расходы: откройте статистику, смотрите по дням или месяцам, фильтруйте неделю или месяц, сортируйте по сумме или времени."
         },
         {
-          "title": "Тёмная тема",
-          "body": "Следует системному оформлению, комфортна ночью."
+          "title": "НАЧНИТЕ БЕСПЛАТНО, СИНХРОНИЗИРУЙТЕ КОГДА НУЖНО",
+          "body": "Бесплатно: до 500 записей на устройстве, учёт расходов и доходов, статистика с фильтрами и сортировкой, экспорт в таблицу, тёмная тема, без регистрации. Pro: безлимитное облачное хранилище, отправка локальных записей в облако, восстановление из облака, перенос данных при смене телефона, вход через Apple по желанию, восстановление покупок."
         },
         {
-          "title": "Опциональный Pro",
-          "body": "Откройте облачную синхронизацию, чтобы сохранить книгу и не потерять её при смене телефона."
+          "title": "СКОРО",
+          "body": "Сканирование чеков с OCR, экспорт в PDF, шаблоны таблиц, более умная категоризация."
         }
       ],
       "shots": "en"
@@ -394,37 +394,37 @@
       "asc": "hi",
       "label": "हिन्दी",
       "name": "ब्लैक व्हाइट हिसाब",
-      "subtitle": "बिना झंझट खर्च ट्रैक",
-      "promo": "बड़ी खरीद नहीं, फिर भी बैलेंस घटा? कोई भी खर्च तीन सेकंड में लिखें। सरल, निजी, बिना परेशान किए।",
-      "hook": "पैसे कहाँ गए?",
+      "subtitle": "भूतिया ख़र्च पकड़ें, 3 सेकंड",
+      "promo": "इस महीने कोई बड़ी खरीद नहीं, फिर भी बैलेंस कम? चाय, डिलीवरी, छोटे सब्सक्रिप्शन — असली वजह भूतिया ख़र्च। 3 सेकंड में लिखें और आगे बढ़ें।",
+      "hook": "बड़ा ख़र्च नहीं किया — फिर पैसे कहाँ गए?",
       "features": [
         {
+          "title": "भूतिया ख़र्च पर नज़र रखें",
+          "body": "चाय, डिलीवरी, छोटे सब्सक्रिप्शन — भूतिया ख़र्च सोच से कहीं ज़्यादा जुड़ जाते हैं। हर एक लिखें, और आँकड़े पेज दिखाएगा कि इस महीने चुपचाप कितना रिस गया।"
+        },
+        {
           "title": "बिना झंझट रिकॉर्ड",
-          "body": "राशि, विवरण, हो गया — लगभग तीन सेकंड में। जटिल श्रेणियाँ नहीं, परेशान करने वाले रिमाइंडर नहीं, खोलते ही बंद करने वाला स्क्रीन नहीं।"
+          "body": "राशि, विवरण, हो गया — लगभग तीन सेकंड में। न जटिल श्रेणियाँ, न परेशान करने वाले रिमाइंडर, न ऐसा स्क्रीन जिसे खोलते ही बंद करने का मन करे। लिखें और आगे बढ़ें — ज़िंदगी रुकती नहीं।"
         },
         {
-          "title": "जो नज़र नहीं आता, उसे पकड़ें",
-          "body": "छोटे खर्च सबसे आसानी से छूटते हैं। लिखें और देखें कि इस महीने चुपचाप कितना निकल गया।"
+          "title": "सब्सक्रिप्शन थकान पकड़ें",
+          "body": "आवर्ती कटौतियों को ख़र्च के रूप में दर्ज करें — मासिक सारांश बताएगा कि आप चुपचाप कितने ऐप पाल रहे हैं। ख़र्च की फ़ायरवॉल बनाएँ और परजीवी सब्सक्रिप्शन हटाएँ।"
         },
         {
-          "title": "सब्सक्रिप्शन का जाल",
-          "body": "आवर्ती कटौती को खर्च के रूप में रखें — मासिक सारांश उन सब्सक्रिप्शन को दिखाएगा जो आप भूलकर भी चुका रहे थे।"
+          "title": "गोपनीयता पहले, डेटा डिवाइस पर",
+          "body": "ऑफ़लाइन काम करता है। डेटा आपके डिवाइस पर ही रहता है। बिना खाते के शुरू करें, कभी भी स्प्रेडशीट बैकअप निर्यात करें, कोई भी रिकॉर्ड संपादित या हटाएँ — नियंत्रण आपके पास।"
         },
         {
-          "title": "डिफ़ॉल्ट रूप से निजी",
-          "body": "ऑफ़लाइन काम करता है। डेटा आपके डिवाइस पर रहता है।"
+          "title": "तीन क़दम, पैसों पर नियंत्रण वापस",
+          "body": "1. 3 सेकंड में लिखें: राशि और विवरण डालें, ख़र्च या आय पर टैप करें। 2. रिसाव देखें: बही में शुद्ध योग दिखता है — भूतिया ख़र्च छिप नहीं सकते। 3. सब्सक्रिप्शन और ख़र्च जाँचें: आँकड़ों में दिन या महीने से देखें, इस सप्ताह या इस महीने से छानें, राशि या समय से क्रमबद्ध करें।"
         },
         {
-          "title": "सरल आँकड़े",
-          "body": "दिन, सप्ताह, महीने या साल — खर्च की आदतें एक नज़र में।"
+          "title": "मुफ़्त शुरू करें, ज़रूरत पर सिंक करें",
+          "body": "मुफ़्त: डिवाइस पर 500 तक रिकॉर्ड, ख़र्च और आय, फ़िल्टर और क्रम के साथ आँकड़े, स्प्रेडशीट निर्यात, डार्क मोड, बिना लॉगिन। Pro: असीमित क्लाउड संग्रहण, लोकल रिकॉर्ड क्लाउड पर भेजें, क्लाउड से बहाल करें, फ़ोन बदलने पर डेटा बरकरार, वैकल्पिक Apple लॉगिन, खरीद बहाली।"
         },
         {
-          "title": "डार्क मोड",
-          "body": "सिस्टम दिखावट के अनुसार; रात में आँखों के अनुकूल।"
-        },
-        {
-          "title": "वैकल्पिक Pro",
-          "body": "क्लाउड सिंक से बही का बैकअप लें और फ़ोन बदलने पर भी रखें।"
+          "title": "जल्द आ रहा है",
+          "body": "OCR के साथ रसीद स्कैन, PDF निर्यात, स्प्रेडशीट टेम्पलेट, और स्मार्ट वर्गीकरण।"
         }
       ],
       "shots": "en"
@@ -433,37 +433,37 @@
       "asc": "id",
       "label": "Bahasa Indonesia",
       "name": "Akuntansi Hitam Putih",
-      "subtitle": "Catat belanja tanpa ribet",
-      "promo": "Tak ada belanja besar, saldo tetap turun? Catat pengeluaran dalam tiga detik. Minimal, privat, tanpa mengganggu.",
-      "hook": "Uang pergi ke mana?",
+      "subtitle": "Tangkap pengeluaran hantu",
+      "promo": "Tak ada belanja besar, kok saldo turun? Boba, ongkir, langganan kecil — pengeluaran hantu biang keroknya. Catat 3 detik, lalu lanjutkan hidupmu.",
+      "hook": "Tidak belanja besar — lalu ke mana uangnya?",
       "features": [
         {
-          "title": "Pencatatan tanpa gesekan",
-          "body": "Jumlah, deskripsi, selesai — sekitar tiga detik. Tanpa kategori rumit, tanpa pengingat mengganggu, tanpa layar yang ingin langsung ditutup."
+          "title": "LACAK PENGELUARAN HANTU",
+          "body": "Boba, delivery, langganan kecil — pengeluaran hantu menumpuk jauh lebih besar dari dugaanmu. Catat satu per satu, dan halaman statistik menunjukkan berapa yang diam-diam bocor bulan ini."
         },
         {
-          "title": "Tangkap yang tak sempat kamu sadari",
-          "body": "Belanja kecil paling mudah terlewat. Catat dan lihat berapa yang diam-diam bocor bulan ini."
+          "title": "PENCATATAN TANPA GESEKAN",
+          "body": "Jumlah, deskripsi, selesai — sekitar tiga detik. Tanpa kategori rumit, tanpa pengingat cerewet, tanpa layar penuh yang ingin langsung ditutup. Catat lalu lanjut — hidupmu tak terganggu."
         },
         {
-          "title": "Jebakan langganan",
-          "body": "Catat tagihan berulang sebagai pengeluaran — ringkasan bulanan menampilkan langganan yang masih kamu bayar tanpa sadar."
+          "title": "TANGKAP KELELAHAN LANGGANAN",
+          "body": "Catat tagihan berulang sebagai pengeluaran — ringkasan bulanan mengungkap berapa banyak aplikasi yang diam-diam kamu hidupi. Bangun firewall pengeluaran dan singkirkan langganan parasit."
         },
         {
-          "title": "Privat secara bawaan",
-          "body": "Bisa offline. Datamu disimpan di perangkat."
+          "title": "PRIVASI DULU, DATA DI PERANGKAT",
+          "body": "Bisa offline. Datamu tetap di perangkatmu. Mulai tanpa akun, ekspor cadangan spreadsheet kapan saja, ubah atau hapus catatan apa pun — kendali di tanganmu."
         },
         {
-          "title": "Statistik sederhana",
-          "body": "Per hari, minggu, bulan, atau tahun — pola belanja sekilas."
+          "title": "TIGA LANGKAH AMBIL KEMBALI KENDALI",
+          "body": "1. Catat dalam 3 detik: masukkan jumlah dan deskripsi, ketuk Pengeluaran atau Pemasukan. 2. Lihat kebocorannya: buku catatan menampilkan total bersih — pengeluaran hantu tak bisa sembunyi. 3. Tinjau langganan dan pengeluaran: buka Statistik, lihat per hari atau bulan, saring minggu ini atau bulan ini, urutkan menurut jumlah atau waktu."
         },
         {
-          "title": "Mode gelap",
-          "body": "Mengikuti tampilan sistem, nyaman di malam hari."
+          "title": "MULAI GRATIS, SINKRONKAN SAAT SIAP",
+          "body": "Gratis: hingga 500 catatan di perangkat, pencatatan pengeluaran dan pemasukan, statistik dengan filter dan urutan, ekspor spreadsheet, mode gelap, tanpa login. Pro: penyimpanan cloud tanpa batas, kirim catatan lokal ke cloud, pulihkan dari cloud, data aman saat ganti ponsel, login Apple opsional, pulihkan pembelian."
         },
         {
-          "title": "Pro opsional",
-          "body": "Buka sinkronisasi cloud untuk cadangkan buku dan tetap aman saat ganti ponsel."
+          "title": "SEGERA HADIR",
+          "body": "Pindai struk dengan OCR, ekspor PDF, templat spreadsheet, kategorisasi lebih cerdas."
         }
       ],
       "shots": "en"
@@ -472,37 +472,37 @@
       "asc": "vi",
       "label": "Tiếng Việt",
       "name": "Sổ Đen Trắng",
-      "subtitle": "Ghi chi tiêu không ma sát",
-      "promo": "Không mua lớn mà số dư vẫn giảm? Ghi mọi khoản trong ba giây. Tối giản, riêng tư, không làm phiền.",
-      "hook": "Tiền đi đâu rồi?",
+      "subtitle": "Bắt chi tiêu không tên",
+      "promo": "Không mua gì lớn mà số dư vẫn giảm? Trà sữa, phí ship, gói đăng ký nhỏ — thủ phạm là chi tiêu không tên. Ghi trong 3 giây rồi đi tiếp.",
+      "hook": "Không tiêu gì lớn — vậy tiền đi đâu rồi?",
       "features": [
         {
-          "title": "Ghi nhanh không ma sát",
-          "body": "Số tiền, mô tả, xong — khoảng ba giây. Không danh mục phức tạp, không nhắc nhở dai dẳng, không màn hình muốn đóng ngay khi mở."
+          "title": "TRUY DẤU CHI TIÊU KHÔNG TÊN",
+          "body": "Trà sữa, đồ ăn giao tận nơi, gói đăng ký nhỏ — chi tiêu không tên cộng lại nhiều hơn bạn nghĩ. Ghi từng khoản, trang thống kê sẽ cho thấy tháng này đã âm thầm rò bao nhiêu."
         },
         {
-          "title": "Bắt được khoản bạn không để ý",
-          "body": "Chi nhỏ dễ bị bỏ qua nhất. Ghi lại để thấy tháng này đã “rò” bao nhiêu trong im lặng."
+          "title": "GHI CHÉP KHÔNG MA SÁT",
+          "body": "Số tiền, mô tả, xong — khoảng ba giây. Không danh mục phức tạp, không nhắc nhở phiền phức, không màn hình rối muốn đóng ngay khi mở. Ghi xong là đi — cuộc sống không bị ngắt quãng."
         },
         {
-          "title": "Bẫy đăng ký",
-          "body": "Ghi các khoản định kỳ thành chi tiêu — tóm tắt tháng sẽ lộ những gói bạn vẫn đang trả mà quên."
+          "title": "BẮT BỆNH BỘI THỰC ĐĂNG KÝ",
+          "body": "Ghi các khoản trừ định kỳ thành chi tiêu — tóm tắt tháng sẽ lộ ra bạn đang âm thầm nuôi bao nhiêu app. Dựng tường lửa chi tiêu và cắt bỏ những gói đăng ký ký sinh."
         },
         {
-          "title": "Riêng tư mặc định",
-          "body": "Dùng offline được. Dữ liệu lưu trên máy."
+          "title": "RIÊNG TƯ TRƯỚC TIÊN, DỮ LIỆU TRÊN MÁY",
+          "body": "Dùng được offline. Dữ liệu chỉ nằm trên máy bạn. Bắt đầu không cần tài khoản, xuất bản sao lưu bảng tính bất cứ lúc nào, sửa hoặc xóa từng bản ghi — quyền kiểm soát trong tay bạn."
         },
         {
-          "title": "Thống kê đơn giản",
-          "body": "Theo ngày, tuần, tháng hoặc năm — thói quen chi tiêu nhìn một cái là rõ."
+          "title": "BA BƯỚC GIÀNH LẠI QUYỀN KIỂM SOÁT",
+          "body": "1. Ghi trong 3 giây: nhập số tiền và mô tả, chạm Chi hoặc Thu. 2. Thấy rõ chỗ rò: sổ hiển thị tổng ròng — chi tiêu không tên hết chỗ trốn. 3. Soát đăng ký và chi tiêu: mở Thống kê, xem theo ngày hoặc tháng, lọc tuần này hay tháng này, sắp xếp theo số tiền hoặc thời gian."
         },
         {
-          "title": "Chế độ tối",
-          "body": "Theo giao diện hệ thống, dễ chịu về đêm."
+          "title": "BẮT ĐẦU MIỄN PHÍ, ĐỒNG BỘ KHI CẦN",
+          "body": "Miễn phí: tối đa 500 bản ghi trên máy, ghi chi và thu, thống kê với bộ lọc và sắp xếp, xuất bảng tính, chế độ tối, không cần đăng nhập. Pro: lưu trữ đám mây không giới hạn, đẩy dữ liệu máy lên đám mây, khôi phục từ đám mây, đổi máy không mất sổ, đăng nhập Apple tùy chọn, khôi phục giao dịch mua."
         },
         {
-          "title": "Pro tùy chọn",
-          "body": "Mở đồng bộ đám mây để sao lưu sổ và giữ khi đổi máy."
+          "title": "SẮP RA MẮT",
+          "body": "Quét hóa đơn kèm OCR, xuất PDF, mẫu bảng tính, phân loại thông minh hơn."
         }
       ],
       "shots": "en"
@@ -511,37 +511,37 @@
       "asc": "th",
       "label": "ไทย",
       "name": "บัญชีขาวดำ",
-      "subtitle": "จดรายจ่ายไร้แรงเสียดทาน",
-      "promo": "ไม่ได้ซื้อของใหญ่ ทำไมยอดลด? จดรายจ่ายในสามวินาที มินิมอล ส่วนตัว ไม่กวนใจ",
-      "hook": "เงินหายไปไหน?",
+      "subtitle": "จับรายจ่ายผีใน 3 วิ",
+      "promo": "ไม่ได้ซื้อของชิ้นใหญ่ แต่เงินหาย? ชานม ค่าส่ง สมาชิกรายเดือน — ตัวการคือรายจ่ายผี จดใน 3 วิแล้วไปต่อ",
+      "hook": "ไม่ได้ใช้เงินก้อนใหญ่ — แล้วเงินหายไปไหน?",
       "features": [
         {
-          "title": "จดเร็วไร้แรงเสียดทาน",
-          "body": "จำนวน คำอธิบาย เสร็จ — ประมาณสามวินาที ไม่มีหมวดซับซ้อน ไม่มีการเตือนกวนใจ ไม่มีหน้าจอที่อยากปิดทันทีที่เปิด"
+          "title": "ตามรอยรายจ่ายผี",
+          "body": "ชานม เดลิเวอรี สมาชิกรายย่อย — รายจ่ายผีรวมกันมากกว่าที่คิด จดทีละรายการ แล้วหน้าสถิติจะบอกว่าเดือนนี้รั่วเงียบ ๆ ไปเท่าไร"
         },
         {
-          "title": "จับรายจ่ายที่มองไม่เห็น",
-          "body": "ของเล็กมักหลุดง่ายที่สุด จดไว้แล้วดูว่าเดือนนี้รั่วไหลเงียบ ๆ ไปเท่าไร"
+          "title": "จดแบบไร้แรงเสียดทาน",
+          "body": "จำนวนเงิน คำอธิบาย เสร็จ — ราวสามวินาที ไม่มีหมวดหมู่ซับซ้อน ไม่มีการเตือนจุกจิก ไม่มีหน้าจอรกที่อยากปิดทันทีที่เปิด จดแล้วไปต่อ — ชีวิตไม่สะดุด"
         },
         {
-          "title": "กับดักสมาชิก",
-          "body": "บันทึกค่าใช้จ่ายซ้ำเป็นรายจ่าย ให้สรุปรายเดือนโชว์สมาชิกที่คุณยังจ่ายอยู่โดยไม่รู้ตัว"
+          "title": "จับอาการล้าสมาชิก",
+          "body": "บันทึกค่าตัดอัตโนมัติเป็นรายจ่าย — สรุปประจำเดือนจะเผยว่าคุณกำลังเลี้ยงแอปอยู่กี่ตัวโดยไม่รู้ตัว สร้างกำแพงไฟรายจ่าย แล้วกำจัดสมาชิกปรสิตทิ้ง"
         },
         {
-          "title": "ความเป็นส่วนตัวเป็นค่าเริ่มต้น",
-          "body": "ใช้แบบออฟไลน์ได้ ข้อมูลเก็บในเครื่อง"
+          "title": "ความเป็นส่วนตัวมาก่อน เก็บในเครื่อง",
+          "body": "ใช้ออฟไลน์ได้ ข้อมูลอยู่ในเครื่องของคุณเท่านั้น เริ่มได้โดยไม่ต้องมีบัญชี ส่งออกสำรองเป็นสเปรดชีตได้ตลอด แก้ไขหรือลบทุกรายการได้ — คุณคุมเอง"
         },
         {
-          "title": "สถิติเรียบง่าย",
-          "body": "รายวัน สัปดาห์ เดือน หรือปี — รูปแบบการใช้จ่ายเห็นชัดในพริบตา"
+          "title": "สามขั้น ทวงคืนอำนาจการเงิน",
+          "body": "1. จดใน 3 วิ: ใส่จำนวนเงินกับคำอธิบาย แตะรายจ่ายหรือรายรับ 2. เห็นรอยรั่ว: หน้าบัญชีแสดงยอดสุทธิ — รายจ่ายผีไม่มีที่ซ่อน 3. ส่องสมาชิกกับรายจ่าย: เปิดหน้าสถิติ ดูรายวันหรือรายเดือน กรองสัปดาห์นี้หรือเดือนนี้ เรียงตามจำนวนเงินหรือเวลา"
         },
         {
-          "title": "โหมดมืด",
-          "body": "ตามระบบ ใช้ง่ายตอนกลางคืน"
+          "title": "เริ่มฟรี พร้อมเมื่อไรค่อยซิงก์",
+          "body": "ฟรี: เก็บในเครื่องได้สูงสุด 500 รายการ จดรายจ่ายรายรับ สถิติพร้อมตัวกรองและการเรียง ส่งออกสเปรดชีต โหมดมืด ไม่ต้องล็อกอิน Pro: พื้นที่คลาวด์ไม่จำกัด ดันข้อมูลในเครื่องขึ้นคลาวด์ กู้คืนจากคลาวด์ เปลี่ยนเครื่องข้อมูลไม่หาย ล็อกอิน Apple แบบเลือกได้ กู้คืนการซื้อ"
         },
         {
-          "title": "Pro เสริม",
-          "body": "ปลดล็อกซิงก์คลาวด์ สำรองสมุดบัญชี และเก็บไว้เมื่อเปลี่ยนมือถือ"
+          "title": "เร็ว ๆ นี้",
+          "body": "สแกนใบเสร็จพร้อม OCR ส่งออก PDF เทมเพลตสเปรดชีต การจัดหมวดที่ฉลาดขึ้น"
         }
       ],
       "shots": "en"
@@ -550,37 +550,37 @@
       "asc": "tr",
       "label": "Türkçe",
       "name": "Siyah Beyaz Muhasebe",
-      "subtitle": "Sürtünmesiz harcama takibi",
-      "promo": "Büyük alışveriş yok ama bakiye düştü? Her harcamayı üç saniyede kaydet. Sade, özel, rahatsız etmez.",
-      "hook": "Para nereye gitti?",
+      "subtitle": "Hayalet harcamaları yakala",
+      "promo": "Büyük alışveriş yok ama bakiye düşük? Bubble tea, kargo, küçük abonelikler — suçlu hayalet harcamalar. 3 saniyede kaydet, hayatına devam et.",
+      "hook": "Büyük bir şey almadın — peki para nereye gitti?",
       "features": [
         {
-          "title": "Sürtünmesiz kayıt",
-          "body": "Tutar, açıklama, bitti — yaklaşık üç saniyede. Karmaşık kategoriler yok, rahatsız edici hatırlatmalar yok, açar açmaz kapatmak istediğiniz ekran yok."
+          "title": "HAYALET HARCAMALARI İZLE",
+          "body": "Bubble tea, paket servis, küçük abonelikler — hayalet harcamalar sandığından çok daha fazla tutuyor. Her birini kaydet; istatistik sayfası bu ay sessizce ne kadar sızdığını göstersin."
         },
         {
-          "title": "Fark etmediğin harcamaları yakala",
-          "body": "Küçük alışverişler en kolay gözden kaçar. Kaydet ve bu ay sessizce ne kadar sızdığını gör."
+          "title": "SÜRTÜNMESİZ KAYIT",
+          "body": "Tutar, açıklama, bitti — yaklaşık üç saniyede. Karmaşık kategoriler yok, bıktıran hatırlatmalar yok, açar açmaz kapatmak istediğin ekran yok. Kaydet ve devam et — hayatın bölünmesin."
         },
         {
-          "title": "Abonelik tuzağı",
-          "body": "Tekrarlayan ücretleri gider olarak yaz; aylık özet, hâlâ ödediğin abonelikleri ortaya çıkarır."
+          "title": "ABONELİK YORGUNLUĞUNU YAKALA",
+          "body": "Tekrarlayan ödemeleri gider olarak yaz; aylık özet, farkında olmadan kaç uygulamayı beslediğini ortaya çıkarır. Harcama güvenlik duvarını kur, parazit abonelikleri temizle."
         },
         {
-          "title": "Varsayılan olarak özel",
-          "body": "Çevrimdışı çalışır. Verilerin cihazda kalır."
+          "title": "ÖNCE GİZLİLİK, VERİLER CİHAZINDA",
+          "body": "Çevrimdışı çalışır. Verilerin cihazında kalır. Hesapsız başla, istediğin an tablo yedeği dışa aktar, her kaydı düzenle veya sil — kontrol sende."
         },
         {
-          "title": "Basit istatistikler",
-          "body": "Gün, hafta, ay veya yıl — harcama alışkanlıkların bir bakışta."
+          "title": "KONTROLÜ GERİ ALMANIN ÜÇ ADIMI",
+          "body": "1. 3 saniyede kaydet: tutar ve açıklama gir, Gider veya Gelir'e dokun. 2. Sızıntıları gör: defter net toplamı gösterir — hayalet harcamaların saklanacak yeri yok. 3. Abonelikleri ve harcamaları incele: İstatistik'e geç, güne veya aya göre bak, bu hafta ya da bu ay filtrele, tutara veya zamana göre sırala."
         },
         {
-          "title": "Karanlık mod",
-          "body": "Sistem görünümünü izler; geceleri göz yormaz."
+          "title": "ÜCRETSİZ BAŞLA, HAZIR OLUNCA SENKRONİZE ET",
+          "body": "Ücretsiz: cihazda 500 kayda kadar, gider ve gelir kaydı, filtre ve sıralamalı istatistik, tablo dışa aktarma, karanlık mod, giriş gerekmez. Pro: sınırsız bulut depolama, yerel kayıtları buluta gönderme, buluttan geri yükleme, telefon değişiminde defterin korunması, isteğe bağlı Apple girişi, satın alımları geri yükleme."
         },
         {
-          "title": "İsteğe bağlı Pro",
-          "body": "Bulut senkronu ile defterini yedekle, telefon değiştirince de koru."
+          "title": "ÇOK YAKINDA",
+          "body": "OCR ile fiş tarama, PDF dışa aktarma, tablo şablonları, daha akıllı kategorilendirme."
         }
       ],
       "shots": "en"
@@ -589,37 +589,37 @@
       "asc": "pl",
       "label": "Polski",
       "name": "Czarno-białe finanse",
-      "subtitle": "Wydatki bez tarcia",
-      "promo": "Bez dużych zakupów, a saldo spada? Zapisz wydatek w trzy sekundy. Minimalnie, prywatnie, bez nękania.",
-      "hook": "Gdzie podziały się pieniądze?",
+      "subtitle": "Złap wydatki-widma w 3 sek.",
+      "promo": "Bez dużych zakupów, a saldo spada? Bubble tea, dostawy, drobne subskrypcje — winne są wydatki-widma. Zapisz w 3 sekundy i żyj dalej.",
+      "hook": "Nie szastałeś pieniędzmi — to gdzie się podziały?",
       "features": [
         {
-          "title": "Zapis bez tarcia",
-          "body": "Kwota, opis, gotowe — w około trzy sekundy. Bez skomplikowanych kategorii, bez natrętnych przypomnień, bez ekranu, który chcesz zamknąć zaraz po otwarciu."
+          "title": "TROP WYDATKI-WIDMA",
+          "body": "Bubble tea, dostawy, drobne subskrypcje — wydatki-widma sumują się do znacznie większych kwot, niż myślisz. Zapisuj każdy, a strona statystyk pokaże, ile cicho wyciekło w tym miesiącu."
         },
         {
-          "title": "Złap to, czego nie zauważasz",
-          "body": "Małe zakupy najłatwiej przeoczyć. Zapisz je i zobacz, ile w tym miesiącu cicho „wyciekało”."
+          "title": "ZAPIS BEZ TARCIA",
+          "body": "Kwota, opis, gotowe — w około trzy sekundy. Bez skomplikowanych kategorii, bez natrętnych przypomnień, bez zagraconego ekranu, który chcesz zamknąć zaraz po otwarciu. Zapisz i idź dalej — życie bez przerw."
         },
         {
-          "title": "Pułapka subskrypcji",
-          "body": "Zapisuj cykliczne opłaty jako wydatki — miesięczne podsumowanie pokaże subskrypcje, które wciąż płaciłeś."
+          "title": "WYŁAP ZMĘCZENIE SUBSKRYPCJAMI",
+          "body": "Zapisuj cykliczne opłaty jako wydatki — miesięczne podsumowanie pokaże, ile aplikacji po cichu karmisz. Postaw zaporę wydatków i pozbądź się subskrypcji-pasożytów."
         },
         {
-          "title": "Prywatność domyślnie",
-          "body": "Działa offline. Dane zostają na urządzeniu."
+          "title": "PRYWATNOŚĆ PRZEDE WSZYSTKIM, DANE NA URZĄDZENIU",
+          "body": "Działa offline. Dane zostają na Twoim urządzeniu. Zacznij bez konta, w każdej chwili wyeksportuj kopię do arkusza, edytuj lub usuwaj wpisy — kontrola należy do Ciebie."
         },
         {
-          "title": "Proste statystyki",
-          "body": "Dzień, tydzień, miesiąc lub rok — wzorce wydatków w jednym rzucie oka."
+          "title": "TRZY KROKI, BY ODZYSKAĆ KONTROLĘ",
+          "body": "1. Zapisz w 3 sekundy: podaj kwotę i opis, stuknij Wydatek lub Przychód. 2. Zobacz wycieki: księga pokazuje sumę netto — wydatki-widma nie mają się gdzie schować. 3. Przejrzyj subskrypcje i wydatki: przejdź do Statystyk, oglądaj dziennie lub miesięcznie, filtruj ten tydzień albo miesiąc, sortuj według kwoty lub czasu."
         },
         {
-          "title": "Tryb ciemny",
-          "body": "Podąża za wyglądem systemu; wygodny w nocy."
+          "title": "ZACZNIJ ZA DARMO, SYNCHRONIZUJ, GDY BĘDZIESZ GOTOWY",
+          "body": "Za darmo: do 500 wpisów na urządzeniu, zapis wydatków i przychodów, statystyki z filtrami i sortowaniem, eksport do arkusza, tryb ciemny, bez logowania. Pro: nielimitowany magazyn w chmurze, wysyłka lokalnych wpisów do chmury, przywracanie z chmury, księga zachowana przy zmianie telefonu, opcjonalne logowanie Apple, przywracanie zakupów."
         },
         {
-          "title": "Opcjonalne Pro",
-          "body": "Odblokuj synchronizację w chmurze, by zrobić kopię księgi i zachować ją przy zmianie telefonu."
+          "title": "WKRÓTCE",
+          "body": "Skanowanie paragonów z OCR, eksport PDF, szablony arkuszy, mądrzejsza kategoryzacja."
         }
       ],
       "shots": "en"

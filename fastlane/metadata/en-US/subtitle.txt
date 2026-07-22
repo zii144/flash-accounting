@@ -1,1 +1,1 @@
-Frictionless expense tracker
+Spot ghost spending in seconds

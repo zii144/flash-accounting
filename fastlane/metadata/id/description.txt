@@ -1,35 +1,34 @@
-Uang pergi ke mana?
+Tidak belanja besar — lalu uangnya ke mana?
 
-Tidak ada belanja besar bulan ini, tapi saldo tetap menyusut. Kopi, pengantaran, dan langganan yang diperpanjang otomatis — biaya kecil yang mudah dilupakan bertambah jauh lebih besar dari dugaanmu.
+Camilan yang diambil di dekat kasir, ongkir Rp15.000, tarif ojol yang naik saat hujan, dan langganan iCloud Rp49.000 sebulan yang diam-diam terpotong selama tiga tahun: kebocoran kecil tak terlihat inilah — bukan belanja besar — yang bikin saldomu terus menipis.
 
-Akuntansi Hitam Putih dibuat untuk orang yang benci aplikasi pengeluaran biasa.
+Akuntansi Hitam Putih dibangun dari dua ide: pelacakan pengeluaran hantu dan pencatatan tanpa ribet. Dibuat untuk kamu yang sudah bosan dengan aplikasi pencatat keuangan biasa.
 
-Mengapa Akuntansi Hitam Putih?
+LACAK PENGELUARAN HANTU
+Boba, ongkir, langganan kecil-kecilan — pengeluaran hantu kalau dijumlah jauh lebih besar dari dugaanmu. Catat satu per satu, dan halaman statistik menunjukkan berapa banyak yang diam-diam bocor bulan ini.
 
-Pencatatan tanpa gesekan
-Jumlah, deskripsi, selesai — sekitar tiga detik. Tanpa kategori rumit, tanpa pengingat mengganggu, tanpa layar yang ingin langsung ditutup.
+CATAT TANPA RIBET
+Masukkan nominal, tulis keterangan, selesai — cuma sekitar tiga detik. Tanpa kategori rumit, tanpa pengingat cerewet, tanpa tampilan penuh sesak yang bikin ingin langsung keluar. Catat lalu lanjut — hidupmu tidak terganggu.
 
-Tangkap yang tak sempat kamu sadari
-Belanja kecil paling mudah terlewat. Catat dan lihat berapa yang diam-diam bocor bulan ini.
+BONGKAR LANGGANAN YANG MENUMPUK
+Catat tagihan berulang sebagai pengeluaran — ringkasan bulanan mengungkap berapa banyak aplikasi yang diam-diam kamu hidupi. Bangun benteng pengeluaranmu dan singkirkan langganan parasit.
 
-Jebakan langganan
-Catat tagihan berulang sebagai pengeluaran — ringkasan bulanan menampilkan langganan yang masih kamu bayar tanpa sadar.
+PRIVASI NOMOR SATU, DATA DI PERANGKATMU
+Bisa dipakai offline. Datamu tetap di perangkatmu. Mulai tanpa akun, ekspor cadangan ke spreadsheet kapan saja, ubah atau hapus catatan apa pun — kendali penuh di tanganmu.
 
-Privat secara bawaan
-Bisa offline. Datamu disimpan di perangkat.
+TIGA LANGKAH AMBIL KEMBALI KENDALI
+1. Catat dalam 3 detik: masukkan nominal dan keterangan, ketuk Pengeluaran atau Pemasukan.
+2. Lihat kebocorannya: buku catatan menampilkan total bersih — pengeluaran hantu tak bisa sembunyi lagi.
+3. Tinjau langganan dan pengeluaran: buka Statistik, lihat per hari atau per bulan, saring minggu ini atau bulan ini, urutkan berdasarkan nominal atau waktu.
 
-Statistik sederhana
-Per hari, minggu, bulan, atau tahun — pola belanja sekilas.
+MULAI GRATIS, SINKRONKAN SAAT SIAP
+Gratis: hingga 500 catatan di perangkat, pencatatan pengeluaran dan pemasukan, statistik dengan filter dan pengurutan, ekspor spreadsheet, mode gelap, tanpa login.
+Pro: penyimpanan cloud tanpa batas, unggah catatan lokal ke cloud, pulihkan dari cloud, data aman saat ganti ponsel, login Apple opsional, pulihkan pembelian.
 
-Mode gelap
-Mengikuti tampilan sistem, nyaman di malam hari.
+16 BAHASA
+繁體中文、English、日本語、한국어、Español、Français、Deutsch、Italiano、Português、Русский、हिन्दी、Bahasa Indonesia、Tiếng Việt、ไทย、Türkçe、Polski
 
-Pro opsional
-Buka sinkronisasi cloud untuk cadangkan buku dan tetap aman saat ganti ponsel.
+SEGERA HADIR
+Pindai struk dengan OCR, ekspor PDF, templat spreadsheet, kategorisasi yang lebih cerdas.
 
-16 bahasa
-English, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Italiano, Português, Русский, हिन्दी, Bahasa Indonesia, Tiếng Việt, ไทย, Türkçe, Polski
-
-Ambil kembali kendali uangmu — mulai dari melihat setiap pengeluaran yang biasanya terlewat.
-
-Unduh Akuntansi Hitam Putih dan mulai perhatikan ke mana uangmu benar-benar pergi.
+Siap ambil kembali kendali uangmu? Mulailah dengan melihat setiap pengeluaran yang biasanya terlewat. Unduh Akuntansi Hitam Putih, catat transaksi pertamamu dalam tiga detik, dan tangkap semua hantunya.

@@ -1,35 +1,34 @@
-Gdzie podziały się pieniądze?
+Wielkich zakupów nie było — to gdzie się podziały pieniądze?
 
-W tym miesiącu bez dużych zakupów, a saldo i tak spadło. Kawy, dostawy i automatycznie odnawiane subskrypcje — te drobne, łatwe do zapomnienia kwoty sumują się mocniej, niż myślisz.
+Batonik przy kasie, 12 zł za dostawę, hulajnoga na minuty, bo uciekł ci autobus, i plan iCloud za 4,99 zł, cicho pobierany od trzech lat: to właśnie te niewidzialne wycieki pieniędzy — a nie wielkie zakupy — sprawiają, że saldo wciąż topnieje.
 
-Czarno-białe finanse powstały dla osób, które nienawidzą klasycznych aplikacji do wydatków.
+Czarno-białe finanse opierają się na dwóch pomysłach: tropieniu wydatków-widm i zapisie bez wysiłku. Dla tych, którzy nie znoszą tradycyjnych aplikacji do śledzenia wydatków.
 
-Dlaczego Czarno-białe finanse?
+TROP WYDATKI-WIDMA
+Kawa na wynos, dostawy, drobne subskrypcje — wydatki-widma urastają do znacznie większych kwot, niż myślisz. Zapisuj każdy, a strona statystyk pokaże, ile cicho wyciekło w tym miesiącu.
 
-Zapis bez tarcia
-Kwota, opis, gotowe — w około trzy sekundy. Bez skomplikowanych kategorii, bez natrętnych przypomnień, bez ekranu, który chcesz zamknąć zaraz po otwarciu.
+ZAPIS BEZ WYSIŁKU
+Kwota, opis, gotowe — w jakieś trzy sekundy. Bez skomplikowanych kategorii, bez natrętnych przypomnień, bez zagraconego ekranu, który chcesz zamknąć zaraz po otwarciu. Zapisz i wracaj do swoich spraw.
 
-Złap to, czego nie zauważasz
-Małe zakupy najłatwiej przeoczyć. Zapisz je i zobacz, ile w tym miesiącu cicho „wyciekało”.
+OGARNIJ SUBSKRYPCJE
+Zapisuj cykliczne opłaty jako wydatki — miesięczne podsumowanie pokaże, ile aplikacji po cichu karmisz. Postaw zaporę dla zbędnych wydatków i pozbądź się subskrypcji-pasożytów.
 
-Pułapka subskrypcji
-Zapisuj cykliczne opłaty jako wydatki — miesięczne podsumowanie pokaże subskrypcje, które wciąż płaciłeś.
+PRYWATNOŚĆ PRZEDE WSZYSTKIM, DANE NA URZĄDZENIU
+Działa offline. Dane zostają na Twoim urządzeniu. Zacznij bez konta, w każdej chwili wyeksportuj kopię do arkusza, edytuj lub usuwaj wpisy — kontrola należy do Ciebie.
 
-Prywatność domyślnie
-Działa offline. Dane zostają na urządzeniu.
+TRZY KROKI, BY ODZYSKAĆ KONTROLĘ
+1. Zapisz w 3 sekundy: podaj kwotę i opis, stuknij Wydatek lub Przychód.
+2. Zobacz wycieki: księga pokazuje sumę netto — wydatki-widma nie mają się gdzie schować.
+3. Przejrzyj subskrypcje i wydatki: wejdź w Statystyki, oglądaj dziennie lub miesięcznie, filtruj według tygodnia lub miesiąca, sortuj według kwoty lub czasu.
 
-Proste statystyki
-Dzień, tydzień, miesiąc lub rok — wzorce wydatków w jednym rzucie oka.
+ZACZNIJ ZA DARMO, SYNCHRONIZUJ, KIEDY ZECHCESZ
+Za darmo: do 500 wpisów na urządzeniu, zapis wydatków i przychodów, statystyki z filtrami i sortowaniem, eksport do arkusza, tryb ciemny, bez logowania.
+Pro: nielimitowana przestrzeń w chmurze, wysyłka lokalnych wpisów do chmury, przywracanie z chmury, dane zachowane przy zmianie telefonu, opcjonalne logowanie przez Apple, przywracanie zakupów.
 
-Tryb ciemny
-Podąża za wyglądem systemu; wygodny w nocy.
+16 JĘZYKÓW
+繁體中文、English、日本語、한국어、Español、Français、Deutsch、Italiano、Português、Русский、हिन्दी、Bahasa Indonesia、Tiếng Việt、ไทย、Türkçe、Polski
 
-Opcjonalne Pro
-Odblokuj synchronizację w chmurze, by zrobić kopię księgi i zachować ją przy zmianie telefonu.
+WKRÓTCE
+Skanowanie paragonów z OCR, eksport do PDF, szablony arkuszy, inteligentniejsze kategorie.
 
-16 języków
-English, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Italiano, Português, Русский, हिन्दी, Bahasa Indonesia, Tiếng Việt, ไทย, Türkçe, Polski
-
-Odzyskaj kontrolę nad pieniędzmi — zaczynając od wydatków, które zwykle umykają.
-
-Pobierz Czarno-białe finanse i zacznij zauważać, dokąd naprawdę idą twoje pieniądze.
+Chcesz odzyskać kontrolę nad pieniędzmi? Zacznij od zobaczenia każdego wydatku, który zwykle ci umyka. Pobierz Czarno-białe finanse, zrób pierwszy wpis w trzy sekundy i złap wszystkie widma.
