@@ -31,7 +31,8 @@ local pipeline below.
   `DEVELOPMENT_TEAM=8KKMD5SMNP`, `PRODUCT_BUNDLE_IDENTIFIER=com.zii.flash.accounting`. Requires `.env` present.
 - **upload** — `xcodebuild -exportArchive` with `ExportOptions.plist` + `-allowProvisioningUpdates` → App Store Connect / TestFlight.
 - **testflight** — `check` (unless `SKIP_CHECKS=1`) → `archive` → `upload` (unless `SKIP_UPLOAD=1`).
-- **metadata** — guards (fastlane installed, metadata + ASC key exist, aborts if any `REPLACE_ME` placeholder remains) → `fastlane deliver` (`--force` when `FORCE=1`).
+- **metadata** — text-metadata only: guards (fastlane installed, metadata + ASC key exist, aborts if any `REPLACE_ME` placeholder remains) → `fastlane deliver` with `skip_binary_upload`/`skip_screenshots` (`--force` when `FORCE=1`).
+- **screenshots** — screenshots only (commit `31cd206`): runs `node scripts/gen-appstore-screenshots.mjs` to (re)build the deliver screenshot tree, verifies PNGs exist, then `fastlane deliver --skip_binary_upload true --skip_metadata true --skip_screenshots false --overwrite_screenshots true` (`--force` when `FORCE=1`). Deliberately split from **metadata** so a copy tweak never re-uploads the whole gallery, and vice-versa. See [13](13-external-tooling.md) for the generator.
 - **open** — `xed ios`.
 
 **Versioning model**: marketing version from `app.json` `expo.version`; build number from `app.json`
@@ -96,14 +97,22 @@ npm run release:ios:archive     # local Release .xcarchive
 npm run release:ios:upload      # export + upload to App Store Connect
 npm run release:ios:testflight  # check → archive → upload (full local pipeline)
 npm run release:ios:metadata    # fastlane deliver (text metadata, 16 locales)
+npm run release:ios:screenshots # gen-appstore-screenshots.mjs + fastlane deliver (screenshots only)
 npm run build:android:prod      # EAS Android production build
 npm run submit:android:prod     # EAS Android submit
 ```
 
-## Security finding (surfaced, not acted on)
+## Secrets handling (updated 2026-07-22)
 
-`fastlane/asc_api_key.json` appears **populated with real credentials** (key_id `Z55AUGKZFF`, issuer_id) and a real
-App Store Connect signing key **`fastlane/AuthKey_Z55AUGKZFF.p8` is committed to the repo**, even though the
-Deliverfile/README describe the JSON as git-ignored. An App Store Connect `.p8` can only be downloaded once from
-Apple. Also, the iOS `DEVELOPMENT_TEAM 8KKMD5SMNP` is hardcoded in `release-ios.sh`. These should be rotated and
-removed from history. See [15](15-roadmap-and-caveats.md).
+The App Store Connect API credentials — `fastlane/asc_api_key.json` (key_id `Z55AUGKZFF`, issuer_id) and the signing
+key `fastlane/AuthKey_Z55AUGKZFF.p8` — exist **only as local, untracked files** (`.p8` at mode `0600`). They are
+git-ignored (`.gitignore`: `*.p8`, `fastlane/AuthKey_*.p8`, `fastlane/asc_api_key.json`) and **absent from git
+history** (`git log --all -- <path>` returns nothing); only `fastlane/asc_api_key.example.json` is tracked. This
+supersedes the v1.0.0 finding, which reported the `.p8` as committed to the repo — it is not committed in the current
+tree or history.
+
+- **Still true / lower severity:** the iOS `DEVELOPMENT_TEAM 8KKMD5SMNP` (and the ASC `key_id`/`issuer_id`) are
+  hardcoded in `scripts/release-ios.sh`. These are identifiers, not secrets, but are worth parameterizing.
+- **Residual caution:** if the `.p8` was ever pushed to a remote before the current ignore rules landed, rotating the
+  key in App Store Connect remains prudent (a `.p8` can be downloaded only once from Apple). Verify remote history
+  independently before assuming it never leaked. See [15](15-roadmap-and-caveats.md).
